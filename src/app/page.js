@@ -343,10 +343,12 @@ export default function Home() {
           >
             {events.map((event, idx) => (
               <SwiperSlide key={idx}>
-                <EventCard
-                  event={event}
-                  onClick={() => setSelectedEvent(event)}
-                />
+                <div className="flex justify-center">
+    <EventCard
+      event={event}
+      onClick={() => setSelectedEvent(event)}
+    />
+  </div>
               </SwiperSlide>
             ))}
           </Swiper>
