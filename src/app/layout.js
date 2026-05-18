@@ -8,6 +8,7 @@ import { Toaster } from "react-hot-toast";
 import Footer from "@/components/footer";
 import Cart from "@/components/Cart";
 import Head from "next/head"; // ✅ import this
+import { Analytics } from "@vercel/analytics/next";
 
 export default function RootLayout({ children }) {
   return (
@@ -34,6 +35,7 @@ export default function RootLayout({ children }) {
             <Footer />
           </CartProvider>
         </AuthUserProvider>
+        <Analytics />
       </body>
     </html>
   );
