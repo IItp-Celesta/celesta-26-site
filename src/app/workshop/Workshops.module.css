@@ -1,25 +1,27 @@
 .background {
   min-height: 100vh;
-  background-image: url('/images/auth-backdrop.png');
+  /* Dark purple-to-black gradient fade if background image fails to load */
+  background-image: linear-gradient(to bottom, rgba(15, 10, 25, 0.9), rgba(5, 2, 10, 0.95)), url('/images/auth-backdrop.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
+  background-color: #090514;
 }
 
-/* === CYBER CARD DESIGN (Adapted for Workshops) === */
+/* === DARK PURPLE CARD DESIGN === */
 
 /* Wrapper for the card structure */
 .eventCardWrapper {
   position: relative;
   width: 320px;
   height: 450px;
-  filter: drop-shadow(0 0 5px rgba(0, 224, 255, 0.4));
+  filter: drop-shadow(0 0 5px rgba(124, 58, 237, 0.3));
   transition: all 0.3s ease;
 }
 
 .eventCardWrapper:hover {
-  filter: drop-shadow(0 0 15px rgba(0, 224, 255, 0.8));
+  filter: drop-shadow(0 0 15px rgba(167, 139, 250, 0.6));
   transform: translateY(-5px);
 }
 
@@ -27,7 +29,8 @@
 .eventCardBorder {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #00e0ff 0%, #222 30%, #222 70%, #007bff 100%);
+  /* Shifted gradient to rich purples, magentas, and deep obsidian */
+  background: linear-gradient(135deg, #7c3aed 0%, #1e1135 30%, #0c0714 70%, #4c1d95 100%);
   clip-path: polygon(30px 0, 100% 0,
       100% calc(100% - 30px),
       calc(100% - 30px) 100%,
@@ -40,7 +43,8 @@
 .eventCardContent {
   width: 100%;
   height: 100%;
-  background: #111;
+  background: #090514;
+  /* Deep velvet blackish-purple */
   clip-path: polygon(30px 0, 100% 0,
       100% calc(100% - 30px),
       calc(100% - 30px) 100%,
@@ -51,7 +55,7 @@
   position: relative;
 }
 
-/* Top Left Blue Decor */
+/* Top Left Velvet Purple Decor */
 .eventCardContent::before {
   content: "";
   position: absolute;
@@ -59,13 +63,13 @@
   left: 0;
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #00e0ff 0%, transparent 40%);
+  background: linear-gradient(135deg, #7c3aed 0%, transparent 40%);
   z-index: 2;
-  opacity: 0.9;
+  opacity: 0.8;
   pointer-events: none;
 }
 
-/* Bottom Right Blue Decor */
+/* Bottom Right Deep Purple Decor */
 .eventCardContent::after {
   content: "";
   position: absolute;
@@ -73,9 +77,9 @@
   right: 0;
   width: 100px;
   height: 80px;
-  background: linear-gradient(135deg, transparent 40%, #00e0ff 100%);
+  background: linear-gradient(135deg, transparent 40%, #4c1d95 100%);
   z-index: 2;
-  opacity: 0.9;
+  opacity: 0.8;
   pointer-events: none;
 }
 
@@ -83,7 +87,6 @@
 .eventImageContainer {
   width: 100%;
   height: 65%;
-  /* Adjust height */
   position: relative;
   overflow: hidden;
 }
@@ -102,7 +105,7 @@
 .eventImageOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 50%, rgba(17, 17, 17, 0.9) 90%, #111 100%);
+  background: linear-gradient(to bottom, transparent 50%, rgba(9, 5, 20, 0.9) 90%, #090514 100%);
   z-index: 1;
 }
 
@@ -110,7 +113,6 @@
 .eventInfo {
   position: absolute;
   bottom: 80px;
-  /* Moved up to make room for button */
   left: 20px;
   right: 20px;
   z-index: 10;
@@ -123,13 +125,13 @@
   font-weight: 900;
   text-transform: uppercase;
   color: #fff;
-  line-height: 1;
-  text-shadow: 2px 2px 0px rgba(0, 224, 255, 0.5);
+  line-height: 1.1;
+  text-shadow: 2px 2px 0px rgba(124, 58, 237, 0.5);
   margin-bottom: 8px;
   letter-spacing: 1px;
 }
 
-/* Register Button Area */
+/* Register/View Button Area */
 .registerButtonContainer {
   position: absolute;
   bottom: 25px;
@@ -138,8 +140,8 @@
 }
 
 .registerButton {
-  background: rgba(0, 224, 255, 0.2);
-  border: 1px solid #00e0ff;
+  background: rgba(124, 58, 237, 0.2);
+  border: 1px solid #7c3aed;
   color: #fff;
   padding: 8px 16px;
   font-family: 'Orbitron', sans-serif;
@@ -155,7 +157,7 @@
 }
 
 .registerButton:hover {
-  background: #00e0ff;
-  box-shadow: 0 0 15px rgba(0, 224, 255, 0.6);
+  background: #7c3aed;
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.6);
   transform: translateY(-2px);
 }
