@@ -1,33 +1,60 @@
 import { NextResponse } from "next/server";
 import { adminFirestore } from "@/lib/firebaseAdmin";
 
+const ALLOWED_COLLECTIONS = ["workshop_registrations"];
+
 export async function GET(request) {
   try {
+    const authHeader = request.headers.get("authorization");
+    const secretKey = process.env.ADMIN_PASSWORD;
+
+    if (!authHeader) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    const base64Credentials = authHeader.split(" ")[1];
+    const credentials = Buffer.from(base64Credentials, "base64").toString(
+      "ascii",
+    );
+    const [username, password] = credentials.split(":");
+
+    // Verify Password
+    if (password !== secretKey) {
+      return new NextResponse("Invalid Secret Key", { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
-    const collectionName = searchParams.get("collection") || "workshop_registrations";
+    const collectionName =
+      searchParams.get("collection") || "workshop_registrations";
+
+    if (!ALLOWED_COLLECTIONS.includes(collectionName)) {
+      return NextResponse.json(
+        { error: "Invalid collection" },
+        { status: 403 },
+      );
+    }
 
     const snapshot = await adminFirestore.collection(collectionName).get();
-    
+
     if (snapshot.empty) {
       return NextResponse.json({ message: "No data found" }, { status: 404 });
     }
 
     const data = [];
-    const headerSet = new Set(); // Use a Set to collect ALL possible columns
+    const headerSet = new Set(["id"]); 
 
-    // 1. Process documents and format Timestamps
     snapshot.forEach((doc) => {
       const rawData = doc.data();
       const processedRow = { id: doc.id };
-      headerSet.add("id"); // Ensure 'id' is always the first column
 
       for (const [key, value] of Object.entries(rawData)) {
-        headerSet.add(key); // Add every key we find to our columns list
-
-        // Check if the value is a Firebase Timestamp (it will have a .toDate() function)
-        if (value && typeof value.toDate === 'function') {
-          // Convert Firebase Timestamp to a readable local date/time string
-          processedRow[key] = value.toDate().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+        headerSet.add(key);
+        if (value && typeof value.toDate === "function") {
+          processedRow[key] = value
+            .toDate()
+            .toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+        } else if (typeof value === "object" && value !== null) {
+          processedRow[key] = JSON.stringify(value);
         } else {
           processedRow[key] = value;
         }
@@ -35,38 +62,29 @@ export async function GET(request) {
       data.push(processedRow);
     });
 
-    // Convert Set to Array for our CSV headers
     const headers = Array.from(headerSet);
-    const csvRows = [];
-    
-    // Add the header row
-    csvRows.push(headers.join(","));
+    const csvRows = [headers.join(",")];
 
-    // 2. Map the data to the correct columns
     for (const row of data) {
-      const values = headers.map(header => {
-        // If a user is missing a specific field (like dob), leave it blank
-        const val = row[header] !== undefined && row[header] !== null ? row[header] : "";
-        
-        // Escape standard text for Excel compatibility
-        const escaped = String(val).replace(/"/g, '""'); 
-        return `"${escaped}"`;
+      const values = headers.map((header) => {
+        const val = row[header] ?? "";
+        return `"${String(val).replace(/"/g, '""')}"`;
       });
       csvRows.push(values.join(","));
     }
 
-    const csvString = csvRows.join("\n");
-
-    return new NextResponse(csvString, {
+    return new NextResponse(csvRows.join("\n"), {
       status: 200,
       headers: {
         "Content-Type": "text/csv",
         "Content-Disposition": `attachment; filename="${collectionName}_export.csv"`,
       },
     });
-
   } catch (error) {
     console.error("Export Error:", error);
-    return NextResponse.json({ error: "Failed to export data" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to export data" },
+      { status: 500 },
+    );
   }
 }

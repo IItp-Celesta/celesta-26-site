@@ -12,11 +12,9 @@ export async function POST(request) {
       );
     }
 
-    // 1. Strip the "data:image/png;base64," prefix
     const cleanBase64 = data.screenshot.split(",")[1];
     const mimeType = data.screenshot.split(";")[0].split(":")[1];
 
-    // 2. Send the image text to your Google Drive API
     const driveRes = await fetch(
       "https://script.google.com/macros/s/AKfycbyFXQuobqvP1R-8d_w-1dEYo9QIvqEk7cYfxTT2LWxyuyIAxpvdp19El7hz-kDrluE/exec",
       {
@@ -52,7 +50,6 @@ export async function POST(request) {
       hour12: true,
     });
 
-    // 3. Save to Firebase
     const registrationId = `WS2026-${Math.floor(
       10000 + Math.random() * 90000,
     )}`;
@@ -73,8 +70,6 @@ export async function POST(request) {
         requireAccommodation: data.requireAccommodation === "yes",
         amountPaid: Number(data.amountPaid) || 0,
         upiId: data.upiId || "",
-
-        // Use the parsed View URL and clean timestamp
         screenshotUrl: viewUrl,
         registrationTime: cleanTime,
       });

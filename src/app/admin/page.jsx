@@ -7,7 +7,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
 
-  // List of all your Firebase collections
+  // List of all Firebase collections
   const collections = [
     { id: "workshop_registrations", name: "Workshop Registrations" },
     { id: "contact_messages", name: "Contact Form Messages" },
@@ -20,26 +20,24 @@ export default function AdminDashboard() {
     setStatus({ type: "", message: "" });
 
     try {
-      // 1. Call the API route we created earlier
-      const response = await fetch(`/api/admin/export?collection=${collection}`);
+      const response = await fetch(
+        `/api/admin/export?collection=${collection}`,
+      );
 
       if (!response.ok) {
         throw new Error("Failed to export data or collection is empty.");
       }
 
-      // 2. Convert the response into a downloadable Blob
       const blob = await response.blob();
-      
-      // 3. Create a temporary hidden link in the browser to force the download
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = downloadUrl;
-      link.download = `${collection}_export_${new Date().toISOString().split('T')[0]}.csv`;
-      
+      link.download = `${collection}_export_${
+        new Date().toISOString().split("T")[0]
+      }.csv`;
+
       document.body.appendChild(link);
       link.click();
-      
-      // 4. Clean up the temporary link
       document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
 
@@ -55,7 +53,6 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6 text-white font-sans">
       <div className="w-full max-w-lg bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
-        
         <div className="text-center mb-8">
           <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 tracking-widest uppercase mb-2">
             Admin Terminal
@@ -93,16 +90,33 @@ export default function AdminDashboard() {
             onClick={handleExport}
             disabled={loading}
             className={`w-full py-4 rounded-xl font-bold uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-3
-              ${loading 
-                ? "bg-gray-800 text-gray-500 cursor-not-allowed border border-white/10" 
-                : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_10px_25px_-5px_rgba(14,165,233,0.4)] hover:-translate-y-1"
+              ${
+                loading
+                  ? "bg-gray-800 text-gray-500 cursor-not-allowed border border-white/10"
+                  : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_10px_25px_-5px_rgba(14,165,233,0.4)] hover:-translate-y-1"
               }`}
           >
             {loading ? (
               <>
-                <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  className="animate-spin h-5 w-5 text-gray-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
                 Extracting Data...
               </>
@@ -113,16 +127,17 @@ export default function AdminDashboard() {
 
           {/* Status Messages */}
           {status.message && (
-            <div className={`p-4 rounded-xl text-sm text-center font-medium animate-in fade-in ${
-              status.type === "success" 
-                ? "bg-emerald-900/30 text-emerald-400 border border-emerald-500/30" 
-                : "bg-red-900/30 text-red-400 border border-red-500/30"
-            }`}>
+            <div
+              className={`p-4 rounded-xl text-sm text-center font-medium animate-in fade-in ${
+                status.type === "success"
+                  ? "bg-emerald-900/30 text-emerald-400 border border-emerald-500/30"
+                  : "bg-red-900/30 text-red-400 border border-red-500/30"
+              }`}
+            >
               {status.message}
             </div>
           )}
         </div>
-
       </div>
     </div>
   );
