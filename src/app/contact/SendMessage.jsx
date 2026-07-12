@@ -14,23 +14,26 @@ const ContactSection = () => {
     setIsSubmitting(true);
 
     try {
-      const formData = new FormData();
-      formData.append("access_key", process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY);
-      formData.append("name", data.name);
-      formData.append("email", data.email);
-      formData.append("message", data.message);
-
-      const response = await fetch("https://api.web3forms.com/submit", {
+      // Send data to your own Next.js API route instead of Web3Forms
+      const response = await fetch("/api/contact", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          message: data.message,
+        }),
       });
 
       const result = await response.json();
+      
       if (result.success) {
         toast.success("Thank you! Your message has been sent.");
-        setData({ name: "", email: "", message: "" });
+        setData({ name: "", email: "", message: "" }); // Clear form
       } else {
-        toast.error("Something went wrong. Please try again.");
+        toast.error(result.message || "Something went wrong. Please try again.");
       }
     } catch (error) {
       toast.error("Server error. Please try again later.");
