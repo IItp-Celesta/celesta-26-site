@@ -50,7 +50,6 @@ export default function WorkshopModal({ workshop, onClose }) {
                         {/* Register Button */}
                         <Link
                             href={workshop.register_link}
-                            target="_blank"
                             className={`${styles.btn} min-w-[140px] text-center`}
                         >
                             Register
