@@ -12,6 +12,7 @@
     "@fortawesome/fontawesome-free": "^7.0.0",
     "@hookform/resolvers": "^5.4.0",
     "@radix-ui/react-slot": "^1.2.3",
+    "@vercel/analytics": "^2.0.1",
     "axios": "^1.11.0",
     "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.1",
