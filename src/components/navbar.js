@@ -58,7 +58,7 @@ export default function Navbar() {
                     <Link href="/so-far" className="opacity-80 hover:opacity-100 transition">Timeline</Link>
                     <Link href="/events" className="opacity-80 hover:opacity-100 transition">Events</Link>
                     <Link href="/spons" className="opacity-80 hover:opacity-100 transition">Sponsors</Link>
-                    <Link href="/workshop" className="opacity-80 hover:opacity-100 transition">Workshops</Link>
+                    <Link href="/workshop-registration" className="opacity-80 hover:opacity-100 transition">Workshops</Link>
                     <Link href="/team" className="opacity-80 hover:opacity-100 transition">Team</Link>
                     <Link href="/gallery" className="opacity-80 hover:opacity-100 transition">Gallery</Link>
                     {

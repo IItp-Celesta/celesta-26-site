@@ -29,9 +29,9 @@ export default function WorkshopRegistrationPage() {
 
   const formValues = watch();
 
-  const BASE_FEE = 1500;
+  const BASE_FEE = 1200;
   const isIITPStudent = formValues.isIITP === "yes";
-  const discount = isIITPStudent ? 400 : 0;
+  const discount = isIITPStudent ? 700 : 0;
   const accommodationFee =
     !isIITPStudent && formValues.requireAccommodation === "yes" ? 500 : 0;
   const subtotal = BASE_FEE - discount + accommodationFee;

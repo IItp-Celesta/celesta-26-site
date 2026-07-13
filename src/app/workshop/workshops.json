@@ -1,37 +1,49 @@
 {
   "workshops": [
     {
-      "name": "IOT WITH HUMANOID ROBOTICS",
+      "name": "Ethical Hacking",
       "img_src": "/images/workshop-images/iot.png",
       "banner_src": "/images/workshop-banners/iot.jpeg",
       "register_link": "/workshop-registration"
     },
     {
-      "name": "AIOT: When AI meets IoT",
+      "name": "Drone Technology",
       "img_src": "/images/workshop-images/aiot.png",
       "banner_src": "/images/workshop-banners/iot.jpeg",
       "register_link": "/workshop-registration"
     },
     {
-      "name": "APP DEVELOPMENT WITH AI",
+      "name": "Artificial Intelligence",
       "img_src": "/images/workshop-images/app-dev.png",
       "banner_src": "/images/workshop-banners/app dev.jpeg",
       "register_link": "/workshop-registration"
     },
     {
-      "name": "MASTERING: GENERATIVE AI",
+      "name": "Full Stack Development",
       "img_src": "/images/workshop-images/gen-ai.png",
       "banner_src": "/images/workshop-banners/genai.jpeg",
       "register_link": "/workshop-registration"
     },
     {
-      "name": "CYBER SECURITY WITH ETHICAL HACKING",
+      "name": "Arduino Course",
       "img_src": "/images/workshop-images/cyber-sec.png",
       "banner_src": "/images/workshop-banners/hacking.jpeg",
       "register_link": "/workshop-registration"
     },
     {
-      "name": "DRONE TECHNOLOGY",
+      "name": "Autonomous Robotics",
+      "img_src": "/images/workshop-images/drone-tech.png",
+      "banner_src": "/images/workshop-banners/drone.jpeg",
+      "register_link": "/workshop-registration"
+    },
+    {
+      "name": "Generative AI",
+      "img_src": "/images/workshop-images/drone-tech.png",
+      "banner_src": "/images/workshop-banners/drone.jpeg",
+      "register_link": "/workshop-registration"
+    },
+    {
+      "name": "Internet of Things",
       "img_src": "/images/workshop-images/drone-tech.png",
       "banner_src": "/images/workshop-banners/drone.jpeg",
       "register_link": "/workshop-registration"
