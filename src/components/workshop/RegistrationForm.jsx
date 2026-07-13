@@ -314,13 +314,17 @@ export default function RegistrationForm({ register, errors, watch }) {
               </label>
               <input
                 type="text"
-                {...register("rollNumber")}
-                placeholder="e.g., 2501es09"
+                maxLength={8}
+                placeholder="e.g. 2501ES09"
+                {...register("rollNumber", {
+                  setValueAs: (value) => value.toUpperCase(),
+                })}
                 style={{
                   ...inputStyle(errors.rollNumber),
                   borderColor: errors.rollNumber ? "#ef4444" : "#0ea5e9",
                 }}
               />
+
               {errors.rollNumber && (
                 <span
                   style={{
