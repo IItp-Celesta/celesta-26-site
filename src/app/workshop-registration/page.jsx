@@ -15,6 +15,7 @@ export default function WorkshopRegistrationPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [registrationId, setRegistrationId] = useState("");
   const [submittedData, setSubmittedData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -24,31 +25,50 @@ export default function WorkshopRegistrationPage() {
   } = useForm({
     resolver: zodResolver(registrationSchema),
     mode: "onChange",
-    defaultValues: { requireAccommodation: "no" },
+    defaultValues: { requireAccommodation: "no", isIITP: "no" },
   });
 
   const formValues = watch();
-
-  const BASE_FEE = 1200;
   const isIITPStudent = formValues.isIITP === "yes";
-  const discount = isIITPStudent ? 700 : 0;
   const accommodationFee =
-    !isIITPStudent && formValues.requireAccommodation === "yes" ? 500 : 0;
-  const subtotal = BASE_FEE - discount + accommodationFee;
-  const gst = Math.round(subtotal * 0.18);
-  const finalAmount = subtotal + gst;
+    !isIITPStudent && formValues.requireAccommodation === "yes" ? 199 : 0;
+  const finalAmount = accommodationFee;
 
   const feeSummary = {
-    baseFee: BASE_FEE,
-    discount,
     accommodationFee,
-    gst,
     finalAmount,
   };
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     setSubmittedData(data);
-    setCurrentStep(2);
+
+    if (finalAmount > 0) {
+      setCurrentStep(2);
+    } else {
+      setLoading(true);
+      try {
+        const payload = { ...data, finalAmount: 0 };
+        const response = await fetch("/api/register-workshop", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          setRegistrationId(result.registrationId);
+          setCurrentStep(3); // Go directly to confirmation
+        } else {
+          alert(result.message || "Registration failed.");
+        }
+      } catch (error) {
+        console.error("Submission Error:", error);
+        alert("A server error occurred. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   const handlePaymentSuccess = (generatedId) => {
@@ -81,8 +101,32 @@ export default function WorkshopRegistrationPage() {
           padding: "3rem",
           boxShadow:
             "0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(14, 165, 233, 0.08)",
+          position: "relative",
+          overflow: "hidden", 
         }}
       >
+        {/* Loading Overlay */}
+        {loading && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundColor: "rgba(15, 23, 42, 0.8)",
+              zIndex: 50,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: "bold",
+              fontSize: "1.2rem",
+              color: "#38bdf8",
+              textTransform: "uppercase",
+              letterSpacing: "2px",
+            }}
+          >
+            Saving Registration...
+          </div>
+        )}
+
         <header style={{ textAlign: "center", marginBottom: "3rem" }}>
           <h1
             style={{
@@ -131,7 +175,7 @@ export default function WorkshopRegistrationPage() {
 
               <button
                 type="submit"
-                disabled={!isValid}
+                disabled={!isValid || loading}
                 style={{
                   width: "100%",
                   padding: "1.25rem",
@@ -141,7 +185,7 @@ export default function WorkshopRegistrationPage() {
                   letterSpacing: "1px",
                   borderRadius: "12px",
                   border: "none",
-                  cursor: isValid ? "pointer" : "not-allowed",
+                  cursor: isValid && !loading ? "pointer" : "not-allowed",
                   transition: "all 0.3s ease",
                   // Glow and gradient for valid state, muted slate for invalid state
                   background: isValid
@@ -151,11 +195,14 @@ export default function WorkshopRegistrationPage() {
                   boxShadow: isValid
                     ? "0 10px 25px -5px rgba(14, 165, 233, 0.4)"
                     : "inset 0 2px 4px rgba(0,0,0,0.2)",
-                  transform: isValid ? "translateY(-2px)" : "none",
+                  transform: isValid && !loading ? "translateY(-2px)" : "none",
+                  opacity: loading ? 0.7 : 1,
                 }}
               >
                 {isValid
-                  ? `Pay ₹${finalAmount} & Complete Registration`
+                  ? finalAmount > 0
+                    ? `Proceed to Pay ₹${finalAmount}`
+                    : "Submit Registration"
                   : "Please Fill All Required Fields"}
               </button>
             </form>

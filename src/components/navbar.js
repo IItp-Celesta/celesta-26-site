@@ -145,7 +145,7 @@ export default function Navbar() {
                         <Link href="/so-far" className="block py-2 opacity-80 hover:opacity-100 transition" onClick={closeMenu}>So Far</Link>
                         <Link href="/events" className="block py-2 opacity-80 hover:opacity-100 transition" onClick={closeMenu}>Events</Link>
                         <Link href="/spons" className="block py-2 opacity-80 hover:opacity-100 transition" onClick={closeMenu}>Sponsors</Link>
-                        <Link href="/workshop" className="block py-2 opacity-80 hover:opacity-100 transition" onClick={closeMenu}>Workshops</Link>
+                        <Link href="/workshop-registration" className="block py-2 opacity-80 hover:opacity-100 transition" onClick={closeMenu}>Workshops</Link>
                         <Link href="/team" className="block py-2 opacity-80 hover:opacity-100 transition" onClick={closeMenu}>Team</Link>
                         <Link href="/gallery" className="block py-2 opacity-80 hover:opacity-100 transition" onClick={closeMenu}>Gallery</Link>
                         <Link href="/contact" className="block py-2 opacity-80 hover:opacity-100 transition" onClick={closeMenu}>Contact Us</Link>
