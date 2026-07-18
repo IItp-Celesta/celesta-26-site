@@ -140,7 +140,7 @@ export default function PaymentSimulator({
 
           <div className="bg-white p-3 rounded-2xl shadow-[0_0_20px_rgba(14,165,233,0.3)] mb-6 transition-transform hover:scale-105 duration-300 flex items-center justify-center overflow-hidden">
             <Image
-              src="/images/auth-backdrop.png"
+              src="/payment/qr.jpeg"
               alt="QR Code"
               width={240}
               height={240}
