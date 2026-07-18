@@ -5,37 +5,50 @@ export async function POST(request) {
   try {
     const data = await request.json();
 
-    if (!data.screenshot || !data.name || !data.email) {
+    if (!data.name || !data.email) {
       return NextResponse.json(
         { success: false, message: "Missing data." },
         { status: 400 },
       );
     }
 
-    const cleanBase64 = data.screenshot.split(",")[1];
-    const mimeType = data.screenshot.split(";")[0].split(":")[1];
+    const amountPaid = Number(data.amountPaid) || Number(data.finalAmount) || 0;
+    let viewUrl = "NOT_REQUIRED";
 
-    const driveRes = await fetch(
-      "https://script.google.com/macros/s/AKfycbyFXQuobqvP1R-8d_w-1dEYo9QIvqEk7cYfxTT2LWxyuyIAxpvdp19El7hz-kDrluE/exec",
-      {
-        method: "POST",
-        body: JSON.stringify({
-          filename: `receipt_${data.name}.png`,
-          mimeType: mimeType,
-          base64: cleanBase64,
-        }),
-      },
-    );
+    if (amountPaid > 0) {
+      if (!data.screenshot) {
+        return NextResponse.json(
+          { success: false, message: "Missing screenshot." },
+          { status: 400 },
+        );
+      }
 
-    const driveData = await driveRes.json();
+      const cleanBase64 = data.screenshot.split(",")[1];
+      const mimeType = data.screenshot.split(";")[0].split(":")[1];
 
-    if (!driveData.success) {
-      throw new Error("Google Drive Upload Failed");
+      const driveRes = await fetch(
+        "https://script.google.com/macros/s/AKfycbyFXQuobqvP1R-8d_w-1dEYo9QIvqEk7cYfxTT2LWxyuyIAxpvdp19El7hz-kDrluE/exec",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            filename: `receipt_${data.name}.png`,
+            mimeType: mimeType,
+            base64: cleanBase64,
+          }),
+        },
+      );
+
+      const driveData = await driveRes.json();
+
+      if (!driveData.success) {
+        throw new Error("Google Drive Upload Failed");
+      }
+      
+      const fileIdMatch = driveData.url.match(/[-\w]{25,}/);
+      viewUrl = fileIdMatch
+        ? `https://drive.google.com/file/d/${fileIdMatch[0]}/view`
+        : driveData.url; // Fallback if parsing fails
     }
-    const fileIdMatch = driveData.url.match(/[-\w]{25,}/);
-    const viewUrl = fileIdMatch
-      ? `https://drive.google.com/file/d/${fileIdMatch[0]}/view`
-      : driveData.url; // Fallback if parsing fails
 
     const rawDate = data.registrationTime
       ? new Date(data.registrationTime)
@@ -68,7 +81,7 @@ export async function POST(request) {
         workshop: data.workshop || "",
         isIITP: data.isIITP === "yes",
         requireAccommodation: data.requireAccommodation === "yes",
-        amountPaid: Number(data.amountPaid) || 0,
+        amountPaid: amountPaid,
         upiId: data.upiId || "",
         screenshotUrl: viewUrl,
         registrationTime: cleanTime,

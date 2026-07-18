@@ -366,7 +366,7 @@ export default function RegistrationForm({ register, errors, watch }) {
                   color: "#94a3b8",
                 }}
               >
-                Do you require accommodation on campus? (+₹500)
+                Do you require accommodation on campus? (+₹199)
               </span>
               <div style={{ display: "flex", gap: "2rem" }}>
                 <label
@@ -416,8 +416,7 @@ export default function RegistrationForm({ register, errors, watch }) {
                 animation: "fadeIn 0.3s ease-out",
               }}
             >
-              ℹ Not Required (IIT Patna students receive automatic campus
-              access)
+              Not Required
             </div>
           ) : (
             <span

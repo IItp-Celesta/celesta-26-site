@@ -123,9 +123,6 @@ export default function PaymentSimulator({
   return (
     <div className="w-full flex flex-col gap-8 animate-in fade-in duration-500">
       <div className="text-center">
-        <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 uppercase tracking-widest mb-2">
-          Manual Verification
-        </h2>
         <p className="text-gray-400 text-sm">
           Please complete your payment to secure your spot.
         </p>
@@ -152,17 +149,6 @@ export default function PaymentSimulator({
             Scan using any UPI App
           </p>
 
-          <div className="bg-black/40 rounded-xl p-4 w-full border border-white/5">
-            <span className="text-xs text-gray-500 uppercase tracking-wider block mb-1">
-              Official UPI ID
-            </span>
-            <strong className="text-lg font-mono text-cyan-400 tracking-wider block">
-              celesta@oksbi
-            </strong>
-            <small className="text-xs text-emerald-400 mt-2 flex items-center justify-center gap-1 font-medium">
-              <span>✔</span> Verified Merchant
-            </small>
-          </div>
         </div>
 
         {/* RIGHT: Payment Details Form */}
@@ -174,7 +160,7 @@ export default function PaymentSimulator({
           <div className="flex justify-between items-center bg-cyan-900/20 p-4 rounded-xl border border-cyan-500/30 shadow-inner">
             <div>
               <h4 className="font-semibold text-white">
-                Workshop Registration
+                Campus Accomodation Fee
               </h4>
               <p className="text-sm text-cyan-200/70">Total Payable Amount</p>
             </div>
