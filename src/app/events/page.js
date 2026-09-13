@@ -44,21 +44,8 @@ export default function Events() {
         EVENTS
       </h1>
 
-      <div className="w-full max-w-5xl mx-auto flex flex-col items-center justify-center text-center py-20">
-        {" "}
-        <h2 className="text-5xl md:text-7xl font-extrabold uppercase tracking-wider mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400 state-wide">
-          {" "}
-          Coming Soon{" "}
-        </h2>{" "}
-        <div className="w-32 h-[2px] mb-8 bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />{" "}
-        <p className="text-gray-300 text-lg md:text-xl max-w-2xl leading-relaxed">
-          {" "}
-          The events are being prepared. <br /> Stay tuned for the
-          reveal.{" "}
-        </p>{" "}
-      </div>
       {/* Flagship Events Section */}
-      {/* <div className="w-full max-w-7xl mx-auto mb-16">
+      <div className="w-full max-w-7xl mx-auto mb-16 mt-8">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white state-wide tracking-wider uppercase drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]">
           Flagship Events
         </h2>
@@ -71,7 +58,7 @@ export default function Events() {
             />
           ))}
         </div>
-      </div> */}
+      </div>
 
       {/* Other Events Section */}
       {/* <div className="w-full max-w-7xl mx-auto">
