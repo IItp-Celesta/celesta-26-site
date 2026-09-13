@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./EventModal.module.css";
 import { useCart } from "@/context/CartContext";
 import toast from "react-hot-toast";
 
 export default function EventModal({ event, onClose }) {
   const [showForm, setShowForm] = useState(false);
+  const router = useRouter();
 
   const sameDate = event.start_date === event.end_date;
-  const hasExternalRegister = event.register_link && event.register_link !== "#";
+  // const hasExternalRegister = event.register_link && event.register_link !== "#";
+  const hasExternalRegister = false; // Force using the internal flagship registration template
   const hasRulebook = event.rulebook_link && event.rulebook_link !== "#";
 
   // Lock background scroll
@@ -89,7 +92,10 @@ export default function EventModal({ event, onClose }) {
                     </a>
                   ) : (
                     <button
-                      onClick={() => setShowForm(true)}
+                      onClick={() => {
+                        const slug = event.name.toLowerCase().replace(/\s+/g, '-');
+                        router.push(`/events/${slug}/register`);
+                      }}
                       className={`w-full px-4 py-2 rounded-xl ${styles.btn} font-semibold hover:opacity-90 transition`}
                     >
                       Register
