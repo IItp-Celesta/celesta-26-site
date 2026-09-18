@@ -1,208 +1,201 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { flagshipTeamSchema } from "@/lib/schemas"; // Import the new schema
+import { useCart } from "@/context/CartContext";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import FlagshipRegistrationForm from "../../../../components/events/FlagshipRegistrationForm";
 import toast from "react-hot-toast";
 import data from "../../events.json";
+import imageCompression from "browser-image-compression";
 
 export default function FlagshipRegistrationPage({ params }) {
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { addToCart } = useCart();
+
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Try to find the event name based on the slug
   const eventId = params.eventId;
-  const event = data.events.find(e => e.name.toLowerCase().replace(/\s+/g, '-') === eventId);
-  const eventName = event ? event.name : "Flagship Event";
+  const event = data.events.find(
+    (e) => e.name.toLowerCase().replace(/\s+/g, "-") === eventId,
+  );
 
+  const eventName = event ? event.name : "Flagship Event";
+  const eventFee = event?.fee;
+  const minTeamSize = event?.min || 1;
+  const maxTeamSize= event?.max || 5
   const {
     register,
     watch,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm({
+    resolver: zodResolver(flagshipTeamSchema),
     mode: "onChange",
     defaultValues: {
-      numMembers: "1"
-    }
+      numMembers: String(minTeamSize),
+    },
   });
 
-  const onSubmit = async (formDataObj) => {
-    try {
-      setLoading(true);
-
-      const submitData = new FormData();
-      submitData.append("eventId", eventId);
-      submitData.append("teamName", formDataObj.teamName);
-      submitData.append("college", formDataObj.college);
-      submitData.append("numMembers", formDataObj.numMembers);
-
-      // Append members data
-      if (formDataObj.members) {
-        for (let i = 0; i < formDataObj.members.length; i++) {
-          const member = formDataObj.members[i];
-          submitData.append(`members[${i}][name]`, member.name);
-          submitData.append(`members[${i}][email]`, member.email);
-          submitData.append(`members[${i}][phone]`, member.phone);
-          submitData.append(`members[${i}][gender]`, member.gender);
-          submitData.append(`members[${i}][college]`, member.college);
-
-          if (member.aadhaar && member.aadhaar[0]) {
-            submitData.append(`members[${i}][aadhaar]`, member.aadhaar[0]);
-          }
-        }
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        toast.error("Please login first to register for events!");
+        router.push(`/login?redirect=/events/${eventId}/register`);
+      } else {
+        setCurrentUser(user);
+        setIsCheckingAuth(false);
       }
+    });
+    return () => unsubscribe();
+  }, [router, eventId]);
 
-      const response = await fetch("/api/register-flagship", {
+  const uploadSecureID = async (file) => {
+    let fileToUpload = file;
+
+    if (file.type.startsWith("image/")) {
+      const options = {
+        maxSizeMB: 0.3,
+        maxWidthOrHeight: 1200,
+        useWebWorker: true,
+      };
+
+      try {
+        fileToUpload = await imageCompression(file, options);
+      } catch {
+        fileToUpload = file;
+      }
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileToUpload);
+
+    try {
+      const token = await currentUser.getIdToken();
+
+      const res = await fetch("/api/upload-id", {
         method: "POST",
-        body: submitData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
       });
 
-      const result = await response.json();
+      const uploadedData = await res.json();
 
-      if (response.ok && result.success) {
-        toast.success(`Successfully registered for ${eventName}!`);
-        // Redirect back to events page after a short delay
-        setTimeout(() => {
-          router.push("/events");
-        }, 1500);
-      } else {
-        toast.error(result.message || "Something went wrong during registration.");
+      if (!res.ok || !uploadedData.success) {
+        throw new Error("ID upload failed. Please try again.");
       }
+
+      return uploadedData.secure_url;
     } catch (error) {
       console.error(error);
-      toast.error("Failed to submit registration. Please try again.");
-    } finally {
-      setLoading(false);
+      throw new Error("ID upload failed. Please try again.");
     }
   };
 
+  const onSubmit = async (formDataObj) => {
+    if (!currentUser) return;
+
+    if (typeof eventFee === "undefined") {
+      toast.error("Critical Error: Event price is missing. Contact support.");
+      return;
+    }
+
+    setIsUploading(true);
+    const toastId = toast.loading("Adding to Cart...");
+
+    try {
+      const totalAmount = parseInt(formDataObj.numMembers || "1") * eventFee;
+      const processedMembers = await Promise.all(
+        formDataObj.members.map(async (member) => {
+          let secureFileId = "";
+
+          if (member.aadhaar && member.aadhaar.length > 0) {
+            secureFileId = await uploadSecureID(member.aadhaar[0]);
+          }
+
+          return {
+            ...member,
+            aadhaar: secureFileId,
+          };
+        }),
+      );
+
+      const safeTeamDetails = {
+        ...formDataObj,
+        members: processedMembers,
+        registeredEmail: currentUser.email,
+        registeredUid: currentUser.uid,
+        eventName: eventName, // Extracted from your page's data fetch
+        registrationTime: new Date().toISOString(),
+      };
+
+      addToCart({
+        id: `EVENT_${eventId}_${Date.now()}`,
+        name: `${eventName} (${formDataObj.teamName})`,
+        cost: totalAmount,
+        type: "event",
+        teamDetails: safeTeamDetails,
+      });
+
+      toast.success("Added to Cart successfully!", { id: toastId });
+      router.push("/profile"); // Take user to checkout
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast.error("Document upload failed. Please try again.", { id: toastId });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+        Logging in...
+      </div>
+    );
+  }
+
   return (
     <div
-      className="page-wrapper"
+      className="min-h-screen pt-28 px-4 pb-16 font-sans text-slate-50 relative z-10 bg-cover bg-center"
       style={{ backgroundImage: "url('/images/auth-backdrop.png')" }}
     >
-      <div className="glass-container">
-        <header style={{ textAlign: "center", marginBottom: "3rem" }}>
-          <h1 className="page-title">{eventName} Registration</h1>
-          <p
-            style={{
-              color: "#94a3b8",
-              margin: 0,
-              fontSize: "1.15rem",
-              letterSpacing: "0.5px",
-            }}
-          >
+      <div className="max-w-[850px] mx-auto bg-slate-900/80 backdrop-blur-xl border border-sky-500/20 rounded-3xl p-6 md:p-12 ">
+        <header className="text-center mb-10">
+          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-wider mb-2 bg-gradient-to-r from-sky-300 to-blue-500 bg-clip-text text-transparent">
+            {eventName} Registration
+          </h1>
+          <p className="text-slate-400 text-lg tracking-wide m-0">
             Celesta 2026 Flagship Events
           </p>
         </header>
 
-        <main style={{ animation: "fadeIn 0.5s ease-out" }}>
+        <main className="animate-[fadeIn_0.5s_ease-out]">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "2.5rem",
-            }}
+            className="flex flex-col gap-10"
           >
             <FlagshipRegistrationForm
               register={register}
               errors={errors}
               watch={watch}
+              eventFee={eventFee}
+              isUploading={isUploading}
+              minTeamSize={minTeamSize}
+              maxTeamSize={maxTeamSize}
             />
-
-            <button
-              type="submit"
-              disabled={!isValid || loading}
-              style={{
-                width: "100%",
-                padding: "1.25rem",
-                fontSize: "1.15rem",
-                fontWeight: "700",
-                textTransform: "uppercase",
-                letterSpacing: "1px",
-                borderRadius: "12px",
-                border: "none",
-                cursor: (!isValid || loading) ? "not-allowed" : "pointer",
-                transition: "all 0.3s ease",
-                background: (!isValid || loading)
-                  ? "#1e293b"
-                  : "linear-gradient(135deg, #0ea5e9, #2563eb)",
-                color: (!isValid || loading) ? "#64748b" : "#ffffff",
-                boxShadow: (!isValid || loading)
-                  ? "inset 0 2px 4px rgba(0,0,0,0.2)"
-                  : "0 10px 25px -5px rgba(14, 165, 233, 0.4)",
-                transform: (!isValid || loading) ? "none" : "translateY(-2px)",
-              }}
-            >
-              {loading
-                ? "Submitting..."
-                : isValid
-                ? "Submit Registration"
-                : "Please Fill All Required Fields"}
-            </button>
           </form>
         </main>
       </div>
-
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .page-wrapper {
-          min-height: 100vh;
-          padding: 100px 1rem 4rem 1rem;
-          font-family: system-ui, sans-serif;
-          color: #f8fafc;
-          position: relative;
-          z-index: 1;
-          background-size: cover;
-          background-position: center;
-        }
-        .glass-container {
-          max-width: 850px;
-          margin: 0 auto;
-          background: rgba(15, 23, 42, 0.7);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(14, 165, 233, 0.25);
-          border-radius: 24px;
-          padding: 3rem;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(14, 165, 233, 0.08);
-          position: relative;
-          overflow: hidden;
-        }
-        .page-title {
-          font-size: 2.8rem;
-          font-weight: 900;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          margin: 0 0 10px 0;
-          background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          filter: drop-shadow(0 2px 10px rgba(0, 242, 254, 0.2));
-        }
-
-        /* Mobile specific overrides */
-        @media (max-width: 640px) {
-          .page-wrapper {
-            padding: 80px 0 0 0;
-          }
-          .glass-container {
-            padding: 2rem 1.25rem;
-            border-radius: 24px 24px 0 0;
-            border-left: none;
-            border-right: none;
-            border-bottom: none;
-          }
-          .page-title {
-            font-size: 2rem;
-          }
-        }
-      `}</style>
     </div>
   );
 }

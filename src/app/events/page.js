@@ -8,15 +8,15 @@ import data from "./events.json";
 
 export default function Events() {
   const allEvents = data.events;
-  const flagshipEvents = allEvents.slice(0, 8);
-  const otherEvents = allEvents.slice(8);
+  const flagshipEvents = allEvents.slice(0, 9);
+  const otherEvents = allEvents.slice(9);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   return (
     <div
       className={`bg-muted flex flex-col min-h-screen gap-8 items-start justify-center w-full overflow-x-hidden px-4 sm:px-6 md:px-10 pb-40 ${styles.background} text-white relative`}
     >
-      <div className="absolute inset-0 z-0 opacity-50 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,white_100%)] pointer-events-none">
+      <div className="absolute inset-0 z-0 opacity-50 mask-[radial-gradient(ellipse_at_center,transparent_20%,white_100%)] pointer-events-none">
         <svg
           className="absolute inset-0 h-full w-full text-white"
           aria-hidden="true"
