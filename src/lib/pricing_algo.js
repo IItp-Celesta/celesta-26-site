@@ -1,7 +1,7 @@
 // Product IDs
 const TSHIRT_IDS = ['CMT41CTMe4Nyi7DrfgrU', 'qfM24G7TwM9qEZlUtw15', 'SfdcOSw17L9poOBSbTsu'];
 const HOODIE_ID = 'Bu8pvVHc87wB5L1EWfK9';
-const PRONITE_PRICE = 249;
+const PRONITE_PRICE = 11;
 export function countUniquePronitePasses(cart) {
   if (!cart || cart.length === 0) return 0;
 

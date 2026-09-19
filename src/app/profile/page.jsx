@@ -352,7 +352,7 @@ export default function Profile() {
                     <div className="flex items-center space-x-4 text-right">
                       <div className="flex flex-col items-end">
                         <span className="font-bold text-white text-lg">
-                          ₹{uniquePronitePasses * 249}
+                          ₹{uniquePronitePasses * 11}
                         </span>
                         <span className="text-[10px] font-bold text-purple-300 bg-purple-500/20 px-2 py-1 rounded mt-1 border border-purple-500/30">
                           {uniquePronitePasses} pass
@@ -485,7 +485,7 @@ export default function Profile() {
                               x{invoicePronitePasses}
                             </span>
                             <p className="text-[11px] font-bold text-green-400 mt-0.5">
-                              ₹{invoicePronitePasses * 249}{" "}
+                              ₹{invoicePronitePasses * 11}{" "}
                               <span className="text-white/40 font-normal tracking-wide">
                                 (Included)
                               </span>
