@@ -24,7 +24,7 @@
       "poc": ["Susankit - 9113351910", "Emin - 9826214510"],
       "prize_pool": "1st: ₹40,000 | 2nd: ₹25,000 | 3rd: ₹15,000 | Total: ₹80,000",
       "mode": "Offline",
-      "fee": 1200,
+      "fee": 800,
       "arena_model_link": null,
       "max": 5
     },
@@ -38,7 +38,7 @@
       "poc": ["Susankit - 9113351910", "Emin - 9826214510"],
       "prize_pool": "1st: ₹60,000 | 2nd: ₹40,000 | 3rd: ₹20,000 | Total: ₹1,20,000",
       "mode": "Offline",
-      "fee": 20,
+      "fee": 1200,
       "arena_model_link": null,
       "max": 5
     },
