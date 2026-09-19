@@ -1,9 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getFirestore, collection, query, where, onSnapshot } from "firebase/firestore";
-import { auth } from "@/lib/firebase";
-
-const db = getFirestore();
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 
 export function useInvoices() {
   const [invoices, setInvoices] = useState([]);

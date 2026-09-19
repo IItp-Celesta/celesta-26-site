@@ -26,7 +26,6 @@ export default function EventModal({ event, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center ">
-
       <div className="relative w-full max-w-4xl  bg-zinc-950/95 text-white rounded-2xl border border-white/10 shadow-2xl max-h-[85vh] flex flex-col">
         {/* Close */}
         <button
@@ -36,19 +35,16 @@ export default function EventModal({ event, onClose }) {
           ✕
         </button>
 
-
         {!showForm ? (
           <div className="flex-1 overflow-y-auto">
             <div className="flex gap-6 items-start md:flex-row flex-col">
-
               <div className="relative flex-shrink-0 w-full md:w-[320px] h-[400px]  rounded-xl overflow-hidden bg-white">
-
                 {/* IMAGE */}
                 <img
                   src={event.img_src}
                   alt={event.name}
                   draggable={false}
-                  className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+                  className="absolute inset-0 w-full h-full object-contain object-center pointer-events-none select-none"
                 />
 
                 {/* DARK OVERLAY */}
@@ -93,7 +89,9 @@ export default function EventModal({ event, onClose }) {
                   ) : (
                     <button
                       onClick={() => {
-                        const slug = event.name.toLowerCase().replace(/\s+/g, '-');
+                        const slug = event.name
+                          .toLowerCase()
+                          .replace(/\s+/g, "-");
                         router.push(`/events/${slug}/register`);
                       }}
                       className={`w-full px-4 py-2 rounded-xl ${styles.btn} font-semibold hover:opacity-90 transition`}
@@ -109,13 +107,16 @@ export default function EventModal({ event, onClose }) {
                 <h2 className="text-3xl font-bold mb-2">{event.name}</h2>
 
                 <div className="flex flex-wrap gap-4 text-sm font-semibold text-white/80 mb-4">
-                  <span>
-                    📅 {sameDate
-                      ? event.start_date
-                      : `${event.start_date} – ${event.end_date}`}
-                  </span>
-                  <span>
-                    🏆 {event.prize_pool !== "#" ? `Prize: ${event.prize_pool}` : "Prize TBA"}
+                  <span className="text-white/80">
+                    🏆{" "}
+                    {event.prize_pool !== "#"
+                      ?
+                        `Prize: ${event.prize_pool}`
+                          .split("|")
+                          .join(
+                            "\u00A0\u00A0\|\u00A0\u00A0",
+                          )
+                      : "Prize TBA"}
                   </span>
                   {event.mode && (
                     <span className="text-white/90 border border-white/20 px-2 rounded-md">
@@ -135,7 +136,9 @@ export default function EventModal({ event, onClose }) {
 
                 {event.club && (
                   <div className="mb-2">
-                    <span className="text-sm bg-white/5 text-white/90 border border-white/20 px-3 py-1 rounded-full">{event.club}</span>
+                    <span className="text-sm bg-white/5 text-white/90 border border-white/20 px-3 py-1 rounded-full">
+                      {event.club}
+                    </span>
                   </div>
                 )}
 
@@ -152,7 +155,11 @@ export default function EventModal({ event, onClose }) {
 
                 {event.whatsapp_link && (
                   <div className="mt-4">
-                    <a href={event.whatsapp_link} target="_blank" className="flex items-center justify-center gap-2 w-full bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/50 py-2 rounded-xl transition-all">
+                    <a
+                      href={event.whatsapp_link}
+                      target="_blank"
+                      className="flex items-center justify-center gap-2 w-full bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/50 py-2 rounded-xl transition-all"
+                    >
                       <span className="text-lg">📱</span> Join WhatsApp Group
                     </a>
                   </div>
@@ -169,11 +176,10 @@ export default function EventModal({ event, onClose }) {
 }
 
 function RegisterForm({ event, onClose }) {
-
-  const [college, setCollege] = useState('');
-  const [collegeId, setCollegeId] = useState('');
-  const [aadhar, setAadhar] = useState('');
-  const [teamName, setTeamName] = useState('');
+  const [college, setCollege] = useState("");
+  const [collegeId, setCollegeId] = useState("");
+  const [aadhar, setAadhar] = useState("");
+  const [teamName, setTeamName] = useState("");
   const { cart, addToCart, removeFromCart } = useCart();
   const handleKeyDown = (e) => {
     if (e.key === "Enter") e.preventDefault();
@@ -194,32 +200,42 @@ function RegisterForm({ event, onClose }) {
       aadhar: aadhar,
       teamName: teamName,
       quantity: 1,
-      type: "event"
+      type: "event",
     });
     toast.success("Event added to cart");
     onClose();
   };
   return (
     <>
-      <h2 className="text-2xl font-bold mb-4">
-        Register for {event.name}
-      </h2>
+      <h2 className="text-2xl font-bold mb-4">Register for {event.name}</h2>
 
-      <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="flex flex-col gap-4">
+      <form
+        onSubmit={handleSubmit}
+        onKeyDown={handleKeyDown}
+        className="flex flex-col gap-4"
+      >
         {/*<input placeholder="Name" className="p-3 rounded-lg bg-white/5 border border-white/10 focus:border-teal-400 outline-none text-white placeholder-white/40 transition-colors" />*/}
-        <input placeholder="College / Organisation" className="p-3 rounded-lg bg-white/5 border border-white/10 focus:border-teal-400 outline-none text-white placeholder-white/40 transition-colors"
+        <input
+          placeholder="College / Organisation"
+          className="p-3 rounded-lg bg-white/5 border border-white/10 focus:border-teal-400 outline-none text-white placeholder-white/40 transition-colors"
           value={college}
           onChange={(e) => setCollege(e.target.value)}
         />
-        <input placeholder="College ID (if any)" className="p-3 rounded-lg bg-white/5 border border-white/10 focus:border-teal-400 outline-none text-white placeholder-white/40 transition-colors"
+        <input
+          placeholder="College ID (if any)"
+          className="p-3 rounded-lg bg-white/5 border border-white/10 focus:border-teal-400 outline-none text-white placeholder-white/40 transition-colors"
           value={collegeId}
           onChange={(e) => setCollegeId(e.target.value)}
         />
-        <input placeholder="Aadhar Card Number" className="p-3 rounded-lg bg-white/5 border border-white/10 focus:border-teal-400 outline-none text-white placeholder-white/40 transition-colors"
+        <input
+          placeholder="Aadhar Card Number"
+          className="p-3 rounded-lg bg-white/5 border border-white/10 focus:border-teal-400 outline-none text-white placeholder-white/40 transition-colors"
           value={aadhar}
           onChange={(e) => setAadhar(e.target.value)}
         />
-        <input placeholder="Team Name" className="p-3 rounded-lg bg-white/5 border border-white/10 focus:border-teal-400 outline-none text-white placeholder-white/40 transition-colors"
+        <input
+          placeholder="Team Name"
+          className="p-3 rounded-lg bg-white/5 border border-white/10 focus:border-teal-400 outline-none text-white placeholder-white/40 transition-colors"
           value={teamName}
           onChange={(e) => setTeamName(e.target.value)}
         />

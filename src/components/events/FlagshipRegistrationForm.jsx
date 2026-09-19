@@ -1,119 +1,98 @@
 "use client";
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 export default function FlagshipRegistrationForm({
   register,
   errors,
-  watch
+  watch,
+  eventFee,
+  isUploading,
+  minTeamSize = 1,
+  maxTeamSize = 5,
 }) {
-  const numMembers = watch("numMembers", "1");
+  const [expandedMember, setExpandedMember] = useState(0);
 
-  // Reusable styles based on the workshop form
-  const inputStyle = (hasError) => ({
-    width: "100%",
-    padding: "0.7rem",
-    border: `1px solid ${hasError ? "#ef4444" : "#334155"}`,
-    borderRadius: "8px",
-    boxSizing: "border-box",
-    backgroundColor: "rgba(15, 23, 42, 0.6)",
-    color: "#f8fafc",
-    outline: "none",
-    transition: "border-color 0.2s",
-  });
+  const numMembers = watch("numMembers", String(minTeamSize));
+  const numMembersInt = parseInt(numMembers || String(minTeamSize), 10);
 
-  const selectStyle = (hasError) => ({
-    width: "100%",
-    height: "44px",
-    padding: "0 0.8rem",
-    border: `1px solid ${hasError ? "#ef4444" : "#334155"}`,
-    borderRadius: "7px",
-    boxSizing: "border-box",
-    backgroundColor: "#0f172a",
-    color: "#f8fafc",
-    fontSize: "0.9rem",
-    outline: "none",
-    cursor: "pointer",
-  });
+  const totalAmount = numMembersInt * (eventFee || 0);
+
+  useEffect(() => {
+    setExpandedMember((current) =>
+      current !== null && current > numMembersInt - 1
+        ? numMembersInt - 1
+        : current,
+    );
+  }, [numMembersInt]);
+
+  const getInputClass = (hasError) =>
+    `w-full p-[0.7rem] rounded-lg bg-slate-900/60 border text-slate-50 outline-none text-[0.9rem] transition-colors ${
+      hasError ? "border-red-500" : "border-slate-700 focus:border-sky-500"
+    }`;
 
   const getMemberError = (index, field) => {
     return errors?.members?.[index]?.[field];
   };
 
   return (
-    <div
-      style={{
-        border: "1px solid rgba(14, 165, 233, 0.2)",
-        padding: "2rem",
-        borderRadius: "16px",
-        backgroundColor: "rgba(30, 41, 59, 0.4)",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2.5rem",
-      }}
-    >
-      {/* TEAM INFO SECTION */}
+    <div className="border border-sky-500/20 p-8 rounded-2xl bg-slate-800/40 flex flex-col gap-10">
       <div>
-        <h2
-          style={{
-            marginTop: 0,
-            marginBottom: "1.5rem",
-            fontSize: "1.3rem",
-            fontWeight: "700",
-            color: "#f8fafc",
-            borderBottom: "1px solid #334155",
-            paddingBottom: "0.75rem",
-          }}
-        >
+        <h2 className="mt-0 mb-6 text-[1.3rem] font-bold text-slate-50 border-b border-slate-700 pb-3">
           1. Team Information
         </h2>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem" }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.9rem", color: "#cbd5e1" }}>
+            <label className="block mb-2 font-semibold text-[0.9rem] text-slate-300">
               Team Name *
             </label>
             <input
               type="text"
               {...register("teamName", { required: "Team Name is required" })}
               placeholder="Enter Team Name"
-              style={inputStyle(errors.teamName)}
+              className={getInputClass(errors.teamName)}
             />
             {errors.teamName && (
-              <span style={{ color: "#f87171", fontSize: "0.85rem", marginTop: "4px", display: "block" }}>
+              <span className="text-red-400 text-[0.85rem] mt-1 block">
                 {errors.teamName.message}
               </span>
             )}
           </div>
 
           <div>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.9rem", color: "#cbd5e1" }}>
-              Overall College *
+            <label className="block mb-2 font-semibold text-[0.9rem] text-slate-300">
+              College *
             </label>
             <input
               type="text"
               {...register("college", { required: "College is required" })}
               placeholder="Enter College Name"
-              style={inputStyle(errors.college)}
+              className={getInputClass(errors.college)}
             />
             {errors.college && (
-              <span style={{ color: "#f87171", fontSize: "0.85rem", marginTop: "4px", display: "block" }}>
+              <span className="text-red-400 text-[0.85rem] mt-1 block">
                 {errors.college.message}
               </span>
             )}
           </div>
-          
-          <div>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.9rem", color: "#cbd5e1" }}>
+
+          <div className="md:col-span-2">
+            <label className="block mb-2 font-semibold text-[0.9rem] text-slate-300">
               Number of Team Members *
             </label>
             <select
               {...register("numMembers", { required: true })}
-              style={selectStyle(errors.numMembers)}
+              className={`${getInputClass(
+                errors.numMembers,
+              )} max-w-[300px] h-[44px] !bg-slate-900 cursor-pointer`}
             >
-              {[1, 2, 3, 4, 5, 6].map(num => (
-                <option key={num} value={num}>{num}</option>
+              {Array.from(
+                { length: maxTeamSize - minTeamSize + 1 },
+                (_, i) => minTeamSize + i,
+              ).map((num) => (
+                <option key={num} value={num}>
+                  {num} {num === 1 ? "Member" : "Members"}
+                </option>
               ))}
             </select>
           </div>
@@ -122,158 +101,214 @@ export default function FlagshipRegistrationForm({
 
       {/* MEMBER INFO SECTION */}
       <div>
-        <h2
-          style={{
-            marginTop: 0,
-            marginBottom: "1.5rem",
-            fontSize: "1.3rem",
-            fontWeight: "700",
-            color: "#f8fafc",
-            borderBottom: "1px solid #334155",
-            paddingBottom: "0.75rem",
-          }}
-        >
+        <h2 className="mt-0 mb-6 text-[1.3rem] font-bold text-slate-50 border-b border-slate-700 pb-3">
           2. Member Details
         </h2>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-          {Array.from({ length: parseInt(numMembers || 1) }).map((_, index) => (
-            <div 
-              key={index} 
-              style={{
-                backgroundColor: "rgba(15, 23, 42, 0.4)",
-                padding: "1.5rem",
-                borderRadius: "10px",
-                border: "1px solid #334155",
-                display: "flex",
-                flexDirection: "column",
-                gap: "1.25rem",
-              }}
-            >
-              <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#e2e8f0" }}>
-                Member {index + 1} {index === 0 ? "(Team Leader)" : ""}
-              </h3>
+        <div className="flex flex-col gap-4">
+          {Array.from({ length: numMembersInt }).map((_, index) => {
+            const isExpanded = expandedMember === index;
+            const hasError = !!errors?.members?.[index];
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem" }}>
-                <div>
-                  <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.85rem", color: "#cbd5e1" }}>
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    {...register(`members.${index}.name`, { required: "Name is required" })}
-                    placeholder="Full Name"
-                    style={inputStyle(getMemberError(index, "name"))}
-                  />
-                  {getMemberError(index, "name") && (
-                    <span style={{ color: "#f87171", fontSize: "0.8rem", marginTop: "4px", display: "block" }}>
-                      {getMemberError(index, "name").message}
-                    </span>
-                  )}
-                </div>
-
-                <div>
-                  <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.85rem", color: "#cbd5e1" }}>
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    {...register(`members.${index}.email`, { 
-                      required: "Email is required",
-                      pattern: {
-                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                        message: "invalid email address"
-                      }
-                    })}
-                    placeholder="Email Address"
-                    style={inputStyle(getMemberError(index, "email"))}
-                  />
-                  {getMemberError(index, "email") && (
-                    <span style={{ color: "#f87171", fontSize: "0.8rem", marginTop: "4px", display: "block" }}>
-                      {getMemberError(index, "email").message}
-                    </span>
-                  )}
-                </div>
-
-                <div>
-                  <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.85rem", color: "#cbd5e1" }}>
-                    Mobile Number *
-                  </label>
-                  <input
-                    type="text"
-                    {...register(`members.${index}.phone`, { required: "Phone is required" })}
-                    placeholder="Mobile Number"
-                    style={inputStyle(getMemberError(index, "phone"))}
-                  />
-                  {getMemberError(index, "phone") && (
-                    <span style={{ color: "#f87171", fontSize: "0.8rem", marginTop: "4px", display: "block" }}>
-                      {getMemberError(index, "phone").message}
-                    </span>
-                  )}
-                </div>
-
-                <div>
-                  <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.85rem", color: "#cbd5e1" }}>
-                    Gender *
-                  </label>
-                  <select
-                    {...register(`members.${index}.gender`, { required: "Gender is required" })}
-                    style={selectStyle(getMemberError(index, "gender"))}
+            return (
+              <div
+                key={index}
+                className={`bg-slate-900/40 rounded-xl border flex flex-col overflow-hidden ${
+                  hasError && !isExpanded
+                    ? "border-red-500"
+                    : "border-slate-700"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => setExpandedMember(isExpanded ? null : index)}
+                  className={`w-full p-6 text-left border-none cursor-pointer flex justify-between items-center ${
+                    isExpanded
+                      ? "bg-sky-500/10 border-b border-slate-700/50"
+                      : "bg-transparent"
+                  }`}
+                >
+                  <h3
+                    className={`m-0 text-[1.1rem] font-semibold ${
+                      isExpanded ? "text-sky-400" : "text-slate-200"
+                    }`}
                   >
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  {getMemberError(index, "gender") && (
-                    <span style={{ color: "#f87171", fontSize: "0.8rem", marginTop: "4px", display: "block" }}>
-                      {getMemberError(index, "gender").message}
+                    Member {index + 1} {index === 0 ? "(Team Leader)" : ""}
+                  </h3>
+                  <div className="flex items-center gap-3">
+                    {hasError && !isExpanded && (
+                      <span className="text-red-400 text-[0.85rem] font-semibold">
+                        Incomplete
+                      </span>
+                    )}
+                    <span
+                      className={`font-bold ${
+                        isExpanded ? "text-sky-400" : "text-slate-400"
+                      }`}
+                    >
+                      {isExpanded ? "▲" : "▼"}
                     </span>
-                  )}
-                </div>
+                  </div>
+                </button>
 
-                <div>
-                  <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.85rem", color: "#cbd5e1" }}>
-                    College *
-                  </label>
-                  <input
-                    type="text"
-                    {...register(`members.${index}.college`, { required: "College is required" })}
-                    placeholder="College Name"
-                    style={inputStyle(getMemberError(index, "college"))}
-                  />
-                  {getMemberError(index, "college") && (
-                    <span style={{ color: "#f87171", fontSize: "0.8rem", marginTop: "4px", display: "block" }}>
-                      {getMemberError(index, "college").message}
-                    </span>
-                  )}
-                </div>
+                {isExpanded && (
+                  <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5 bg-transparent">
+                    <div>
+                      <label className="block mb-2 font-semibold text-[0.85rem] text-slate-300">
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        {...register(`members.${index}.name`, {
+                          required: "Name is required",
+                        })}
+                        placeholder="Full Name"
+                        className={getInputClass(getMemberError(index, "name"))}
+                      />
+                      {getMemberError(index, "name") && (
+                        <span className="text-red-400 text-[0.8rem] mt-1 block">
+                          {getMemberError(index, "name").message}
+                        </span>
+                      )}
+                    </div>
 
-                <div>
-                  <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600", fontSize: "0.85rem", color: "#cbd5e1" }}>
-                    Aadhaar Card Upload (PDF/Image) *
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*,.pdf"
-                    {...register(`members.${index}.aadhaar`, { required: "Aadhaar Card is required" })}
-                    style={{
-                      ...inputStyle(getMemberError(index, "aadhaar")),
-                      padding: "0.5rem",
-                      cursor: "pointer",
-                      backgroundColor: "rgba(14, 165, 233, 0.1)",
-                    }}
-                  />
-                  {getMemberError(index, "aadhaar") && (
-                    <span style={{ color: "#f87171", fontSize: "0.8rem", marginTop: "4px", display: "block" }}>
-                      {getMemberError(index, "aadhaar").message}
-                    </span>
-                  )}
-                </div>
+                    <div>
+                      <label className="block mb-2 font-semibold text-[0.85rem] text-slate-300">
+                        Email Address *
+                      </label>
+                      <input
+                        type="email"
+                        {...register(`members.${index}.email`, {
+                          required: "Email is required",
+                          pattern: {
+                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                            message: "invalid email address",
+                          },
+                        })}
+                        placeholder="Email Address"
+                        className={getInputClass(
+                          getMemberError(index, "email"),
+                        )}
+                      />
+                      {getMemberError(index, "email") && (
+                        <span className="text-red-400 text-[0.8rem] mt-1 block">
+                          {getMemberError(index, "email").message}
+                        </span>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block mb-2 font-semibold text-[0.85rem] text-slate-300">
+                        Mobile Number *
+                      </label>
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        {...register(`members.${index}.phone`, {
+                          required: "Phone is required",
+                        })}
+                        placeholder="Mobile Number"
+                        className={getInputClass(
+                          getMemberError(index, "phone"),
+                        )}
+                      />
+                      {getMemberError(index, "phone") && (
+                        <span className="text-red-400 text-[0.8rem] mt-1 block">
+                          {getMemberError(index, "phone").message}
+                        </span>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block mb-2 font-semibold text-[0.85rem] text-slate-300">
+                        Gender *
+                      </label>
+                      <select
+                        {...register(`members.${index}.gender`, {
+                          required: "Gender is required",
+                        })}
+                        className={`${getInputClass(
+                          getMemberError(index, "gender"),
+                        )} h-11 bg-slate-900! cursor-pointer`}
+                      >
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </select>
+                      {getMemberError(index, "gender") && (
+                        <span className="text-red-400 text-[0.8rem] mt-1 block">
+                          {getMemberError(index, "gender").message}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block mb-2 font-semibold text-[0.85rem] text-slate-300">
+                        Aadhaar / College ID Upload (PNG / JPEG / JPG) *
+                      </label>
+                      <div
+                        className={`p-2 border border-dashed rounded-lg ${
+                          getMemberError(index, "aadhaar")
+                            ? "border-red-500"
+                            : "border-sky-500/30"
+                        }`}
+                      >
+                        <input
+                          type="file"
+                          accept="image/png, image/jpeg, image/jpg"
+                          {...register(`members.${index}.aadhaar`, {
+                            required: "ID is required",
+                          })}
+                          className="w-full text-sm text-slate-400 
+                            file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 
+                            file:text-[0.85rem] file:font-bold file:bg-slate-800 file:text-slate-300
+                            hover:file:bg-slate-700 file:cursor-pointer cursor-pointer"
+                        />
+                      </div>
+                      {getMemberError(index, "aadhaar") && (
+                        <span className="text-red-400 text-[0.8rem] mt-1 block">
+                          {getMemberError(index, "aadhaar").message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
+      </div>
+
+      {/* ADD TO CART SUMMARY */}
+      <div className="border border-sky-500/20 p-6 rounded-2xl bg-slate-900/80 flex flex-col gap-4">
+        <h3 className="m-0 text-[1.2rem] font-bold text-slate-50">
+          3. Checkout Summary
+        </h3>
+
+        <div className="flex justify-between items-center text-slate-300 pb-4">
+          <span>
+            {/* STRIPPED FALLBACK HERE AS WELL */}
+            Registration Fee (₹{eventFee} × {numMembersInt})
+          </span>
+          <span className="text-2xl font-extrabold text-sky-400">
+            ₹{totalAmount}
+          </span>
+        </div>
+
+        <button
+          type="submit"
+          disabled={isUploading}
+          className={`mt-2 p-4 rounded-lg font-bold text-[1.1rem] transition-colors border-none ${
+            isUploading
+              ? "bg-slate-700 text-slate-400 cursor-not-allowed"
+              : "cursor-pointer text-black bg-sky-400 hover:bg-sky-300"
+          }`}
+        >
+          {isUploading
+            ? "Uploading Documents..."
+            : `Add to Cart (₹${totalAmount})`}
+        </button>
       </div>
     </div>
   );
