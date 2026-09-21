@@ -82,7 +82,7 @@ export default function AccommodationModal() {
 
   const totalDays = Object.values(memberDays).reduce((a, b) => a + b, 0);
 
-  const totalAmount = totalDays * 249;
+  const totalAmount = totalDays * 279;
 
   const handleConfirm = () => {
     if (totalDays === 0) {
@@ -187,7 +187,7 @@ export default function AccommodationModal() {
 
           <p className="text-sm text-white/60 mt-1">
             For accommodation on campus, book seperately for
-            <span className="font-semibold text-sky-400"> ₹249/day/member</span>
+            <span className="font-semibold text-sky-400"> ₹279/day/member</span>
             .
           </p>
         </div>
