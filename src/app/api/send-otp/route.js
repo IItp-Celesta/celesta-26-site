@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { adminFirestore } from "@/lib/firebaseAdmin";
+
 
 export async function POST(req) {
   try {
@@ -22,7 +24,7 @@ export async function POST(req) {
     });
 
     await transporter.sendMail({
-      from: `"Celesta – IIT Patna" <${process.env.GMAIL_USER}>`,
+      from: `"Celesta – IIT Patna" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Your One-Time Password (OTP) for Registration",
       html: `
