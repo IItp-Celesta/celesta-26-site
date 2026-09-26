@@ -25,7 +25,6 @@ export default function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [otp, setOtp] = useState("");
-  const [generatedOtp, setGeneratedOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [resendTimer, setResendTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
@@ -101,15 +100,7 @@ export default function Register() {
     }
 
     try {
-
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      setGeneratedOtp(otp);
-
-
-      await axios.post("/api/send-otp", {
-        email: formData.email,
-        otp,
-      });
+      await axios.post("/api/send-otp", { email: formData.email });
 
       toast.success("OTP sent to email");
       setOtpSent(true);
@@ -128,39 +119,57 @@ export default function Register() {
       return;
     }
 
-    if (otp !== generatedOtp) {
-      toast.error("Invalid OTP");
-      return;
-    }
-
     try {
       setDisabled(true);
+
+      try {
+        await axios.post("/api/verify-otp", {
+          email: formData.email,
+          otp: otp,
+        });
+      } catch (verifyError) {
+        toast.error(verifyError.response?.data?.message || "Invalid OTP");
+        setDisabled(false);
+        return;
+      }
 
       const userCredential = await signUpWithEmail(
         formData.email,
         formData.password
       );
 
-      const token = await userCredential.user.getIdToken();
-
+      const user = userCredential.user;
+      const token = await user.getIdToken();
       const dobString = `${formData.dob.year}-${formData.dob.month}-${formData.dob.day}`;
+      try {
+        const response = await axios.post(
+          "/api/register",
+          { name: formData.name, dob: dobString },
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
 
-      const response = await axios.post(
-        "/api/register",
-        { name: formData.name, dob: dobString },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+        if (!response.data.success) {
+          throw new Error("Profile creation failed");
+        }
 
-      if (!response.data.success) {
-        await userCredential.user.delete();
-        toast.error("Registration failed");
-        return;
+        toast.success("Registered successfully!");
+        router.push("/profile");
+      } catch (apiError) {
+        await user.delete();
+        console.error(
+          "Rollback executed: Orphaned auth user deleted.",
+          apiError,
+        );
+        toast.error(
+          "Registration failed during profile setup. Please try again.",
+        );
       }
-
-      toast.success("Registered successfully!");
-      router.push("/profile");
-    } catch {
-      toast.error("Registration failed");
+    } catch (error) {
+      if (error?.code === "auth/email-already-in-use") {
+        toast.error("This email is already registered! Please log in.");
+      } else {
+        toast.error("Registration failed. Please try again.");
+      }
     } finally {
       setDisabled(false);
     }
@@ -169,14 +178,7 @@ export default function Register() {
   /* ================= RESEND OTP ================= */
   const resendOtp = async () => {
     try {
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      setGeneratedOtp(otp);
-
-      await axios.post("/api/send-otp", {
-        email: formData.email,
-        otp,
-      });
-
+      await axios.post("/api/send-otp", { email: formData.email });
       toast.success("OTP resent");
       setResendTimer(30);
       setCanResend(false);
@@ -188,63 +190,62 @@ export default function Register() {
   if (loading) return <>Loading...</>;
 
   return (
-    <div className={`p-4 md:p-10 bg-muted ${styles.background} text-white min-h-svh flex flex-col items-center justify-center overflow-x-hidden`}>
+    <div
+      className={`p-4 md:p-10 bg-muted ${styles.background} text-white min-h-svh flex flex-col items-center justify-center overflow-x-hidden`}
+    >
       <motion.div
         initial={{ opacity: 0, x: -140 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6 }}
         className="w-full max-w-full"
       >
-
-        <h1 className="font-bold text-5xl md:text-6xl text-grad race mt-16 p-2 text-center md:text-left">Register</h1>
+        <h1 className="font-bold text-5xl md:text-6xl text-grad race mt-16 p-2 text-center md:text-left">
+          Register
+        </h1>
       </motion.div>
 
       <form
         onSubmit={handleSubmit}
         className={`w-full max-w-full md:max-w-4xl flex flex-col gap-8 p-4 md:p-10 ${styles.glassCard}`}
       >
-
-
-        {
-          otpSent && (
-            <div className="mb-4 px-4 py-2 rounded-lg bg-red-500/20 border border-red-400 text-red-300 text-sm md:text-base">
-              📩 If you haven't received the OTP, please check your
-              <b> Spam / Junk</b> folder.
-            </div>
-          )
-        }
+        {otpSent && (
+          <div className="mb-4 px-4 py-2 rounded-lg bg-red-500/20 border border-red-400 text-red-300 text-sm md:text-base">
+            📩 If you haven't received the OTP, please check your
+            <b> Spam / Junk</b> folder.
+          </div>
+        )}
 
         {!otpSent && (
           <>
             <div className="flex gap-10 justify-between flex-wrap">
-
               <div className="flex flex-col gap-6 flex-1 min-w-[250px]">
-
                 <div className="flex flex-col gap-2 text-xl">
                   <label>Name</label>
                   <input
                     type="text"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     className="p-2 border-2 rounded-lg text-white bg-transparent focus:outline-none focus:border-teal-600"
                     placeholder="Enter your name"
                     required
                   />
                 </div>
 
-
                 <div className="flex flex-col gap-2 text-xl">
                   <label>Email</label>
                   <input
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     className="p-2 border-2 rounded-lg text-white bg-transparent focus:outline-none focus:border-teal-600"
                     placeholder="Enter your email"
                     required
                   />
                 </div>
-
 
                 <div className="flex flex-col gap-2 text-xl w-full">
                   <label>Password</label>
@@ -252,7 +253,9 @@ export default function Register() {
                     <input
                       type={showPassword ? "text" : "password"}
                       value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
                       className="p-2 pr-10 border-2 rounded-lg text-white w-full bg-transparent focus:outline-none focus:border-teal-600"
                       placeholder="Minimum 6 characters"
                       required
@@ -268,9 +271,7 @@ export default function Register() {
                 </div>
               </div>
 
-
               <div className="flex flex-col gap-6 flex-1 min-w-[250px]">
-
                 <div className="flex flex-col gap-2 text-xl">
                   <label>Date of Birth</label>
                   <div className="flex gap-3 flex-wrap">
@@ -279,10 +280,15 @@ export default function Register() {
                         key={f}
                         type="text"
                         maxLength={f === "year" ? 4 : 2}
-                        placeholder={f === "day" ? "DD" : f === "month" ? "MM" : "YYYY"}
+                        placeholder={
+                          f === "day" ? "DD" : f === "month" ? "MM" : "YYYY"
+                        }
                         value={formData.dob[f]}
                         onChange={(e) =>
-                          setFormData({ ...formData, dob: { ...formData.dob, [f]: e.target.value } })
+                          setFormData({
+                            ...formData,
+                            dob: { ...formData.dob, [f]: e.target.value },
+                          })
                         }
                         className="w-20 p-2 border-2 rounded-lg text-white bg-transparent outline-none focus:border-teal-600"
                         required
@@ -291,14 +297,18 @@ export default function Register() {
                   </div>
                 </div>
 
-
                 <div className="flex flex-col gap-2 text-xl w-full">
                   <label>Confirm Password</label>
                   <div className="relative w-full">
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       value={formData.confirmPassword}
-                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          confirmPassword: e.target.value,
+                        })
+                      }
                       className="p-2 pr-10 border-2 rounded-lg text-white w-full bg-transparent focus:outline-none focus:border-teal-600"
                       placeholder="Confirm password"
                       required
@@ -308,13 +318,16 @@ export default function Register() {
                       onClick={() => setShowConfirmPassword((s) => !s)}
                       className="absolute right-2 top-1/2 -translate-y-1/2"
                     >
-                      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      {showConfirmPassword ? (
+                        <EyeOff size={20} />
+                      ) : (
+                        <Eye size={20} />
+                      )}
                     </button>
                   </div>
                 </div>
               </div>
             </div>
-
 
             <button
               type="submit"
@@ -346,9 +359,7 @@ export default function Register() {
             </button>
 
             {!canResend ? (
-              <p className="text-sm opacity-70">
-                Resend OTP in {resendTimer}s
-              </p>
+              <p className="text-sm opacity-70">Resend OTP in {resendTimer}s</p>
             ) : (
               <button
                 type="button"
@@ -360,9 +371,6 @@ export default function Register() {
             )}
           </div>
         )}
-
-
-
       </form>
     </div>
   );

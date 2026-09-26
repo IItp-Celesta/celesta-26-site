@@ -1,38 +1,57 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/context/AuthUserContext";
 
 export function useInvoices() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const { authUser, loading: authLoading } = useAuth();
+
   useEffect(() => {
-    const user = auth.currentUser;
-    if (!user) {
+    if (authLoading) {
+      setLoading(true);
+      return;
+    }
+
+    if (!authUser?.uid) {
       setInvoices([]);
       setLoading(false);
       return;
     }
 
-    // Query tickets where uid == user.uid AND status == 'PAID'
     const q = query(
       collection(db, "invoices"),
-      where('uid', '==', user.uid),
-      where('status', '==', 'PAID')
+      where("uid", "==", authUser.uid),
+      where("status", "==", "PAID"),
     );
 
-    // Subscribe to real-time updates
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setInvoices(docs);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
+        const docs = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-    // Cleanup listener on unmount or when user changes
+        setInvoices(docs);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error fetching invoices:", error);
+        setInvoices([]);
+        setLoading(false);
+      },
+    );
+
     return () => unsubscribe();
-  }, [auth.currentUser?.uid]);
+  }, [authUser, authLoading]);
 
-  return { invoices, loading };
+  return {
+    invoices,
+    loading,
+  };
 }
-

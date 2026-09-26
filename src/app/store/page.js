@@ -12,7 +12,7 @@ export default function Store() {
   const router = useRouter();
   useEffect(() => {
     async function check() {
-      if (!authUser) {
+      if (!loading && !authUser) {
         router.replace("/register")
       }
     }
@@ -24,7 +24,7 @@ export default function Store() {
       <h1 className="race font-bold text-5xl text-grad mt-[15vh]">Store</h1>
 
       {/* Offers Banner */}
-      <div className="max-w-7xl mx-auto w-full mb-8 p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+      {/*<div className="max-w-7xl mx-auto w-full mb-8 p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden group">
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-blue-500/10 opacity-50" />
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-[80px]" />
         <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/20 rounded-full blur-[80px]" />
@@ -38,7 +38,7 @@ export default function Store() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-gray-200">
-            {/* T-Shirts */}
+            
             <div className="bg-black/40 p-5 rounded-2xl border border-white/5 hover:border-cyan-500/30 transition-all duration-300 hover:bg-black/60 group/card">
               <h3 className="text-xl font-bold text-cyan-400 mb-4 flex items-center gap-2">
                 T-Shirt Bundles
@@ -62,7 +62,7 @@ export default function Store() {
               </ul>
             </div>
 
-            {/* Combo - Best Seller */}
+            
             <div className="bg-gradient-to-b from-purple-900/20 to-black/40 p-1 rounded-2xl relative group/highlight">
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl opacity-20 group-hover/highlight:opacity-40 transition-opacity blur-md" />
               <div className="bg-black/80 h-full w-full rounded-xl p-5 relative border border-purple-500/30">
@@ -88,7 +88,7 @@ export default function Store() {
               </div>
             </div>
 
-            {/* Hoodies */}
+            
             <div className="bg-black/40 p-5 rounded-2xl border border-white/5 hover:border-purple-500/30 transition-all duration-300 hover:bg-black/60">
               <h3 className="text-xl font-bold text-purple-400 mb-4 flex items-center gap-2">
                 Hoodie Bundles
@@ -110,7 +110,7 @@ export default function Store() {
             </div>
           </div>
         </div>
-      </div>
+      </div>*/}
       <div className="flex items-center justify-center flex-wrap gap-2 md:gap-8">
         {products.map((product, idx) => <ProductCard key={idx} name={product.name} cost={product.cost} id={product.id} img_src={product.img_src} />)}
       </div>

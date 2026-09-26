@@ -52,9 +52,9 @@ export default function FloatingNav() {
           <Link href="/contact" onClick={() => setIsOpen(false)} className="px-4 py-2 text-white rounded-md hover:bg-white/10 transition-colors">
             Contact Us
           </Link>
-          {/*<Link href="/store" onClick={() => setIsOpen(false)} className="px-4 py-2 text-white rounded-md hover:bg-white/10 transition-colors">
+          <Link href="/store" onClick={() => setIsOpen(false)} className="px-4 py-2 text-white rounded-md hover:bg-white/10 transition-colors">
             Store
-          </Link>*/}
+          </Link>
           {authUser &&
 
             <button onClick={async () => {

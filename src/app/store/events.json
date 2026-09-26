@@ -1,19 +1,2 @@
 {
-  "events": [
-    {
-      "name": "Drones",
-      "img_src": "/images/drone.png",
-      "register_link": "https://unstop.com/college-fests/celesta-2025-indian-institute-of-technology-patna-383006"
-    },
-    {
-      "name": "Robo Wars",
-      "img_src": "/images/robowar.png",
-      "register_link": "https://unstop.com/college-fests/celesta-2025-indian-institute-of-technology-patna-383006"
-    },
-    {
-      "name": "Aqua Rush",
-      "img_src": "/images/aquarush.png",
-      "register_link": "https://unstop.com/college-fests/celesta-2025-indian-institute-of-technology-patna-383006"
-    }
-  ]
 }

@@ -15,7 +15,7 @@ export const teamData: TeamMember[] = [
 
     // Overall Fest Coordinators
     { id: "fest-coords", name: "Overall Fest Coordinators", title: "The Chiefs", parentId: "Celesta-Team" },
-    { id: "alok", name: "Alok Kumar", title: "Overall Coordinator", parentId: "fest-coords", image: "/team-images/alok.jpg", linkedin: "https://www.linkedin.com/in/alok-kumar-321362371", x: "https://drive.google.com/file/d/1KnfLZYUJaPLapeAU5T3uD-g8iapx6ROn/view?usp=drivesdk" },
+    { id: "alok", name: "Alok Kumar", title: "Overall Coordinator", parentId: "fest-coords", image: "/team-images/alok.jpg", linkedin: "https://www.linkedin.com/in/alok-kumar-321362371", x: "https://www.instagram.com/_07alok07_?igsh=YTJoeWd4ZDY2NHp1" },
     { id: "aditya", name: "Aditya Arekar", title: "Overall Coordinator", parentId: "fest-coords", image: "/team-images/aditya.jpeg", linkedin: "https://www.linkedin.com/in/aditya-arekar28", x: "https://www.instagram.com/aditya_arekar_09?igsh=dTQzYmpvYzJ0djZl" },
     
     { id: "convenors", name: "Convenors", title: "The Convenors", parentId: "Celesta-Team" },

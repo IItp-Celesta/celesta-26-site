@@ -1,17 +1,15 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useAuth } from "@/context/AuthUserContext";
 import { useCart } from "@/context/CartContext";
 import { ShoppingCart } from 'lucide-react';
-import { checkout } from '@/lib/checkout'
 import Script from 'next/script';
 import { calculateCartTotal } from '@/lib/pricing_algo';
 
 export default function FloatingCart() {
 
-  const { cart, emptyCart } = useCart();
+  const { cart} = useCart();
 
   const getTotal = () => {
     return calculateCartTotal(cart);
@@ -22,7 +20,7 @@ export default function FloatingCart() {
   const menuRef = useRef(null);
 
   // Script URL based on environment
-  const scriptUrl = `https://${process.env.NEXT_PUBLIC_ATOM_ENV === 'prod' ? 'psa' : 'pgtest'}.atomtech.in/staticdata/ots/js/atomcheckout.js?v=${Date.now()}`;
+  const scriptUrl = `https://${process.env.NEXT_PUBLIC_ATOM_ENV === 'prod' ? 'psa' : 'pgtest'}.atomtech.in/staticdata/ots/js/atomcheckout.js?v=202603`;
 
   useEffect(() => {
     function handleClickOutside(event) {
