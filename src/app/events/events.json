@@ -6,13 +6,13 @@
       "start_date": "30th Oct",
       "end_date": "1st Nov",
       "description": "RC Robo Racing is a wireless robot car competition featuring challenging off-road tracks with mud, gravel, slopes, water, and other obstacles. Teams compete through lanockout rounds, with the top B advancing to individual final time trials. Performance is judged on speed, robustness, design, and safety, with penalties for rule violations.",
-      "rulebook_link": "https://docs.google.com/presentation/d/1sYyHNIL_UhPt9TunRvkUJyG_jGisi621/view",
-      "poc": [],
+      "rulebook_link": "https://drive.google.com/file/d/1XFA4VayT7LfdNIQ8B0NfqDRN7G_DKYrb/view",
+      "poc": ["Aman Gautam: 6307259859", "Rushan Raza: 9085851530", "Owais Ansari: 7607432854"],
       "prize_pool": "1st: ₹10,000 | 2nd: ₹6,000 | 3rd: ₹4,000 | Total: ₹20,000",
       "mode": "Offline",
       "fee": 800,
       "arena_model_link": "-",
-      "max": 5
+      "max": 4
     },
     {
       "name": "Robowars_8kg",
@@ -20,11 +20,11 @@
       "start_date": "30th Oct",
       "end_date": "1st Nov",
       "description": "RoboWars: The Ultimate Showdown of Battle Bots! Watch as cutting-edge robots clash in a high-tech arena, combining engineering brilliance with thrilling combat. Who will reign supreme in this epic fight for robotic dominance?",
-      "rulebook_link": "https://drive.google.com/file/d/1CqR3QQHtQBJp0aazxDGBAdNFMW-5BmVe/view",
+      "rulebook_link": "https://drive.google.com/file/d/1PN0kF_F-_1vrxGbjKxNVbQwGA_5x5R1S/view",
       "poc": ["Susankit - 9113351910", "Emin - 9826214510"],
       "prize_pool": "1st: ₹40,000 | 2nd: ₹25,000 | 3rd: ₹15,000 | Total: ₹80,000",
       "mode": "Offline",
-      "fee": 800,
+      "fee": 1200,
       "arena_model_link": null,
       "max": 5
     },
@@ -34,11 +34,11 @@
       "start_date": "30th Oct",
       "end_date": "1st Nov",
       "description": "RoboWars: The Ultimate Showdown of Battle Bots! Watch as cutting-edge robots clash in a high-tech arena, combining engineering brilliance with thrilling combat. Who will reign supreme in this epic fight for robotic dominance?",
-      "rulebook_link": "https://drive.google.com/file/d/1CqR3QQHtQBJp0aazxDGBAdNFMW-5BmVe/view",
+      "rulebook_link": "https://drive.google.com/file/d/1PN0kF_F-_1vrxGbjKxNVbQwGA_5x5R1S/view",
       "poc": ["Susankit - 9113351910", "Emin - 9826214510"],
       "prize_pool": "1st: ₹60,000 | 2nd: ₹40,000 | 3rd: ₹20,000 | Total: ₹1,20,000",
       "mode": "Offline",
-      "fee": 1200,
+      "fee": 2000,
       "arena_model_link": null,
       "max": 5
     },
@@ -48,12 +48,13 @@
       "start_date": "30th Oct",
       "end_date": "1st Nov",
       "description": "Death Race is a high-intensity robotics challenge that tests a bot's power, agility, speed, and precisio as it navigates a maze of intricate obstacles. Participants must demonstrate innovative design, strategic control, and engineering excellence to overcome challenging twists and turns.",
-      "rulebook_link": "https://drive.google.com/file/d/1S_xsR0eXmqEXFCtkMUXz_KJt3cBze0sE/view",
-      "poc": [],
+      "rulebook_link": "https://docs.google.com/presentation/d/1_Q6mfcgySr1rw5NAyTm1bB0IBHI-PhvL/view",
+      "poc": ["Aman Gautam: 6307259859", "Rushan Raza: 9085851530", "Owais Ansari: 7607432854"],
       "prize_pool": "1st: ₹18,000 | 2nd: ₹10,000 | 3rd: ₹7,000 | Total: ₹35,000",
       "mode": "Offline",
       "fee": 900,
-      "arena_model_link": "-"
+      "arena_model_link": "-",
+      "max": 3
     },
     {
       "name": "Robo Soccer",
@@ -75,8 +76,8 @@
       "start_date": "30th Oct",
       "end_date": "1st Nov",
       "description": "Get ready to unleash your creativity and engineeringprowess at the Line Follower Robot Competition! Design and build swift, autonomous robots to navigate a challenging track using advanced sensors and programming. It's a thrilling race of innovation and precision.",
-      "rulebook_link": "https://drive.google.com/file/d/1xqavIaDsvO4rfPBsEksH5to-0DMaoIip/view",
-      "poc": [],
+      "rulebook_link": "https://drive.google.com/file/d/1n_RkyPJOwCZfgB2cYQe735stL4aXQ3-l/view",
+      "poc": ["Anshika: 7973771172","Manasi S: 7483 489 612"],
       "prize_pool": "1st: ₹10,000 | 2nd: ₹6,000 | 3rd: ₹4,000 | Total: ₹20,000",
       "mode": "Offline",
       "fee": 800,
@@ -124,14 +125,14 @@
       "start_date": "30th Oct",
       "end_date": "1st Nov",
       "description": "An ultimate test of strategy, robotics, and engineering design, where human ingenuity meets machine precision in fast-paced, high-energy matches. Put your skills to the field, outplay the competition, and battle for exciting prizes worth ₹12,OOO. Let's see whose bot earns the Golden Boot!",
-      "rulebook_link": "https://drive.google.com/file/d/1GRFcX627VQlHVpEp3fgHuoC_tbA8RU9Z/view",
-      "poc": [],
+      "rulebook_link": "https://drive.google.com/file/d/14oCHzAP3YZoO1lwxg_C5iu-cCoKVcA40/view",
+      "poc": ["Tanmay: 9244984358","Karthik: 9182038076"],
       "prize_pool": "1st: ₹6,000 | 2nd: ₹3,500 | 3rd: ₹2,500 | Total: ₹12,000",
       "mode": "Offline",
       "fee": 550,
       "arena_model_link": "-",
       "min": 2,
-      "max": 4
+      "max": 5
 
     }
   ]

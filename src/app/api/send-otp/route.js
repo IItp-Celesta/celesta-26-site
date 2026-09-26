@@ -1,25 +1,31 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
-
 export async function POST(req) {
-  const { email,otp } = await req.json();
+  try {
+    const { email } = await req.json();
 
-  
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+    const expiresAt = Date.now() + 5 * 60 * 1000;
+    await adminFirestore.collection("otps").doc(email).set({
+      otp,
+      expiresAt,
+    });
 
-  await transporter.sendMail({
-  from: `"Celesta – IIT Patna" <${process.env.GMAIL_USER}>`,
-  to: email,
-  subject: "Your One-Time Password (OTP) for Registration",
-  html: `
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"Celesta – IIT Patna" <${process.env.GMAIL_USER}>`,
+      to: email,
+      subject: "Your One-Time Password (OTP) for Registration",
+      html: `
     <div style="font-family: Arial, Helvetica, sans-serif; background-color:#f9fafb; padding:24px;">
       <div style="max-width:520px; margin:auto; background:#ffffff; padding:28px; border-radius:8px; border:1px solid #e5e7eb;">
         
@@ -64,10 +70,14 @@ export async function POST(req) {
       </div>
     </div>
   `,
-});
+    });
 
-
-  return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, message: "OTP sent securely" });
+  } catch (error) {
+    console.error("Error in send-otp route:", error);
+    return NextResponse.json(
+      { success: false, message: "Failed to process OTP request" },
+      { status: 500 },
+    );
+  }
 }
-
-

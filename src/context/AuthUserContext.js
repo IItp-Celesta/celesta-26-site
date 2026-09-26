@@ -32,14 +32,15 @@ export function AuthUserProvider({ children }) {
   const signOutUser = async () => {
     return await signOut(auth);
   };
+
   const signUpWithEmail = async (email, password) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       setAuthUser(userCredential.user);
       return userCredential;
     } catch (error) {
-      console.error(error)
-      return null;
+      console.error(error);
+      throw error;
     }
   };
 
@@ -49,8 +50,8 @@ export function AuthUserProvider({ children }) {
       setAuthUser(userCredential.user);
       return userCredential;
     } catch (error) {
-      console.error(error)
-      return null;
+      console.error(error);
+      throw error;
     }
   };
 

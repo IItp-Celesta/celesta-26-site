@@ -216,7 +216,7 @@ export default function AccommodationModal() {
             </button>
 
             <h2 className="text-xl font-semibold text-white mb-1">
-              Hostel Accommodation
+              Hostel Accommodation (Food not included)
             </h2>
 
             <p className="text-sm text-white/50 mb-4">

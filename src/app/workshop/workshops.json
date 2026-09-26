@@ -2,20 +2,14 @@
   "workshops": [
     {
       "name": "Ethical Hacking",
-      "img_src": "/images/workshop-images/iot.png",
-      "banner_src": "/images/workshop-banners/iot.jpeg",
       "register_link": "/workshop-registration"
     },
     {
       "name": "Drone Technology",
-      "img_src": "/images/workshop-images/aiot.png",
-      "banner_src": "/images/workshop-banners/iot.jpeg",
       "register_link": "/workshop-registration"
     },
     {
       "name": "Artificial Intelligence",
-      "img_src": "/images/workshop-images/app-dev.png",
-      "banner_src": "/images/workshop-banners/app dev.jpeg",
       "register_link": "/workshop-registration"
     }
   ]

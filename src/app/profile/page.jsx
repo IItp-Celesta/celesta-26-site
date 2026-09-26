@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/context/AuthUserContext";
 import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import axios from "axios";
 import { QRCodeSVG } from "qrcode.react";
 import Script from "next/script";
@@ -54,16 +55,59 @@ export default function Profile() {
   const [qrValue, setQrValue] = useState("");
 
   const { cart, removeFromCart, emptyCart, addToCart } = useCart();
+  const { invoices } = useInvoices();
 
   const uniquePronitePasses = countUniquePronitePasses(cart);
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = calculateCartTotal(cart);
-  const { invoices } = useInvoices();
   const hasEventInCart = cart.some(
     (item) =>
       item.type === "event" ||
       (item.id && String(item.id).startsWith("EVENT_")),
   );
+
+  useEffect(() => {
+    if (!loading && !authUser) {
+      toast.error("Please login first to view your profile!");
+      router.replace("/login?redirect=/profile");
+    }
+  }, [authUser, loading, router]);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      if (!authUser) return;
+      const token = await authUser.getIdToken(true);
+      const res = await axios.get("/api/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.data.success) {
+        setProfile({
+          name: res.data.user.displayName,
+          email: res.data.user.email,
+          dob: res.data.user.dob,
+          celestaId: res.data.user.celestaId,
+          qrEnabled: res.data.user?.qrEnabled,
+        });
+      }
+    }
+    fetchProfile();
+  }, [authUser]);
+
+  useEffect(() => {
+    if (!authUser || !profile.qrEnabled) return;
+    async function fetchQR() {
+      try {
+        const token = await authUser.getIdToken(true);
+        const res = await axios.get("/api/qr/generate", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setQrValue(JSON.stringify(res.data));
+      } catch (err) {
+        console.error("QR fetch error:", err);
+      }
+    }
+    fetchQR();
+  }, [authUser, profile.qrEnabled]);
 
   const initiateCheckout = async (payload) => {
     if (typeof window !== "undefined" && !window.AtomPaynetz) {
@@ -114,41 +158,13 @@ export default function Profile() {
     }
   };
 
-  useEffect(() => {
-    async function fetchProfile() {
-      if (!authUser) return;
-      const token = await authUser.getIdToken(true);
-      const res = await axios.get("/api/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.data.success) {
-        setProfile({
-          name: res.data.user.displayName,
-          email: res.data.user.email,
-          dob: res.data.user.dob,
-          celestaId: res.data.user.celestaId,
-          qrEnabled: res.data.user?.qrEnabled,
-        });
-      }
-    }
-    fetchProfile();
-  }, [authUser]);
-
-  useEffect(() => {
-    if (!authUser || !profile.qrEnabled) return;
-    async function fetchQR() {
-      try {
-        const token = await authUser.getIdToken(true);
-        const res = await axios.get("/api/qr/generate", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setQrValue(JSON.stringify(res.data));
-      } catch (err) {
-        console.error("QR fetch error:", err);
-      }
-    }
-    fetchQR();
-  }, [authUser, profile.qrEnabled]);
+  if (loading || !authUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+        Logging in...
+      </div>
+    );
+  }
 
   /* ───────── QR TO IMAGE ───────── */
   const qrToBlob = async () => {
@@ -213,6 +229,15 @@ export default function Profile() {
 
   return (
     <div className={styles.background}>
+      <Script
+        src={`https://${
+          process.env.NEXT_PUBLIC_ATOM_ENV === "prod" ? "psa" : "pgtest"
+        }.atomtech.in/staticdata/ots/js/atomcheckout.js?v=20260326`}
+        strategy="lazyOnload"
+        onLoad={() => {
+          console.log("AtomPaynetz script loaded successfully");
+        }}
+      />
       <Card
         className="
           w-full max-w-5xl
@@ -274,9 +299,11 @@ export default function Profile() {
                 )
               ) : (
                 <>
-                  <img
+                  <Image
                     src="/images/dummyqr.png"
                     alt="QR Locked"
+                    width={260}
+                    height={260}
                     className="w-[260px] h-[260px] object-cover rounded-xl blur-sm opacity-60"
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -351,8 +378,11 @@ export default function Profile() {
                     </div>
                     <div className="flex items-center space-x-4 text-right">
                       <div className="flex flex-col items-end">
+                        <span className="text-sm text-white/40 line-through">
+                          ₹{uniquePronitePasses * 899}
+                        </span>
                         <span className="font-bold text-white text-lg">
-                          ₹{uniquePronitePasses * 249}
+                          ₹{uniquePronitePasses * 399}
                         </span>
                         <span className="text-[10px] font-bold text-purple-300 bg-purple-500/20 px-2 py-1 rounded mt-1 border border-purple-500/30">
                           {uniquePronitePasses} pass
@@ -393,17 +423,6 @@ export default function Profile() {
               </div>
 
               <div className="flex flex-wrap justify-between pt-4 border-t border-neutral-700 gap-4">
-                <Script
-                  src={`https://${
-                    process.env.NEXT_PUBLIC_ATOM_ENV === "prod"
-                      ? "psa"
-                      : "pgtest"
-                  }.atomtech.in/staticdata/ots/js/atomcheckout.js?v=${Date.now()}`}
-                  strategy="lazyOnload"
-                  onLoad={() => {
-                    console.log("AtomPaynetz script loaded successfully");
-                  }}
-                />
                 <div className="px-4 md:px-12 w-full mx-auto">
                   <AccommodationModal />
                 </div>
@@ -432,6 +451,9 @@ export default function Profile() {
                   ) : (
                     `Checkout (₹${totalPrice})`
                   )}
+                  <p className="w-full text-center text-xs text-white mt-2">
+                    Use Bharat QR on the next step.
+                  </p>
                 </button>
 
                 <ModalForm
@@ -485,7 +507,7 @@ export default function Profile() {
                               x{invoicePronitePasses}
                             </span>
                             <p className="text-[11px] font-bold text-green-400 mt-0.5">
-                              ₹{invoicePronitePasses * 249}{" "}
+                              ₹{invoicePronitePasses * 399}{" "}
                               <span className="text-white/40 font-normal tracking-wide">
                                 (Included)
                               </span>

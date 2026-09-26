@@ -60,9 +60,9 @@ export default function Home() {
     },
     {
       images: [
-        "/images/artists/aaditya_1.webp",
-        "/images/artists/aaditya_2.webp",
-        "/images/artists/aaditya_3.webp",
+        "/images/artists/aaditya-1.webp",
+        "/images/artists/aaditya-2.webp",
+        "/images/artists/aaditya-3.webp",
       ],
       name: "Aaditya Kulshreshth",
     },

@@ -151,9 +151,9 @@ export default function FlagshipRegistrationForm({
                   </div>
                 </button>
 
-                {isExpanded && (
-                  <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5 bg-transparent">
-                    <div>
+  
+                  <div className={`p-6 grid-cols-1 md:grid-cols-2 gap-5 bg-transparent ${isExpanded ? "grid" : "hidden"}`}>
+                  <div>
                       <label className="block mb-2 font-semibold text-[0.85rem] text-slate-300">
                         Full Name *
                       </label>
@@ -273,7 +273,6 @@ export default function FlagshipRegistrationForm({
                       )}
                     </div>
                   </div>
-                )}
               </div>
             );
           })}

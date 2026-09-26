@@ -6,22 +6,19 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { flagshipTeamSchema } from "@/lib/schemas"; // Import the new schema
 import { useCart } from "@/context/CartContext";
-import { auth } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import FlagshipRegistrationForm from "../../../../components/events/FlagshipRegistrationForm";
+import { useAuth } from "@/context/AuthUserContext";
+import FlagshipRegistrationForm from "@/components/events/FlagshipRegistrationForm";
 import toast from "react-hot-toast";
-import data from "../../events.json";
+import data from "@/app/events/events.json";
 import imageCompression from "browser-image-compression";
 
 export default function FlagshipRegistrationPage({ params }) {
   const router = useRouter();
   const { addToCart } = useCart();
+  const { authUser, loading } = useAuth();
 
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Try to find the event name based on the slug
   const eventId = params.eventId;
   const event = data.events.find(
     (e) => e.name.toLowerCase().replace(/\s+/g, "-") === eventId,
@@ -30,7 +27,8 @@ export default function FlagshipRegistrationPage({ params }) {
   const eventName = event ? event.name : "Flagship Event";
   const eventFee = event?.fee;
   const minTeamSize = event?.min || 1;
-  const maxTeamSize= event?.max || 5
+  const maxTeamSize = event?.max || 5;
+
   const {
     register,
     watch,
@@ -45,17 +43,11 @@ export default function FlagshipRegistrationPage({ params }) {
   });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        toast.error("Please login first to register for events!");
-        router.push(`/login?redirect=/events/${eventId}/register`);
-      } else {
-        setCurrentUser(user);
-        setIsCheckingAuth(false);
-      }
-    });
-    return () => unsubscribe();
-  }, [router, eventId]);
+    if (!loading && !authUser) {
+      toast.error("Please login first to register for events!");
+      router.push(`/login?redirect=/events/${eventId}/register`);
+    }
+  }, [authUser, loading, router, eventId]);
 
   const uploadSecureID = async (file) => {
     let fileToUpload = file;
@@ -78,7 +70,7 @@ export default function FlagshipRegistrationPage({ params }) {
     formData.append("file", fileToUpload);
 
     try {
-      const token = await currentUser.getIdToken();
+      const token = await authUser.getIdToken();
 
       const res = await fetch("/api/upload-id", {
         method: "POST",
@@ -102,7 +94,7 @@ export default function FlagshipRegistrationPage({ params }) {
   };
 
   const onSubmit = async (formDataObj) => {
-    if (!currentUser) return;
+    if (!authUser) return;
 
     if (typeof eventFee === "undefined") {
       toast.error("Critical Error: Event price is missing. Contact support.");
@@ -132,9 +124,9 @@ export default function FlagshipRegistrationPage({ params }) {
       const safeTeamDetails = {
         ...formDataObj,
         members: processedMembers,
-        registeredEmail: currentUser.email,
-        registeredUid: currentUser.uid,
-        eventName: eventName, // Extracted from your page's data fetch
+        registeredEmail: authUser.email,
+        registeredUid: authUser.uid,
+        eventName: eventName,
         registrationTime: new Date().toISOString(),
       };
 
@@ -156,7 +148,7 @@ export default function FlagshipRegistrationPage({ params }) {
     }
   };
 
-  if (isCheckingAuth) {
+  if (loading || !authUser) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
         Logging in...
