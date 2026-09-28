@@ -245,7 +245,7 @@ export default function FlagshipRegistrationForm({
 
                     <div className="md:col-span-2">
                       <label className="block mb-2 font-semibold text-[0.85rem] text-slate-300">
-                        Aadhaar / College ID Upload (PNG / JPEG / JPG) *
+                        Aadhaar (PNG / JPEG / JPG) *
                       </label>
                       <div
                         className={`p-2 border border-dashed rounded-lg ${
