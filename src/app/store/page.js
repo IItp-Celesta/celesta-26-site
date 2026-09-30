@@ -1,11 +1,11 @@
 "use client";
-import ProductCard from './product-card'
-import styles from './Store.module.css'
-import data from './events.json'
+import ProductCard from "./product-card";
+import styles from "./Store.module.css";
+import data from "./events.json";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthUserContext";
 import { useEffect, useState } from "react";
-import { useProducts } from '@/hooks/useProducts';
+import { useProducts } from "@/hooks/useProducts";
 
 export default function Store() {
   const { authUser, loading, signOutUser } = useAuth();
@@ -13,18 +13,21 @@ export default function Store() {
   useEffect(() => {
     async function check() {
       if (!loading && !authUser) {
-        router.replace("/register")
+        router.replace("/register");
       }
     }
-    check()
+    check();
   }, [authUser, router]);
   const { products } = useProducts();
-  return <>
-    <div className={`bg-muted flex flex-col min-h-svh gap-8 items-left justify-center p-2 md:p-10 ${styles.background} text-white`}>
-      <h1 className="race font-bold text-5xl text-grad mt-[15vh]">Store</h1>
+  return (
+    <>
+      <div
+        className={`bg-muted flex flex-col min-h-svh gap-8 items-left justify-center p-2 md:p-10 ${styles.background} text-white`}
+      >
+        <h1 className="race font-bold text-5xl text-grad mt-[15vh]">Store</h1>
 
-      {/* Offers Banner */}
-      {/*<div className="max-w-7xl mx-auto w-full mb-8 p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+        {/* Offers Banner */}
+        {/*<div className="max-w-7xl mx-auto w-full mb-8 p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden group">
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-blue-500/10 opacity-50" />
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-[80px]" />
         <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/20 rounded-full blur-[80px]" />
@@ -111,9 +114,19 @@ export default function Store() {
           </div>
         </div>
       </div>*/}
-      <div className="flex items-center justify-center flex-wrap gap-2 md:gap-8">
-        {products.map((product, idx) => <ProductCard key={idx} name={product.name} cost={product.cost} id={product.id} img_src={product.img_src} />)}
+        <div className="flex items-center justify-center flex-wrap gap-2 md:gap-8">
+          {products.map((product) => (
+            <ProductCard
+              key={product.id}
+              name={product.name}
+              cost={product.cost}
+              id={product.id}
+              img_src={product.img_src}
+              type={product.type}
+            />
+          ))}
+        </div>
       </div>
-    </div>
-  </>
+    </>
+  );
 }

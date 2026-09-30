@@ -289,10 +289,7 @@ export default function Home() {
           <h2 className="text-white text-4xl uppercase text-center mb-8 state-wide">
             Events
           </h2>
-          <p className="text-gray-100 text-lg md:text-xl">
-            {" "}
-            Incoming Soon....
-          </p>
+          <p className="text-gray-100 text-lg md:text-xl"> Incoming Soon....</p>
           {/* <Swiper
             modules={[Autoplay, Navigation]}
             spaceBetween={24}
@@ -378,15 +375,15 @@ export default function Home() {
           </h2>
 
           <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] mx-auto mb-8 bg-black">
-            <iframe 
+            <iframe
               className="absolute top-0 left-0 w-full h-full"
-              src="https://www.youtube.com/embed/5HM98tMfYdo?autoplay=1&mute=1&loop=1&playlist=5HM98tMfYdo" 
-              title="CELESTA Glimpse YouTube video" 
-              frameBorder="0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-              referrerPolicy="strict-origin-when-cross-origin" 
-              allowFullScreen>
-            </iframe>
+              src="https://www.youtube.com/embed/5HM98tMfYdo?autoplay=1&mute=1&loop=1&playlist=5HM98tMfYdo"
+              title="CELESTA Glimpse YouTube video"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            ></iframe>
           </div>
         </section>
       </div>

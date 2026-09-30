@@ -105,7 +105,7 @@ export default function FlagshipRegistrationPage({ params }) {
     const toastId = toast.loading("Adding to Cart...");
 
     try {
-      const totalAmount = parseInt(formDataObj.numMembers || "1") * eventFee;
+      const totalAmount = eventFee;
       const processedMembers = await Promise.all(
         formDataObj.members.map(async (member) => {
           let secureFileId = "";
@@ -139,7 +139,7 @@ export default function FlagshipRegistrationPage({ params }) {
       });
 
       toast.success("Added to Cart successfully!", { id: toastId });
-      router.push("/profile"); // Take user to checkout
+      router.push("/cart"); // Take user to checkout
     } catch (error) {
       console.error("Submission error:", error);
       toast.error("Document upload failed. Please try again.", { id: toastId });

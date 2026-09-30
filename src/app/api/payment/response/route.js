@@ -17,9 +17,7 @@ export async function POST(req) {
     try {
       const formData = await req.formData();
       encData = formData.get("encData");
-    } catch (e) {
-      // fallback
-    }
+    } catch (e) {}
 
     if (!encData) {
       try {
@@ -33,27 +31,27 @@ export async function POST(req) {
     }
 
     const decrypted_data = decrypt(encData);
-
     let jsonData = JSON.parse(decrypted_data);
     let resArray = Object.keys(jsonData).map((key) => jsonData[key]);
 
     const statusCode = resArray[0]["responseDetails"]["statusCode"];
     const orderId = resArray[0]["extras"]["udf1"];
     const receivedSignature = resArray[0]?.payDetails?.signature;
-    if (receivedSignature) {
-      const expectedSignature = generateSignature(resArray);
-      if (expectedSignature !== receivedSignature) {
-        console.error("Payment webhook signature mismatch for order:", orderId);
-        return NextResponse.json(
-          { error: "Signature verification failed" },
-          { status: 400 },
-        );
-      }
-    } else {
-      console.warn(
-        "Payment webhook: no signature field found to verify for order:",
-        orderId,
-        "— proceeding WITHOUT signature verification. Confirm Atom's field name.",
+
+    if (!receivedSignature) {
+      console.error("Missing signature. Rejecting payload for order:", orderId);
+      return NextResponse.json(
+        { error: "Unauthorized - Missing Signature" },
+        { status: 401 },
+      );
+    }
+
+    const expectedSignature = generateSignature(resArray);
+    if (expectedSignature !== receivedSignature) {
+      console.error("Payment webhook signature mismatch for order:", orderId);
+      return NextResponse.json(
+        { error: "Signature verification failed" },
+        { status: 401 },
       );
     }
 
@@ -68,15 +66,10 @@ export async function POST(req) {
         if (invoiceSnap.exists) {
           const invoiceData = invoiceSnap.data();
           const uid = invoiceData.uid;
-
           const paidAmount = parseFloat(resArray[0]?.payDetails?.totalAmount);
           const expectedAmount = invoiceData.total;
 
           if (invoiceData.status === "PAID") {
-            console.log(
-              "Order already marked PAID, ignoring duplicate webhook:",
-              orderId,
-            );
             return NextResponse.redirect(
               new URL("/success?status=success", req.url),
             );
@@ -87,14 +80,10 @@ export async function POST(req) {
             Number.isNaN(paidAmount) ||
             Math.abs(paidAmount - expectedAmount) > 0.01
           ) {
-            console.error(
-              `Amount mismatch for order ${orderId}: paid ${paidAmount}, expected ${expectedAmount}. Flagging for review, NOT granting access.`,
-            );
             await invoiceRef.update({
               status: "AMOUNT_MISMATCH",
               paymentDetails: resArray[0],
             });
-
             return NextResponse.redirect(
               new URL("/store?status=error", req.url),
             );
@@ -115,17 +104,21 @@ export async function POST(req) {
                 item.type === "event" ||
                 (item.id && String(item.id).startsWith("EVENT_"))
               ) {
-                if (item.teamDetails) {
-                  if (
-                    item.teamDetails.members &&
-                    Array.isArray(item.teamDetails.members)
-                  ) {
-                    item.teamDetails.members.forEach((member) => {
-                      if (member.aadhaar) {
-                        confirmedFileIds.push(member.aadhaar);
+                if (item.teamDetails && item.teamDetails.members) {
+                  item.teamDetails.members.forEach((member) => {
+                    if (member.aadhaar) {
+                      const match = member.aadhaar.match(
+                        /\/v\d+\/(.+)\.[a-zA-Z]+$/,
+                      );
+                      if (match && match[1]) {
+                        confirmedFileIds.push(match[1]);
+                      } else {
+                        const parts = member.aadhaar.split("/");
+                        const fileWithExt = parts.slice(-2).join("/");
+                        confirmedFileIds.push(fileWithExt.split(".")[0]);
                       }
-                    });
-                  }
+                    }
+                  });
 
                   await db.collection("event_registrations").add({
                     eventId: item.id,
@@ -159,9 +152,6 @@ export async function POST(req) {
                 "paid_confirmed",
                 confirmedFileIds,
               );
-              console.log(
-                `Successfully secured ${confirmedFileIds.length} ID documents.`,
-              );
             } catch (cloudinaryError) {
               console.error(
                 "Failed to tag confirmed documents in Cloudinary:",
@@ -176,16 +166,11 @@ export async function POST(req) {
               userUpdates.hasPronitePass = true;
             }
             await db.collection("users").doc(uid).update(userUpdates);
-            console.log(`Access granted to user ${uid}`);
           }
-        } else {
-          console.error("Webhook received for unknown orderId:", orderId);
         }
       }
-
       return NextResponse.redirect(new URL("/success?status=success", req.url));
     } else {
-      console.log("Transaction failed:", statusCode);
       if (orderId) {
         await adminFirestore.collection("invoices").doc(orderId).update({
           status: "FAILED",

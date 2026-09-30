@@ -5,15 +5,11 @@ import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import axios from "axios";
 import { QRCodeSVG } from "qrcode.react";
-import Script from "next/script";
 import { useRouter } from "next/navigation";
 import { useInvoices } from "@/hooks/useInvoices";
 import React from "react";
 import toast from "react-hot-toast";
-import {
-  calculateCartTotal,
-  countUniquePronitePasses,
-} from "@/lib/pricing_algo";
+import { countUniquePronitePasses } from "@/lib/pricing_algo";
 import {
   User,
   Mail,
@@ -33,38 +29,14 @@ import {
 } from "@/components/ui/ProfileCard";
 import { Button } from "@/components/ui/button";
 import styles from "./Profile.module.css";
-import { useCart } from "@/context/CartContext";
-import { checkout } from "@/lib/checkout";
-import { ModalForm } from "./checkout_modal.js";
-import AccommodationModal from "@/components/AccommodationModal"; // Fixed import
 
 export default function Profile() {
   const router = useRouter();
-  const { authUser, loading, signOutUser } = useAuth();
+  const { authUser, userData, loading, signOutUser } = useAuth();
   const qrRef = useRef(null);
-  const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
-  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
-
-  const [profile, setProfile] = useState({
-    name: "",
-    email: "",
-    dob: "",
-    celestaId: "",
-    qrEnabled: false,
-  });
   const [qrValue, setQrValue] = useState("");
 
-  const { cart, removeFromCart, emptyCart, addToCart } = useCart();
   const { invoices } = useInvoices();
-
-  const uniquePronitePasses = countUniquePronitePasses(cart);
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = calculateCartTotal(cart);
-  const hasEventInCart = cart.some(
-    (item) =>
-      item.type === "event" ||
-      (item.id && String(item.id).startsWith("EVENT_")),
-  );
 
   useEffect(() => {
     if (!loading && !authUser) {
@@ -74,97 +46,21 @@ export default function Profile() {
   }, [authUser, loading, router]);
 
   useEffect(() => {
-    async function fetchProfile() {
-      if (!authUser) return;
-      const token = await authUser.getIdToken(true);
-      const res = await axios.get("/api/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.data.success) {
-        setProfile({
-          name: res.data.user.displayName,
-          email: res.data.user.email,
-          dob: res.data.user.dob,
-          celestaId: res.data.user.celestaId,
-          qrEnabled: res.data.user?.qrEnabled,
-        });
-      }
-    }
-    fetchProfile();
-  }, [authUser]);
-
-  useEffect(() => {
-    if (!authUser || !profile.qrEnabled) return;
     async function fetchQR() {
-      try {
-        const token = await authUser.getIdToken(true);
-        const res = await axios.get("/api/qr/generate", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setQrValue(JSON.stringify(res.data));
-      } catch (err) {
-        console.error("QR fetch error:", err);
+      if (authUser && userData?.qrEnabled) {
+        try {
+          const token = await authUser.getIdToken();
+          const qrRes = await axios.get("/api/qr/generate", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setQrValue(JSON.stringify(qrRes.data));
+        } catch (qrErr) {
+          console.error("Error fetching QR:", qrErr);
+        }
       }
     }
     fetchQR();
-  }, [authUser, profile.qrEnabled]);
-
-  const initiateCheckout = async (payload) => {
-    if (typeof window !== "undefined" && !window.AtomPaynetz) {
-      alert(
-        "Payment gateway is initializing. Please try again in a few seconds.",
-      );
-      return;
-    }
-
-    const custEmail = authUser?.email;
-    const custMobile = payload?.phone;
-
-    if (!custEmail || !custMobile) {
-      toast.error(
-        "We need a valid email and phone number before you can pay. Please fill them in and try again.",
-      );
-      return;
-    }
-
-    setIsCheckoutLoading(true);
-
-    try {
-      const data = await checkout(cart, authUser, payload);
-      if (data && data.token) {
-        const options = {
-          atomTokenId: data.token,
-          merchId: data.merchId,
-          custEmail,
-          custMobile,
-          returnUrl: `${window.location.origin}/api/payment/response`,
-        };
-
-        if (window.AtomPaynetz) {
-          new window.AtomPaynetz(
-            options,
-            process.env.NEXT_PUBLIC_ATOM_ENV === "prod" ? "prod" : "uat",
-          );
-        } else {
-          console.error("AtomPaynetz object not found");
-          alert("Payment gateway error. Please refresh.");
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error initiating checkout");
-    } finally {
-      setIsCheckoutLoading(false);
-    }
-  };
-
-  if (loading || !authUser) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-        Logging in...
-      </div>
-    );
-  }
+  }, [authUser, userData]);
 
   /* ───────── QR TO IMAGE ───────── */
   const qrToBlob = async () => {
@@ -191,7 +87,7 @@ export default function Profile() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${profile.celestaId}_QR.png`;
+    a.download = `${userData.celestaId}_QR.png`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -204,40 +100,23 @@ export default function Profile() {
       await navigator.share({
         files: [file],
         title: "Celesta Entry QR",
-        text: `Entry QR for ${profile.name}`,
+        text: `Entry QR for ${userData.displayName}`,
       });
     } else {
       downloadQR();
     }
   };
 
-  const startCheckout = () => {
-    if (hasEventInCart) {
-      const eventItem = cart.find(
-        (item) => item.type === "event" || String(item.id).startsWith("EVENT_"),
-      );
-      const leader = eventItem?.teamDetails?.members?.[0];
-      initiateCheckout({
-        college: eventItem?.teamDetails?.college || "",
-        phone: leader?.phone || "",
-        email: authUser?.email || leader?.email || "",
-      });
-      return;
-    }
-    setCheckoutModalOpen(true);
-  };
+  if (loading || !authUser || !userData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+        Loading Profile...
+      </div>
+    );
+  }
 
   return (
     <div className={styles.background}>
-      <Script
-        src={`https://${
-          process.env.NEXT_PUBLIC_ATOM_ENV === "prod" ? "psa" : "pgtest"
-        }.atomtech.in/staticdata/ots/js/atomcheckout.js?v=20260326`}
-        strategy="lazyOnload"
-        onLoad={() => {
-          console.log("AtomPaynetz script loaded successfully");
-        }}
-      />
       <Card
         className="
           w-full max-w-5xl
@@ -267,13 +146,13 @@ export default function Profile() {
 
         <CardContent className="grid grid-cols-1 lg:grid-cols-2 gap-12 pt-6">
           <div className="space-y-4">
-            <Info icon={<User />} label="Name" value={profile.name} />
-            <Info icon={<Mail />} label="Email" value={profile.email} />
-            <Info icon={<Calendar />} label="DOB" value={profile.dob} />
+            <Info icon={<User />} label="Name" value={userData.displayName} />
+            <Info icon={<Mail />} label="Email" value={userData.email} />
+            <Info icon={<Calendar />} label="DOB" value={userData.dob} />
             <Info
               icon={<CreditCard />}
               label="Celesta ID"
-              value={profile.celestaId}
+              value={userData.celestaId}
               highlight
             />
           </div>
@@ -286,10 +165,10 @@ export default function Profile() {
             <div
               ref={qrRef}
               className={`relative p-6 rounded-3xl ${
-                profile.qrEnabled ? "bg-white" : "bg-white/80"
+                userData.qrEnabled ? "bg-white" : "bg-white/80"
               } transition-all duration-300 `}
             >
-              {profile.qrEnabled ? (
+              {userData.qrEnabled ? (
                 qrValue ? (
                   <QRCodeSVG value={qrValue} size={260} />
                 ) : (
@@ -318,7 +197,7 @@ export default function Profile() {
               )}
             </div>
 
-            {profile.qrEnabled ? (
+            {userData.qrEnabled ? (
               <div className="flex gap-3 mt-6">
                 <Button
                   size="sm"
@@ -350,121 +229,6 @@ export default function Profile() {
         </CardFooter>
 
         <div className="flex flex-col items-center justify-center w-full">
-          {cart.length === 0 ? (
-            <CardFooter className="justify-center text-sm text-white/50 py-10">
-              Your Cart is empty
-            </CardFooter>
-          ) : (
-            <div className="w-full max-w-3xl mx-auto p-6 rounded-xl">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-white">Shopping Cart</h2>
-                <div className="text-lg font-semibold text-neutral-300">
-                  {totalItems} items • ₹{totalPrice}
-                </div>
-              </div>
-
-              <div className="space-y-4 mb-8">
-                {uniquePronitePasses > 0 && (
-                  <div className="flex items-center justify-between p-4 bg-purple-900/20 border border-purple-500/30 rounded-lg ">
-                    <div className="flex items-center space-x-4">
-                      <div>
-                        <h3 className="font-bold text-purple-400">
-                          Pronite Passes
-                        </h3>
-                        <p className="text-[11px] text-purple-300/70 mt-1 max-w-[200px] leading-tight">
-                          Auto-applied for all participants
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4 text-right">
-                      <div className="flex flex-col items-end">
-                        <span className="text-sm text-white/40 line-through">
-                          ₹{uniquePronitePasses * 899}
-                        </span>
-                        <span className="font-bold text-white text-lg">
-                          ₹{uniquePronitePasses * 399}
-                        </span>
-                        <span className="text-[10px] font-bold text-purple-300 bg-purple-500/20 px-2 py-1 rounded mt-1 border border-purple-500/30">
-                          {uniquePronitePasses} pass
-                          {uniquePronitePasses > 1 ? "es" : ""} added
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {cart.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between p-4 bg-neutral-800 rounded-lg"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="">
-                        <h3 className="font-semibold text-white">
-                          {item.name}
-                        </h3>
-                        <p className="text-sm text-neutral-400">
-                          ₹{item.cost || "N/A"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <span className="text-lg font-semibold text-white">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() => removeFromCart(item.id)}
-                        className="px-4 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap justify-between pt-4 border-t border-neutral-700 gap-4">
-                <div className="px-4 md:px-12 w-full mx-auto">
-                  <AccommodationModal />
-                </div>
-                <button
-                  onClick={emptyCart}
-                  className="px-6 py-2 bg-neutral-700 text-white rounded-md hover:bg-neutral-600 transition"
-                >
-                  Empty Cart
-                </button>
-
-                <button
-                  type="button"
-                  onClick={startCheckout}
-                  disabled={isCheckoutLoading}
-                  className={`px-8 py-3 text-white font-semibold rounded-md transition flex-grow md:flex-grow-0 ${
-                    isCheckoutLoading
-                      ? "bg-green-600/50 cursor-not-allowed"
-                      : "bg-green-600 hover:bg-green-700"
-                  }`}
-                >
-                  {isCheckoutLoading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Processing...
-                    </span>
-                  ) : (
-                    `Checkout (₹${totalPrice})`
-                  )}
-                  <p className="w-full text-center text-xs text-white mt-2">
-                    Use Bharat QR on the next step.
-                  </p>
-                </button>
-
-                <ModalForm
-                  isOpen={checkoutModalOpen}
-                  onClose={() => setCheckoutModalOpen(false)}
-                  onSubmit={(payload) => initiateCheckout(payload)}
-                />
-              </div>
-            </div>
-          )}
-
           {invoices.length === 0 ? (
             <CardFooter className="justify-center text-sm text-white/50 py-10 border-t border-white/10 w-full mt-8">
               No Paid Invoices

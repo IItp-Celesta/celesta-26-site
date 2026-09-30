@@ -207,7 +207,7 @@ export default function Navbar() {
                   <button
                     onClick={() => {
                       setIsCartOpen(false);
-                      router.push("/profile");
+                      router.push("/cart");
                     }}
                     className="w-full bg-teal-500 text-black font-bold py-3 rounded-xl hover:bg-teal-400 transition"
                   >
