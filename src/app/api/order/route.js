@@ -1,95 +1,107 @@
-import { NextResponse } from "next/server";
 import { adminAuth, adminFirestore } from "@/lib/firebaseAdmin";
 import { orderRequestSchema } from "@/lib/schemas";
-import { Timestamp } from "firebase-admin/firestore";
-import { calculateCartTotal } from "@/lib/pricing_algo";
-import eventsData from "@/app/events/events.json"; 
+import {
+  calculateCartTotal,
+  isEventItem,
+  isPassItem,
+} from "@/lib/pricing_algo";
+import eventsData from "@/app/events/events.json";
 
-const EVENT_FEES = new Map(
+const json = (body, status) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+
+const feeBySlug = Object.fromEntries(
   eventsData.events.map((e) => [
     e.name.toLowerCase().replace(/\s+/g, "-"),
-    Number(e.fee),
+    e.fee,
   ]),
 );
 
-function resolveTrustedItemCost(item) {
-  if (item.type === "event" || String(item.id).startsWith("EVENT_")) {
-    const parts = String(item.id).split("_");
-    const slug = parts.slice(1, -1).join("_");
-    const fee = EVENT_FEES.get(slug);
-
-    if (typeof fee !== "number") {
-      throw new Error(`Unknown or unpriced event in cart: ${item.id}`);
-    }
-
-    const numMembers = parseInt(
-      item.teamDetails?.numMembers ?? item.teamDetails?.members?.length ?? 1,
-      10,
-    );
-
-    return { ...item, cost: fee * numMembers };
-  }
-
-  const { cost, ...rest } = item;
-  return rest;
+async function priceCart(cart) {
+  return Promise.all(
+    cart.map(async (item) => {
+      if (isEventItem(item)) {
+        const slug = /^EVENT_(.+)_\d+$/.exec(item.id)?.[1];
+        const fee = feeBySlug[slug];
+        if (fee === undefined) throw new Error("Unknown event");
+        return { ...item, cost: fee, quantity: 1 };
+      }
+      const snap = await adminFirestore
+        .collection("products")
+        .doc(item.id)
+        .get();
+      if (!snap.exists) throw new Error("Unknown product");
+      const p = snap.data();
+      return { ...item, name: p.name, cost: p.cost };
+    }),
+  );
 }
 
-export async function POST(request) {
+export async function POST(req) {
   try {
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const header = req.headers.get("authorization");
+    if (!header?.startsWith("Bearer ")) {
+      return json({ success: false, message: "Unauthorized" }, 401);
     }
-
-    const token = authHeader.split(" ")[1];
-    let uid, verifiedEmail;
+    let uid;
     try {
-      const decodedToken = await adminAuth.verifyIdToken(token);
-      uid = decodedToken.uid;
-      verifiedEmail = decodedToken.email;
+      uid = (await adminAuth.verifyIdToken(header.split("Bearer ")[1])).uid;
     } catch {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return json({ success: false, message: "Unauthorized" }, 401);
     }
 
-    const body = await request.json();
-    const parsed = orderRequestSchema.safeParse(body);
+    const parsed = orderRequestSchema.safeParse(await req.json());
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid request", details: parsed.error.errors },
-        { status: 400 },
-      );
+      return json({ success: false, message: "Invalid payload format." }, 400);
     }
 
-    const { cart, payload } = parsed.data;
-    const trustedEmail = verifiedEmail || payload.email;
-
-    let trustedCart;
+    let cart;
     try {
-      trustedCart = cart.map(resolveTrustedItemCost);
-    } catch (e) {
-      return NextResponse.json({ error: e.message }, { status: 400 });
+      cart = await priceCart(parsed.data.cart);
+    } catch {
+      return json({ success: false, message: "Invalid cart item." }, 400);
     }
-    const trustedTotal = calculateCartTotal(trustedCart);
 
-    const docRef = await adminFirestore.collection("invoices").add({
-      cart: trustedCart,
-      payload,
-      email: trustedEmail,
-      total: trustedTotal,
-      status: "PENDING",
-      createdAt: Timestamp.now(),
+    const pastSnap = await adminFirestore
+      .collection("invoices")
+      .where("uid", "==", uid)
+      .where("status", "==", "PAID")
+      .get();
+    const pastInvoices = pastSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+    if (cart.some(isPassItem)) {
+      const alreadyOwns = pastInvoices.some((inv) =>
+        (inv.cart || []).some(isPassItem),
+      );
+      if (alreadyOwns) {
+        return json(
+          { success: false, message: "You already have a pass." },
+          403,
+        );
+      }
+    }
+
+    const total = calculateCartTotal(cart, pastInvoices);
+    if (total <= 0) {
+      return json({ success: false, message: "Nothing to charge." }, 400);
+    }
+
+    const ref = adminFirestore.collection("invoices").doc();
+    await ref.set({
       uid,
+      cart,
+      payload: parsed.data.payload,
+      total,
+      status: "PENDING",
+      createdAt: new Date().toISOString(),
     });
 
-    return NextResponse.json(
-      { success: true, id: docRef.id, total: trustedTotal },
-      { status: 201 },
-    );
-  } catch (error) {
-    console.error("Order creation error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return json({ success: true, id: ref.id, total }, 201);
+  } catch (err) {
+    console.error("Order API Error:", err);
+    return json({ success: false, message: "Internal Server Error" }, 500);
   }
 }

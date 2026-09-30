@@ -178,7 +178,7 @@ export default function EventModal({ event, onClose }) {
 function RegisterForm({ event, onClose }) {
   const [college, setCollege] = useState("");
   const [collegeId, setCollegeId] = useState("");
-  const [aadhar, setAadhar] = useState("");
+  const [aadhaar, setaadhaar] = useState("");
   const [teamName, setTeamName] = useState("");
   const { cart, addToCart, removeFromCart } = useCart();
   const handleKeyDown = (e) => {
@@ -186,7 +186,7 @@ function RegisterForm({ event, onClose }) {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!(college && aadhar && teamName)) {
+    if (!(college && aadhaar && teamName)) {
       toast.error("Please fill required fields");
       return;
     }
@@ -197,7 +197,7 @@ function RegisterForm({ event, onClose }) {
       id: event.name.toLocaleLowerCase(),
       college: college,
       collegeId: collegeId,
-      aadhar: aadhar,
+      aadhaar: aadhaar,
       teamName: teamName,
       quantity: 1,
       type: "event",
@@ -228,10 +228,10 @@ function RegisterForm({ event, onClose }) {
           onChange={(e) => setCollegeId(e.target.value)}
         />
         <input
-          placeholder="Aadhar Card Number"
+          placeholder="aadhaar Card Number"
           className="p-3 rounded-lg bg-white/5 border border-white/10 focus:border-teal-400 outline-none text-white placeholder-white/40 transition-colors"
-          value={aadhar}
-          onChange={(e) => setAadhar(e.target.value)}
+          value={aadhaar}
+          onChange={(e) => setaadhaar(e.target.value)}
         />
         <input
           placeholder="Team Name"

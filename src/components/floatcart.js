@@ -92,7 +92,7 @@ export default function FloatingCart() {
               </div>
             )}
 
-              <Link href="/profile" onClick={() => setIsOpen(false)} className="text-xs text-teal-400 px-3 py-1 rounded-full hover:bg-teal-500/30 transition-colors uppercase font-bold tracking-wider">
+              <Link href="/cart" onClick={() => setIsOpen(false)} className="text-xs text-teal-400 px-3 py-1 rounded-full hover:bg-teal-500/30 transition-colors uppercase font-bold tracking-wider">
                 Cart
               </Link>
 
