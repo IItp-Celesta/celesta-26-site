@@ -46,11 +46,11 @@ export default function Navbar() {
             height={35}
           />
           <Image
-            src="/images/typeface-navbar.png"
+            src="/images/typeface-navbar.svg"
             alt="Celesta"
             width={110}
-            height={35}
-            className="-translate-y-1"
+            height={30}
+            className=""
           />
         </Link>
 
