@@ -209,7 +209,7 @@ export default function Home() {
           <Image
             className="translate-y-[30px]"
             ref={fadeRef}
-            src="/images/banner-logo.png"
+            src="/images/banner-logo.svg"
             alt="banner-logo"
             width={1000}
             height={500}
@@ -269,7 +269,7 @@ export default function Home() {
       <div className={`w-full ${styles.background2} py-16 px-4 md:px-20`}>
         {/* Theme Announcement Section */}
 
-        <section className="max-w-5xl mx-auto text-center mb-16 reveal-section">
+        {/*<section className="max-w-5xl mx-auto text-center mb-16 reveal-section">
           {" "}
           <h3 className="text-white text-4xl uppercase text-center mb-8 state-wide">
             {" "}
@@ -277,20 +277,20 @@ export default function Home() {
           </h3>
           <h2 className="text-white text-4xl md:text-6xl font-extrabold uppercase mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400">
             {" "}
-            To Be Announced{" "}
+            ANACHRONISTIC SYNCRETISM{" "}
           </h2>
           <div className="w-24 h-[2px] mx-auto mb-6 bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
           <p className="text-gray-300 text-lg md:text-xl">
             {" "}
             Something exciting is coming. Stay tuned for the reveal.{" "}
           </p>{" "}
-        </section>
+        </section>*/}
         <section className="max-w-7xl mx-auto mb-16 reveal-section">
           <h2 className="text-white text-4xl uppercase text-center mb-8 state-wide">
             Events
           </h2>
           <p className="text-gray-100 text-lg md:text-xl"> Incoming Soon....</p>
-          {/* <Swiper
+           <Swiper
             modules={[Autoplay, Navigation]}
             spaceBetween={24}
             slidesPerView={1}
@@ -318,7 +318,7 @@ export default function Home() {
                 </div>
               </SwiperSlide>
             ))}
-          </Swiper> */}
+          </Swiper> 
 
           {selectedEvent && (
             <EventModal

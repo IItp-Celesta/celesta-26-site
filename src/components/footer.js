@@ -8,7 +8,7 @@ export default function Footer() {
 
       {/* Logo */}
       <div className="flex justify-center md:justify-start w-full md:w-auto">
-        <Image src="/images/banner-logo.png" alt="banner-logo" width={400} height={600} className="object-contain" />
+        <Image src="/images/banner-logo.svg" alt="banner-logo" width={400} height={600} className="object-contain" />
       </div>
 
       {/* Links */}
