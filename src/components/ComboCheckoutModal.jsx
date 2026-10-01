@@ -195,7 +195,7 @@ export default function ComboCheckoutModal({
           <label className="block text-xs font-medium text-white/60 mb-1">
             Coupon Code
           </label>
-
+          <p>For Discounts, Contact at +91 95885 36927</p>
           <div className="flex gap-2">
             <input
               type="text"
