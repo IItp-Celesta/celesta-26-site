@@ -46,7 +46,6 @@ export default function Register() {
     return () => clearInterval(interval);
   }, [otpSent, canResend]);
 
-
   useEffect(() => {
     async function check() {
       if (!authUser) return;
@@ -56,26 +55,27 @@ export default function Register() {
         const res = await axios.post(
           "/api/register",
           {},
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
 
         if (res.data.success) {
           if (res.data.role === "user") router.replace("/profile");
           if (res.data.role === "admin") router.replace("/admin");
         }
-      } catch { }
+      } catch {}
     }
     check();
   }, [authUser, router]);
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setDisabled(true);
 
+    const email = formData.email.trim().toLowerCase();
+
     if (
       !formData.name ||
-      !formData.email ||
+      !email ||
       !formData.password ||
       !formData.confirmPassword
     ) {
@@ -91,7 +91,7 @@ export default function Register() {
     }
 
     const IITP_REGEX = /^[a-zA-Z]+_[0-9]{4}[a-zA-Z]{2}[0-9]{2}@iitp\.ac\.in$/;
-    const flag = IITP_REGEX.test(formData.email);
+    const flag = IITP_REGEX.test(email);
 
     if (flag) {
       toast.error("IITP College students are not allowed to register.");
@@ -100,7 +100,7 @@ export default function Register() {
     }
 
     try {
-      await axios.post("/api/send-otp", { email: formData.email });
+      await axios.post("/api/send-otp", { email: email });
 
       toast.success("OTP sent to email");
       setOtpSent(true);
@@ -124,7 +124,7 @@ export default function Register() {
 
       try {
         await axios.post("/api/verify-otp", {
-          email: formData.email,
+          email: email,
           otp: otp,
         });
       } catch (verifyError) {
@@ -134,8 +134,8 @@ export default function Register() {
       }
 
       const userCredential = await signUpWithEmail(
-        formData.email,
-        formData.password
+        email,
+        formData.password,
       );
 
       const user = userCredential.user;
@@ -178,7 +178,7 @@ export default function Register() {
   /* ================= RESEND OTP ================= */
   const resendOtp = async () => {
     try {
-      await axios.post("/api/send-otp", { email: formData.email });
+      await axios.post("/api/send-otp", { email: email });
       toast.success("OTP resent");
       setResendTimer(30);
       setCanResend(false);
@@ -205,7 +205,15 @@ export default function Register() {
       </motion.div>
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={(e) => {
+          e.preventDefault();
+
+          if (otpSent) {
+            verifyOtpAndRegister();
+          } else {
+            handleSubmit(e);
+          }
+        }}
         className={`w-full max-w-full md:max-w-4xl flex flex-col gap-8 p-4 md:p-10 ${styles.glassCard}`}
       >
         {otpSent && (
@@ -237,7 +245,7 @@ export default function Register() {
                   <label>Email</label>
                   <input
                     type="email"
-                    value={formData.email}
+                    value={email}
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
@@ -343,19 +351,21 @@ export default function Register() {
           <div className="flex flex-col gap-4 mt-6 items-center">
             <input
               type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
               value={otp}
-              onChange={(e) => setOtp(e.target.value)}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
               placeholder="Enter OTP"
               className="w-full max-w-xs p-2 border-2 rounded-lg text-white bg-transparent focus:outline-none focus:border-teal-600"
             />
 
             <button
-              type="button"
-              onClick={verifyOtpAndRegister}
+              type="submit"
               disabled={isDisabled}
-              className={`${styles.btn} ${isDisabled && "opacity-50"}`}
+              className={`${styles.btn} ${isDisabled ? "opacity-50" : ""}`}
             >
-              Register
+              {isDisabled ? "Registering..." : "Register"}
             </button>
 
             {!canResend ? (
