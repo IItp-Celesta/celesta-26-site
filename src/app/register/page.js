@@ -29,6 +29,8 @@ export default function Register() {
   const [resendTimer, setResendTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
 
+  const email = formData.email.trim().toLowerCase();
+
   useEffect(() => {
     if (!otpSent || canResend) return;
 
@@ -70,8 +72,6 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setDisabled(true);
-
-    const email = formData.email.trim().toLowerCase();
 
     if (
       !formData.name ||
