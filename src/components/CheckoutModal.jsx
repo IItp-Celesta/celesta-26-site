@@ -212,7 +212,7 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) 
             </div>
             
             <div className="pt-2">
-              <label className="block text-xs font-medium text-white/60 mb-1">Government ID (JPG/PNG) *</label>
+              <label className="block text-xs font-medium text-white/60 mb-1">Aadhaar (JPG/PNG) *</label>
               <input
                 type="file"
                 accept="image/png, image/jpeg, image/jpg"

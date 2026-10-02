@@ -15,7 +15,10 @@ export default function FlagshipRegistrationForm({
   const numMembers = watch("numMembers", String(minTeamSize));
   const numMembersInt = parseInt(numMembers || String(minTeamSize), 10);
 
-  const totalAmount = eventFee || 0;
+  const numBots = watch("numBots", "1");
+  const numBotsInt = parseInt(numBots || "1", 10);
+
+  const totalAmount = (eventFee || 0) * numBotsInt;
 
   useEffect(() => {
     setExpandedMember((current) =>
@@ -40,7 +43,6 @@ export default function FlagshipRegistrationForm({
         <h2 className="mt-0 mb-6 text-[1.3rem] font-bold text-slate-50 border-b border-slate-700 pb-3">
           1. Team Information
         </h2>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label className="block mb-2 font-semibold text-[0.9rem] text-slate-300">
@@ -76,7 +78,7 @@ export default function FlagshipRegistrationForm({
             )}
           </div>
 
-          <div className="md:col-span-2">
+          <div>
             <label className="block mb-2 font-semibold text-[0.9rem] text-slate-300">
               Number of Team Members *
             </label>
@@ -84,7 +86,7 @@ export default function FlagshipRegistrationForm({
               {...register("numMembers", { required: true })}
               className={`${getInputClass(
                 errors.numMembers,
-              )} max-w-[300px] h-[44px] !bg-slate-900 cursor-pointer`}
+              )} h-[44px] !bg-slate-900 cursor-pointer`}
             >
               {Array.from(
                 { length: maxTeamSize - minTeamSize + 1 },
@@ -92,6 +94,25 @@ export default function FlagshipRegistrationForm({
               ).map((num) => (
                 <option key={num} value={num}>
                   {num} {num === 1 ? "Member" : "Members"}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* NEW: Number of Bots Dropdown */}
+          <div>
+            <label className="block mb-2 font-semibold text-[0.9rem] text-slate-300">
+              Number of Bots (If applicable)
+            </label>
+            <select
+              {...register("numBots")}
+              className={`${getInputClass(
+                errors.numBots,
+              )} h-[44px] !bg-slate-900 cursor-pointer`}
+            >
+              {[1, 2, 3, 4, 5].map((num) => (
+                <option key={num} value={num}>
+                  {num} {num === 1 ? "Bot" : "Bots"}
                 </option>
               ))}
             </select>
@@ -104,7 +125,6 @@ export default function FlagshipRegistrationForm({
         <h2 className="mt-0 mb-6 text-[1.3rem] font-bold text-slate-50 border-b border-slate-700 pb-3">
           2. Member Details
         </h2>
-
         <div className="flex flex-col gap-4">
           {Array.from({ length: numMembersInt }).map((_, index) => {
             const isExpanded = expandedMember === index;
@@ -146,7 +166,7 @@ export default function FlagshipRegistrationForm({
                         isExpanded ? "text-sky-400" : "text-slate-400"
                       }`}
                     >
-                      {isExpanded ? "▲" : "▼"}
+                      {isExpanded ? "▼" : "▶"}
                     </span>
                   </div>
                 </button>
@@ -257,9 +277,9 @@ export default function FlagshipRegistrationForm({
                         {...register(`members.${index}.aadhaar`, {
                           required: "ID is required",
                         })}
-                        className="w-full text-sm text-slate-400 
-                            file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 
-                            file:text-[0.85rem] file:font-bold file:bg-slate-800 file:text-slate-300
+                        className="w-full text-sm text-slate-400
+                             file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0
+                             file:text-[0.85rem] file:font-bold file:bg-slate-800 file:text-slate-300
                             hover:file:bg-slate-700 file:cursor-pointer cursor-pointer"
                       />
                     </div>
@@ -282,11 +302,12 @@ export default function FlagshipRegistrationForm({
           3. Checkout Summary
         </h3>
         <div className="flex justify-between items-center text-slate-300 pb-4">
-          <span>Team Registration Fee</span>
+          <span>Registration Fee</span>
           <span className="text-2xl font-extrabold text-sky-400">
             ₹{totalAmount}
           </span>
         </div>
+
         <button
           type="submit"
           disabled={isUploading}
