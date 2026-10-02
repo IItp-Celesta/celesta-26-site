@@ -4,17 +4,13 @@ import { adminFirestore } from "@/lib/firebaseAdmin";
 export async function POST(request) {
   try {
     const { code } = await request.json();
-
     const cleanCode = String(code || "")
       .trim()
       .toUpperCase();
 
     if (!cleanCode) {
       return NextResponse.json(
-        {
-          valid: false,
-          message: "Please enter a coupon code",
-        },
+        { valid: false, message: "Please enter a coupon code" },
         { status: 400 },
       );
     }
@@ -42,7 +38,6 @@ export async function POST(request) {
 
     if (coupon.expiresAt) {
       const expiryTime = new Date(coupon.expiresAt).getTime();
-
       if (!Number.isNaN(expiryTime) && Date.now() > expiryTime) {
         return NextResponse.json({
           valid: false,
@@ -51,9 +46,14 @@ export async function POST(request) {
       }
     }
 
-    const discount = Number(coupon.discount);
+    // Extract the percentage instead of the flat discount
+    const discountPercentage = Number(coupon.discountPercentage);
 
-    if (!Number.isFinite(discount) || discount < 0) {
+    if (
+      !Number.isFinite(discountPercentage) ||
+      discountPercentage <= 0 ||
+      discountPercentage > 100
+    ) {
       return NextResponse.json({
         valid: false,
         message: "Invalid coupon configuration",
@@ -62,16 +62,12 @@ export async function POST(request) {
 
     return NextResponse.json({
       valid: true,
-      discount,
+      discountPercentage,
     });
   } catch (error) {
     console.error("Coupon Validation Error:", error);
-
     return NextResponse.json(
-      {
-        valid: false,
-        message: "Server error",
-      },
+      { valid: false, message: "Server error" },
       { status: 500 },
     );
   }

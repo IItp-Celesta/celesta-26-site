@@ -62,8 +62,13 @@ export default function ComboCheckoutModal({
         return;
       }
 
-      setDiscount(Number(data.discount) || 0);
-      toast.success(`Coupon applied! ₹${data.discount} off.`);
+      const percentage = Number(data.discountPercentage) || 0;
+      const calculatedDiscount = Math.round((baseAmount * percentage) / 100);
+
+      setDiscount(calculatedDiscount);
+      toast.success(
+        `Coupon applied! ${percentage}% off (₹${calculatedDiscount} saved).`,
+      );
     } catch (error) {
       console.error(error);
       setDiscount(0);
