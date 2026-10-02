@@ -330,7 +330,7 @@ export default function ComboCheckoutModal({
 
           <div>
             <label className="block text-xs font-medium text-white/60 mb-1">
-              Aadhaar / Government ID *
+              Aadhaar (JPG/PNG/JPEG ) *
             </label>
 
             <input

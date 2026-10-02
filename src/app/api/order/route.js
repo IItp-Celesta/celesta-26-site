@@ -27,7 +27,9 @@ async function priceCart(cart) {
         const slug = /^EVENT_(.+)_\d+$/.exec(item.id)?.[1];
         const fee = feeBySlug[slug];
         if (fee === undefined) throw new Error("Unknown event");
-        return { ...item, cost: fee, quantity: 1 };
+        const numBots = parseInt(item.teamDetails?.numBots || 1, 10);
+        const finalEventCost = fee * numBots;
+        return { ...item, cost: finalEventCost, quantity: 1 };
       }
       const snap = await adminFirestore
         .collection("products")

@@ -109,6 +109,7 @@ const teamDetailsSchema = z.object({
   registeredUid: z.string().optional(),
   eventName: z.string().optional(),
   registrationTime: z.string().optional(),
+  numBots: z.string().or(z.number()).optional(),
 });
 
 const cartItemSchema = z.object({
