@@ -42,11 +42,17 @@ export default function Profile() {
   const { comboOrders, loading: combosLoading } = useComboOrders();
 
   useEffect(() => {
-    if (!loading && !authUser) {
-      toast.error("Please login first to view your profile!");
-      router.replace("/login?redirect=/profile");
+    if (!loading) {
+      if (!authUser) {
+        toast.error("Please login first to view your profile!");
+        router.replace("/login?redirect=/profile");
+      } else if (!userData) {
+        toast.error("Profile not found. Please register again.");
+        signOutUser();
+        router.replace("/register");
+      }
     }
-  }, [authUser, loading, router]);
+  }, [authUser, userData, loading, router, signOutUser]);
 
   useEffect(() => {
     async function fetchQR() {

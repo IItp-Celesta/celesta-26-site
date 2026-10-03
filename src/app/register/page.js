@@ -7,9 +7,10 @@ import styles from "./Register.module.css";
 import { Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
+import { FcGoogle } from "react-icons/fc";
 
 export default function Register() {
-  const { authUser, loading, signUpWithEmail } = useAuth();
+  const { authUser, loading, signUpWithEmail, signInWithGoogle, signOutUser } = useAuth();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -20,7 +21,8 @@ export default function Register() {
     dob: { day: "", month: "", year: "" },
   });
 
-  const [isDisabled, setDisabled] = useState(false);
+  const [isOtpDisabled, setOtpDisabled] = useState(false);
+  const [isGoogleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -69,9 +71,63 @@ export default function Register() {
     check();
   }, [authUser, router]);
 
+  const handleGoogleSignUp = async () => {
+    try {
+      setGoogleLoading(true);
+      const userCredential = await signInWithGoogle();
+      const user = userCredential.user;
+      const token = await user.getIdToken();
+
+      const IITP_REGEX = /^[a-zA-Z]+_[0-9]{4}[a-zA-Z]{2}[0-9]{2}@iitp\.ac\.in$/;
+      if (IITP_REGEX.test(user.email)) {
+        toast.error("IITP College students are not allowed to register.");
+        await signOutUser();
+        setGoogleLoading(false);
+        return;
+      }
+
+      // Check if already registered
+      try {
+        const loginCheck = await axios.post("/api/login", {}, { headers: { Authorization: `Bearer ${token}` } });
+        if (loginCheck.data.success) {
+           toast.success("Already registered! Logging you in...");
+           if (loginCheck.data.role === "user") router.push("/profile");
+           if (loginCheck.data.role === "admin") router.push("/admin");
+           return;
+        }
+      } catch (err) {
+        // Ignored, proceed to register
+      }
+
+      const response = await axios.post(
+        "/api/register",
+        { name: user.displayName || "Google User", dob: "01-01-2000" },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      if (response.data.success) {
+        toast.success("Registered successfully!");
+        router.push("/profile");
+      } else {
+        toast.error(response.data.message || "Registration failed");
+        await signOutUser();
+      }
+
+    } catch (error) {
+       console.error(error);
+       if (error?.code === "auth/popup-closed-by-user") {
+          toast.error("Google Sign-In was cancelled");
+       } else {
+          toast.error("Google Sign-In failed");
+       }
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setDisabled(true);
+    setOtpDisabled(true);
 
     if (
       !formData.name ||
@@ -80,13 +136,13 @@ export default function Register() {
       !formData.confirmPassword
     ) {
       toast.error("All fields are required!");
-      setDisabled(false);
+      setOtpDisabled(false);
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match!");
-      setDisabled(false);
+      setOtpDisabled(false);
       return;
     }
 
@@ -95,7 +151,7 @@ export default function Register() {
 
     if (flag) {
       toast.error("IITP College students are not allowed to register.");
-      setDisabled(false);
+      setOtpDisabled(false);
       return;
     }
 
@@ -109,7 +165,7 @@ export default function Register() {
     } catch {
       toast.error("Failed to send OTP");
     } finally {
-      setDisabled(false);
+      setOtpDisabled(false);
     }
   };
 
@@ -120,7 +176,7 @@ export default function Register() {
     }
 
     try {
-      setDisabled(true);
+      setOtpDisabled(true);
 
       try {
         await axios.post("/api/verify-otp", {
@@ -129,7 +185,7 @@ export default function Register() {
         });
       } catch (verifyError) {
         toast.error(verifyError.response?.data?.message || "Invalid OTP");
-        setDisabled(false);
+        setOtpDisabled(false);
         return;
       }
 
@@ -171,7 +227,7 @@ export default function Register() {
         toast.error("Registration failed. Please try again.");
       }
     } finally {
-      setDisabled(false);
+      setOtpDisabled(false);
     }
   };
 
@@ -339,10 +395,26 @@ export default function Register() {
 
             <button
               type="submit"
-              disabled={isDisabled}
-              className={`mx-auto ${styles.btn} ${isDisabled && "opacity-50"}`}
+              disabled={isOtpDisabled || isGoogleLoading}
+              className={`mx-auto ${styles.btn} ${(isOtpDisabled || isGoogleLoading) && "opacity-50"}`}
             >
-              {isDisabled ? "Sending OTP..." : "Send OTP"}
+              {isOtpDisabled ? "Sending OTP..." : "Send OTP"}
+            </button>
+
+            <div className="flex items-center gap-4 w-full max-w-xs mx-auto my-4">
+               <hr className="flex-1 border-white/20" />
+               <span className="text-white/50 text-sm">OR</span>
+               <hr className="flex-1 border-white/20" />
+            </div>
+
+            <button
+               type="button"
+               onClick={handleGoogleSignUp}
+               disabled={isOtpDisabled || isGoogleLoading}
+               className="mx-auto w-full max-w-xs flex items-center justify-center gap-2 p-2 border-2 border-teal-600 rounded-lg text-white hover:bg-teal-600/20 transition-colors"
+            >
+               <FcGoogle size={24} />
+               {isGoogleLoading ? "Loading..." : "Sign up with Google"}
             </button>
           </>
         )}
@@ -362,10 +434,10 @@ export default function Register() {
 
             <button
               type="submit"
-              disabled={isDisabled}
-              className={`${styles.btn} ${isDisabled ? "opacity-50" : ""}`}
+              disabled={isOtpDisabled || isGoogleLoading}
+              className={`${styles.btn} ${(isOtpDisabled || isGoogleLoading) ? "opacity-50" : ""}`}
             >
-              {isDisabled ? "Registering..." : "Register"}
+              {isOtpDisabled ? "Registering..." : "Register"}
             </button>
 
             {!canResend ? (
