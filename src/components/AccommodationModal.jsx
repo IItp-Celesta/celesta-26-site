@@ -139,7 +139,7 @@ export default function AccommodationModal() {
       <div className="border border-white/15 bg-white/5 rounded-xl p-5 mb-8 flex flex-col md:flex-row items-center justify-between gap-5">
         <div className="text-center md:text-left w-full md:w-auto">
           <h3 className="text-lg font-semibold text-white">
-            Hostel Accommodation
+            Hostel Accommodation (Food not included)
           </h3>
           <p className="text-sm text-white/60 mt-1 mb-3">
             ₹{PRICE_PER_DAY}/day per person. Select who needs accommodation:
