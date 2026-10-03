@@ -8,6 +8,7 @@ import { Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { getAuth } from "firebase/auth";
 import { motion } from "framer-motion";
+import { FcGoogle } from "react-icons/fc";
 
 export default function LogIn() {
   const { authUser, loading, signInWithGoogle, signInWithEmail, signOutUser } =
@@ -47,6 +48,46 @@ export default function LogIn() {
     }
     check();
   }, [authUser, router]);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setDisabled(true);
+      const userCredential = await signInWithGoogle();
+      const token = await userCredential.user.getIdToken();
+      
+      const IITP_REGEX = /^[a-zA-Z]+_[0-9]{4}[a-zA-Z]{2}[0-9]{2}@iitp\.ac\.in$/;
+      if (IITP_REGEX.test(userCredential.user.email)) {
+        toast.error("IITP College students are not allowed to login.");
+        await signOutUser();
+        setDisabled(false);
+        return;
+      }
+
+      const response = await axios.post(
+        "/api/login",
+        {},
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      if (response.data.success) {
+        toast.success("Login successfully!");
+        if (response.data.role == "user") router.push("/profile");
+        if (response.data.role == "admin") router.push("/admin");
+      } else {
+        toast.error("Account not found. Please register first.");
+        await signOutUser();
+      }
+    } catch (err) {
+      console.error(err);
+      if (err?.code === "auth/popup-closed-by-user") {
+         toast.error("Google Sign-In was cancelled");
+      } else {
+         toast.error("Google Sign-In failed");
+      }
+    } finally {
+      setDisabled(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -170,13 +211,30 @@ export default function LogIn() {
           >
             {isDisabled ? "Logging In..." : "Login"}
           </button>
+
+          <div className="flex items-center gap-4 w-full my-1">
+             <hr className="flex-1 border-white/20" />
+             <span className="text-white/50 text-sm">OR</span>
+             <hr className="flex-1 border-white/20" />
+          </div>
+
+          <button
+             type="button"
+             onClick={handleGoogleSignIn}
+             disabled={isDisabled}
+             className="w-full flex items-center justify-center gap-2 p-2 border-2 border-teal-600 rounded-lg text-white hover:bg-teal-600/20 transition-colors"
+          >
+             <FcGoogle size={24} />
+             Sign in with Google
+          </button>
+
           <button
             type="button"
             onClick={() => router.push("/register")}
-            className="text-md text-white hover:text-white/90 hover:underline transition-colors"
+            className="text-md text-white hover:text-white/90 hover:underline transition-colors mt-2"
           >
             Don't have an account? 
-            <p className="text-blue-400 ">
+            <p className="text-blue-400 inline ml-1">
               Register
             </p>
           </button>
