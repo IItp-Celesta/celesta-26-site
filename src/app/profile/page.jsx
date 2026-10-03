@@ -7,6 +7,8 @@ import axios from "axios";
 import { QRCodeSVG } from "qrcode.react";
 import { useRouter } from "next/navigation";
 import { useInvoices } from "@/hooks/useInvoices";
+import { useComboOrders } from "@/hooks/useComboOrders";
+import { CheckCircle2, Clock } from "lucide-react";
 import React from "react";
 import toast from "react-hot-toast";
 import { countUniquePronitePasses } from "@/lib/pricing_algo";
@@ -37,6 +39,7 @@ export default function Profile() {
   const [qrValue, setQrValue] = useState("");
 
   const { invoices } = useInvoices();
+  const { comboOrders, loading: combosLoading } = useComboOrders();
 
   useEffect(() => {
     if (!loading && !authUser) {
@@ -228,83 +231,155 @@ export default function Profile() {
           Scan QR at Celesta entry gates
         </CardFooter>
 
-        <div className="flex flex-col items-center justify-center w-full">
-          {invoices.length === 0 ? (
-            <CardFooter className="justify-center text-sm text-white/50 py-10 border-t border-white/10 w-full mt-8">
+        <div className="flex flex-col items-center justify-center w-full mt-8 border-t border-white/10 pt-4">
+          {invoices.length === 0 && comboOrders.length === 0 ? (
+            <CardFooter className="justify-center text-sm text-white/50 py-10 w-full">
               No Paid Invoices
             </CardFooter>
           ) : (
-            <div className="w-full max-w-3xl mx-auto p-6 rounded-xl border-t border-white/10 mt-8">
+            <div className="w-full max-w-3xl mx-auto p-6 rounded-xl">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-white">
                   Your Tickets & Invoices
                 </h2>
               </div>
 
-              <div className="space-y-4 mb-8 flex flex-col">
-                {invoices.map((invoice) => {
-                  const invoicePronitePasses = countUniquePronitePasses(
-                    invoice.cart,
-                  );
+              {!combosLoading && comboOrders.length > 0 && (
+                <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-8">
+                  <div className="bg-black/30 p-3 px-4 border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-2">
+                    <div>
+                      <h3 className="font-semibold text-white text-sm">
+                        Your passes
+                      </h3>
+                    </div>
+                  </div>
 
-                  return (
-                    <div
-                      key={invoice.id}
-                      className="bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-4"
-                    >
-                      <div className="bg-black/30 p-2 px-4 flex justify-between items-center text-xs text-white/50 border-b border-white/10">
-                        <span>Order #{invoice.id.substring(0, 8)}</span>
-                        <span className="font-bold text-green-400">
-                          Total Paid: ₹{invoice.total}
-                        </span>
-                      </div>
+                  <div className="flex flex-col">
+                    {comboOrders.map((order) => {
+                      const isVerified = order.status === "VERIFIED";
 
-                      {invoicePronitePasses > 0 && (
-                        <div className="flex items-center justify-between p-3 bg-purple-900/10 border-b border-white/5">
-                          <div className="px-1">
-                            <h3 className="font-semibold text-purple-400 text-sm">
-                              Pronite Passes
-                            </h3>
+                      return (
+                        <div
+                          key={order.id}
+                          className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors"
+                        >
+                          <div>
+                            <h4 className="font-semibold text-white">
+                              {order.item?.name || "Combo Pass"}
+                            </h4>
+                            <div className="text-sm text-neutral-400 mt-1 space-y-0.5">
+                              <p>
+                                UTR:{" "}
+                                <span className="text-white/70">
+                                  {order.txnId}
+                                </span>
+                              </p>
+                              <p>
+                                Name:{" "}
+                                <span className="text-white/70">
+                                  {order.attendee.name}
+                                </span>
+                              </p>
+                              {order.couponCode && (
+                                <p>
+                                  Coupon:{" "}
+                                  <span className="text-white/70">
+                                    {order.couponCode}
+                                  </span>
+                                </p>
+                              )}
+                            </div>
                           </div>
-                          <div className="text-right px-2">
-                            <span className="text-sm font-semibold text-white">
-                              x{invoicePronitePasses}
+
+                          <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-3 md:gap-1">
+                            <span className="text-lg font-semibold text-white">
+                              ₹{order.totalAmount}
                             </span>
-                            <p className="text-[11px] font-bold text-green-400 mt-0.5">
-                              ₹{invoicePronitePasses * 399}{" "}
-                              <span className="text-white/40 font-normal tracking-wide">
-                                (Included)
+
+                            {isVerified ? (
+                              <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400">
+                                <CheckCircle2 size={14} /> Approved
                               </span>
-                            </p>
+                            ) : (
+                              <span className="flex items-center gap-1.5 text-xs font-medium text-amber-400">
+                                <Clock size={14} /> Order submitted (Application
+                                in review)
+                              </span>
+                            )}
                           </div>
                         </div>
-                      )}
-                      {invoice.cart.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex items-center justify-between p-4 border-b border-white/5 last:border-0"
-                        >
-                          <div className="flex items-center space-x-4 px-2">
-                            <div className="">
-                              <h3 className="font-semibold text-white">
-                                {item.name}
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {invoices.length > 0 && (
+                <div className="space-y-4 mb-8 flex flex-col">
+                  {invoices.map((invoice) => {
+                    const invoicePronitePasses = countUniquePronitePasses(
+                      invoice.cart,
+                    );
+
+                    return (
+                      <div
+                        key={invoice.id}
+                        className="bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-4"
+                      >
+                        <div className="bg-black/30 p-2 px-4 flex justify-between items-center text-xs text-white/50 border-b border-white/10">
+                          <span>Order #{invoice.id.substring(0, 8)}</span>
+                          <span className="font-bold text-green-400">
+                            Total Paid: ₹{invoice.total}
+                          </span>
+                        </div>
+
+                        {invoicePronitePasses > 0 && (
+                          <div className="flex items-center justify-between p-3 bg-purple-900/10 border-b border-white/5">
+                            <div className="px-1">
+                              <h3 className="font-semibold text-purple-400 text-sm">
+                                Pronite Passes
                               </h3>
-                              <p className="text-sm text-neutral-400">
-                                Event Fee: ₹{item.cost || "N/A"}
+                            </div>
+                            <div className="text-right px-2">
+                              <span className="text-sm font-semibold text-white">
+                                x{invoicePronitePasses}
+                              </span>
+                              <p className="text-[11px] font-bold text-green-400 mt-0.5">
+                                ₹{invoicePronitePasses * 399}{" "}
+                                <span className="text-white/40 font-normal tracking-wide">
+                                  (Included)
+                                </span>
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-4 px-2">
-                            <span className="text-lg font-semibold text-white">
-                              x{item.quantity}
-                            </span>
+                        )}
+                        {invoice.cart.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-center justify-between p-4 border-b border-white/5 last:border-0"
+                          >
+                            <div className="flex items-center space-x-4 px-2">
+                              <div className="">
+                                <h3 className="font-semibold text-white">
+                                  {item.name}
+                                </h3>
+                                <p className="text-sm text-neutral-400">
+                                  Event Fee: ₹{item.cost || "N/A"}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-4 px-2">
+                              <span className="text-lg font-semibold text-white">
+                                x{item.quantity}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })}
-              </div>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
         </div>
