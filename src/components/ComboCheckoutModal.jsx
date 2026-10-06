@@ -25,7 +25,7 @@ export default function ComboCheckoutModal({
   const [idFile, setIdFile] = useState(null);
 
   const [couponCode, setCouponCode] = useState("");
-  const [discount, setDiscount] = useState(0);
+  const [couponPrice, setCouponPrice] = useState(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,7 +33,7 @@ export default function ComboCheckoutModal({
   if (!isOpen || !cartItem) return null;
 
   const baseAmount = Number(cartItem.cost) || 0;
-  const totalAmount = Math.max(0, baseAmount - discount);
+  const totalAmount = couponPrice !== null ? couponPrice : baseAmount;
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -51,27 +51,24 @@ export default function ComboCheckoutModal({
         },
         body: JSON.stringify({
           code: couponCode.trim(),
+          amount: baseAmount,
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok || !data.valid) {
-        setDiscount(0);
+        setCouponPrice(null);
         toast.error(data.message || "Invalid coupon code.");
         return;
       }
 
-      const percentage = Number(data.discountPercentage) || 0;
-      const calculatedDiscount = Math.round((baseAmount * percentage) / 100);
+      setCouponPrice(data.couponPrice);
 
-      setDiscount(calculatedDiscount);
-      toast.success(
-        `Coupon applied! ${percentage}% off (₹${calculatedDiscount} saved).`,
-      );
+      toast.success(`Coupon applied! New price: ₹${data.couponPrice}`);
     } catch (error) {
       console.error(error);
-      setDiscount(0);
+      setCouponPrice(null);
       toast.error("Failed to validate coupon.");
     } finally {
       setIsApplyingCoupon(false);
@@ -155,7 +152,8 @@ export default function ComboCheckoutModal({
         },
         txnId,
         screenshotUrl,
-        couponCode: discount > 0 ? couponCode.trim().toUpperCase() : null,
+        couponCode: couponPrice !== null ? couponCode.trim().toUpperCase() : null,
+        originalAmount: baseAmount,
         totalAmount,
         status: "PENDING_VERIFICATION",
         submittedAt: serverTimestamp(),
@@ -207,7 +205,7 @@ export default function ComboCheckoutModal({
               value={couponCode}
               onChange={(e) => {
                 setCouponCode(e.target.value.toUpperCase());
-                setDiscount(0);
+                setCouponPrice(null);
               }}
               placeholder="Enter coupon code"
               className="flex-1 px-3 py-2 bg-slate-800 border border-white/10 rounded-md text-sm text-white focus:outline-none focus:border-sky-500"
@@ -230,7 +228,7 @@ export default function ComboCheckoutModal({
             Total Payable
           </span>
           <div className="text-right">
-            {discount > 0 && (
+            {couponPrice !== null && (
               <span className="block text-sm text-white/40 line-through">
                 ₹{baseAmount}
               </span>
