@@ -21,7 +21,6 @@ import {
 } from "@/lib/pricing_algo";
 
 import CheckoutModal from "@/components/CheckoutModal";
-import AccommodationModal from "@/components/AccommodationModal";
 
 export default function CartPage() {
   const router = useRouter();
@@ -291,7 +290,6 @@ export default function CartPage() {
             </div>
 
             <div className="border-t border-neutral-700 pt-6 space-y-4">
-              {hasEventInCart && <AccommodationModal />}
               <div className="flex gap-4">
                 <button
                   onClick={emptyCart}

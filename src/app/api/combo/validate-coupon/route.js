@@ -3,14 +3,27 @@ import { adminFirestore } from "@/lib/firebaseAdmin";
 
 export async function POST(request) {
   try {
-    const { code } = await request.json();
+    const { code, amount } = await request.json();
+
     const cleanCode = String(code || "")
       .trim()
       .toUpperCase();
 
+    const baseAmount = Number(amount);
+
     if (!cleanCode) {
       return NextResponse.json(
         { valid: false, message: "Please enter a coupon code" },
+        { status: 400 },
+      );
+    }
+
+    if (!Number.isFinite(baseAmount) || baseAmount <= 0) {
+      return NextResponse.json(
+        {
+          valid: false,
+          message: "Invalid product price",
+        },
         { status: 400 },
       );
     }
@@ -46,14 +59,18 @@ export async function POST(request) {
       }
     }
 
-    // Extract the percentage instead of the flat discount
-    const discountPercentage = Number(coupon.discountPercentage);
+    const prices = coupon.prices || {};
 
-    if (
-      !Number.isFinite(discountPercentage) ||
-      discountPercentage <= 0 ||
-      discountPercentage > 100
-    ) {
+    const couponPrice = Number(prices[String(baseAmount)]);
+
+    if (!Number.isFinite(couponPrice)) {
+      return NextResponse.json({
+        valid: false,
+        message: "This coupon is not applicable to this item",
+      });
+    }
+
+    if (couponPrice < 0 || couponPrice > baseAmount) {
       return NextResponse.json({
         valid: false,
         message: "Invalid coupon configuration",
@@ -62,12 +79,18 @@ export async function POST(request) {
 
     return NextResponse.json({
       valid: true,
-      discountPercentage,
+      originalPrice: baseAmount,
+      couponPrice,
+      discount: baseAmount - couponPrice,
     });
   } catch (error) {
     console.error("Coupon Validation Error:", error);
+
     return NextResponse.json(
-      { valid: false, message: "Server error" },
+      {
+        valid: false,
+        message: "Server error",
+      },
       { status: 500 },
     );
   }

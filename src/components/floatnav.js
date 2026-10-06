@@ -23,7 +23,7 @@ export default function FloatingNav() {
   }, [menuRef]);
 
   return (
-    <div ref={menuRef} className="hidden lg:flex fixed top-24 right-4 sm:right-8 z-[60] group">
+    <div ref={menuRef} className="hidden lg:flex fixed top-24 right-4 sm:right-8 z-60 group">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-14 h-14 md:w-20 md:h-20 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white
@@ -49,6 +49,10 @@ export default function FloatingNav() {
             Profile
           </Link>
           }
+          <Link href="/accommodation" onClick={() => setIsOpen(false)} className="px-4 py-2 text-white rounded-md hover:bg-white/10 transition-colors font-semibold">
+            Accommodation
+          </Link>
+
           <Link href="/contact" onClick={() => setIsOpen(false)} className="px-4 py-2 text-white rounded-md hover:bg-white/10 transition-colors">
             Contact Us
           </Link>

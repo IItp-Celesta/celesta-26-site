@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useAuth } from "@/context/AuthUserContext";
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
@@ -8,6 +9,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { useRouter } from "next/navigation";
 import { useInvoices } from "@/hooks/useInvoices";
 import { useComboOrders } from "@/hooks/useComboOrders";
+import { useAccommodationRequests } from "@/hooks/useAccommodationRequests";
 import { CheckCircle2, Clock } from "lucide-react";
 import React from "react";
 import toast from "react-hot-toast";
@@ -40,6 +42,8 @@ export default function Profile() {
 
   const { invoices } = useInvoices();
   const { comboOrders, loading: combosLoading } = useComboOrders();
+  const { accommodationRequests, loading: accomLoading } =
+    useAccommodationRequests();
 
   useEffect(() => {
     if (!loading && !authUser) {
@@ -232,7 +236,28 @@ export default function Profile() {
         </CardFooter>
 
         <div className="flex flex-col items-center justify-center w-full mt-8 border-t border-white/10 pt-4">
-          {invoices.length === 0 && comboOrders.length === 0 ? (
+          <div className="bg-black/40 border border-white/10 rounded-xl p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center sm:items-center gap-4 mt-8">
+            <div className="text-center sm:text-left min-w-0">
+              <h3 className="text-base sm:text-lg font-semibold text-white mb-1">
+                Accommodation Booking
+              </h3>
+
+              <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">
+                For participants registered in flagship events
+              </p>
+            </div>
+
+            <Link
+              href="/accommodation"
+              className="w-full sm:w-auto text-center whitespace-nowrap bg-sky-500 hover:bg-sky-400 text-black px-6 py-2.5 rounded-lg font-semibold transition-colors text-sm"
+            >
+              Book Hostel
+            </Link>
+          </div>
+
+          {invoices.length === 0 &&
+          comboOrders.length === 0 &&
+          accommodationRequests.length === 0 ? (
             <CardFooter className="justify-center text-sm text-white/50 py-10 w-full">
               No Paid Invoices
             </CardFooter>
@@ -261,7 +286,7 @@ export default function Profile() {
                       return (
                         <div
                           key={order.id}
-                          className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors"
+                          className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors"
                         >
                           <div>
                             <h4 className="font-semibold text-white">
@@ -269,7 +294,7 @@ export default function Profile() {
                             </h4>
                             <div className="text-sm text-neutral-400 mt-1 space-y-0.5">
                               <p>
-                                UTR:{" "}
+                                TxnId:{" "}
                                 <span className="text-white/70">
                                   {order.txnId}
                                 </span>
@@ -304,6 +329,73 @@ export default function Profile() {
                               <span className="flex items-center gap-1.5 text-xs font-medium text-amber-400">
                                 <Clock size={14} /> Order submitted (Application
                                 in review)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              {!accomLoading && accommodationRequests.length > 0 && (
+                <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-8">
+                  <div className="bg-black/30 p-3 px-4 border-b border-white/10">
+                    <h3 className="font-semibold text-white text-sm">
+                      Accommodation Bookings
+                    </h3>
+                  </div>
+
+                  <div className="flex flex-col">
+                    {accommodationRequests.map((req) => {
+                      const isVerified = req.status === "VERIFIED";
+
+                      return (
+                        <div
+                          key={req.id}
+                          className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm text-neutral-400 space-y-1">
+                              <p>
+                                Name:{" "}
+                                <span className="text-white/70 break-words">
+                                  {req.bookedMembers
+                                    ?.map((member) => member.name)
+                                    .join(", ") || "N/A"}
+                                </span>
+                              </p>
+
+                              <p>
+                                Dates:{" "}
+                                <span className="text-white/70">
+                                  {req.selectedDates?.join(", ") || "N/A"}
+                                </span>
+                              </p>
+
+                              <p>
+                                TxnId :{" "}
+                                <span className="text-white/70 break-all">
+                                  {req.txnId || "N/A"}
+                                </span>
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-3 md:gap-1">
+                            <span className="text-lg font-semibold text-white">
+                              ₹{req.totalAmount}
+                            </span>
+
+                            {isVerified ? (
+                              <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400">
+                                <CheckCircle2 size={14} />
+                                Approved
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1.5 text-xs font-medium text-amber-400">
+                                <Clock size={14} />
+                                {req.status?.replaceAll("_", " ") || "Pending"}
                               </span>
                             )}
                           </div>
