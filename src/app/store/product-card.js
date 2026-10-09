@@ -3,13 +3,21 @@
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { toast } from "react-hot-toast";
+import { useAuth } from "@/context/AuthUserContext";
+import { useRouter } from "next/navigation";
 
 export default function ProductCard({ name, cost, img_src, id, type }) {
   const { cart, addToCart, removeFromCart } = useCart();
+  const { authUser } = useAuth();
+  const router = useRouter();
 
   const isInCart = cart.some((item) => item.id === id);
 
   const handleAddToCart = () => {
+    if (!authUser) {
+      toast.error("Please login first to purchase pass");
+      return;
+    }
     addToCart({ name, cost, img_src, id, type });
     toast.success("Added to cart");
   };
