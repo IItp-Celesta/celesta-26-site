@@ -8,16 +8,6 @@ import { useEffect, useState } from "react";
 import { useProducts } from "@/hooks/useProducts";
 
 export default function Store() {
-  const { authUser, loading, signOutUser } = useAuth();
-  const router = useRouter();
-  useEffect(() => {
-    async function check() {
-      if (!loading && !authUser) {
-        router.replace("/register");
-      }
-    }
-    check();
-  }, [authUser, router]);
   const { products } = useProducts();
   return (
     <>
