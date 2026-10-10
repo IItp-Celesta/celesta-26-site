@@ -337,11 +337,11 @@ export default function AccommodationPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs text-slate-400 mb-1">ID Number *</label>
+                        <label className="block text-xs text-slate-400 mb-1">Aadhaar Number *</label>
                         <input type="text" required maxLength={12} disabled={isSubmitting} value={member.aadhaarNo} onChange={(e) => handleMemberChange(idx, "aadhaarNo", e.target.value.replace(/\D/g, ''))} className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm outline-none focus:border-sky-500 disabled:opacity-50" />
                       </div>
                       <div>
-                        <label className="block text-xs text-slate-400 mb-1">ID Document (JPG/PNG, Max 5MB) *</label>
+                        <label className="block text-xs text-slate-400 mb-1">Aadhaar (JPG/PNG, Max 5MB) *</label>
                         <input type="file" required disabled={isSubmitting} accept="image/png, image/jpeg, image/jpg" onChange={(e) => handleFileSelect(e, (file) => handleMemberChange(idx, "aadhaarFile", file))} className="w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-slate-700 file:text-white cursor-pointer disabled:opacity-50" />
                       </div>
                     </div>
