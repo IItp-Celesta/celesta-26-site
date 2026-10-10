@@ -359,7 +359,7 @@ export default function AccommodationPage() {
             </div>
 
             <div className="w-48 h-48 mx-auto bg-white p-2 rounded mb-6">
-              <img src="/payment/qr.jpeg" alt="UPI QR Code" className="w-full h-full object-contain" />
+              <img src="/payment/qr2.jpeg" alt="UPI QR Code" className="w-full h-full object-contain" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
