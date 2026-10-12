@@ -95,7 +95,7 @@ const HeroParallax = ({ products }: { products: Product[] }) => {
     return (
         <>
             <div className="fixed inset-0 z-0">
-                <img src="/images/events-backdrop.png" alt="Background" className="w-full h-full object-cover opacity-75" />
+                <img src="/images/backdrop.png" alt="Background" className="w-full h-full object-cover opacity-75" />
             </div>
             <div
                 ref={ref}

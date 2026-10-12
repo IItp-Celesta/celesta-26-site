@@ -5,6 +5,10 @@ import { adminAuth, adminFirestore } from "@/lib/firebaseAdmin";
 const QR_SECRET = process.env.QR_SECRET_KEY;
 
 export async function GET(req) {
+  return NextResponse.json(
+    { error: "QR generation is temporarily disabled" },
+    { status: 503 },
+  );
   try {
     const authHeader = req.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) {

@@ -239,7 +239,7 @@ export default function AccommodationPage() {
 
 
   return (
-    <div className="min-h-screen bg-[url('/images/auth-backdrop.png')] bg-cover bg-fixed bg-center flex justify-center p-4 pt-28 pb-12 text-white">
+    <div className="min-h-screen bg-[url('/images/backdrop.png')] bg-cover bg-fixed bg-center flex justify-center p-4 pt-28 pb-12 text-white">
       <div className="bg-slate-900/95 border border-slate-800 rounded-lg w-full max-w-3xl p-6 md:p-8 h-fit">
 
         <div className="mb-8 border-b border-slate-800 pb-4">

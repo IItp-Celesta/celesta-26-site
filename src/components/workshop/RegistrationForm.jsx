@@ -284,9 +284,7 @@ export default function RegistrationForm({
               Artificial Intelligence
             </option>
             <option value="Ethical Hacking">Ethical Hacking</option>
-            <option value="Drone Technology" disabled>
-              Drone Technology (Seats Full)
-            </option>
+            <option value="Drone Technology">Robotics</option>
           </select>
           {errors.workshop && (
             <span
@@ -377,7 +375,7 @@ export default function RegistrationForm({
                   animation: "fadeIn 0.2s ease-out",
                 }}
               >
-                Only for B.Tech/BS Economics, M.Tech, M.Sc, PhD
+                Only for offline degree students
               </div>
             )}
           </div>
@@ -626,80 +624,78 @@ export default function RegistrationForm({
             </div>
           )}
         </div>
-        {/* COUPON CODE */}
-        {/* COUPON */}
-{isIITP === "no" && (
-  <div style={{ marginTop: "0.25rem" }}>
-    <label
-      style={{
-        display: "block",
-        marginBottom: "0.4rem",
-        fontSize: "0.85rem",
-        fontWeight: "600",
-        color: "#cbd5e1",
-      }}
-    >
-      Coupon Code
-    </label>
+        {isIITP === "no" && (
+          <div style={{ marginTop: "0.25rem" }}>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "0.4rem",
+                fontSize: "0.85rem",
+                fontWeight: "600",
+                color: "#cbd5e1",
+              }}
+            >
+              Coupon Code
+            </label>
 
-    <div style={{ display: "flex", gap: "0.4rem" }}>
-      <input
-        type="text"
-        {...couponField}
-        placeholder="Enter code"
-        onChange={(e) => {
-          couponField.onChange(e);
-          setCouponStatus(null);
-        }}
-        style={{
-          ...inputStyle(false),
-          flex: 1,
-        }}
-      />
+            <div style={{ display: "flex", gap: "0.4rem" }}>
+              <input
+                type="text"
+                {...couponField}
+                placeholder="Enter code"
+                onChange={(e) => {
+                  couponField.onChange(e);
+                  setCouponStatus(null);
+                }}
+                style={{
+                  ...inputStyle(false),
+                  flex: 1,
+                }}
+              />
 
-      <button
-        type="button"
-        onClick={async () => {
-          try {
-            const result = await onVerifyCoupon();
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    const result = await onVerifyCoupon();
 
-            setCouponStatus({
-              valid: result?.valid === true,
-              message:
-                result?.message ||
-                (result?.valid ? "Applied" : "Invalid"),
-            });
-          } catch {
-            setCouponStatus({
-              valid: false,
-              message: "Invalid",
-            });
-          }
-        }}
-        style={{
-          padding: "0 0.9rem",
-          color: "#fff",
-          fontWeight: "600",
-          cursor: "pointer",
-        }}
-      >
-        Apply
-      </button>
-    </div>
+                    setCouponStatus({
+                      valid: result?.valid === true,
+                      message:
+                        result?.message ||
+                        (result?.valid ? "Applied" : "Invalid"),
+                    });
+                  } catch {
+                    setCouponStatus({
+                      valid: false,
+                      message: "Invalid",
+                    });
+                  }
+                }}
+                style={{
+                  padding: "0 0.9rem",
+                  color: "#fff",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                }}
+              >
+                Apply
+              </button>
+            </div>
 
-    {couponStatus && (
-      <div
-        style={{
-          marginTop: "0.3rem",
-          fontSize: "0.75rem",
-          color: couponStatus.valid ? "#4ade80" : "#f87171",
-        }}
-      >
-        {couponStatus.message}
-      </div>
-    )}
-  </div>
-)}
+            {couponStatus && (
+              <div
+                style={{
+                  marginTop: "0.3rem",
+                  fontSize: "0.75rem",
+                  color: couponStatus.valid ? "#4ade80" : "#f87171",
+                }}
+              >
+                {couponStatus.message}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { adminFirestore } from "@/lib/firebaseAdmin";
+import { adminFirestore, adminAuth } from "@/lib/firebaseAdmin";
 import { v2 as cloudinary } from "cloudinary";
+import { FieldValue } from "firebase-admin/firestore";
 
 cloudinary.config({
   cloud_name:
@@ -32,29 +33,52 @@ const uploadToCloudinary = async (file, publicId) => {
 
 export async function POST(request) {
   try {
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 },
+      );
+    }
+
+    let uid;
+    try {
+      const token = authHeader.split(" ")[1];
+      const decodedToken = await adminAuth.verifyIdToken(token);
+      uid = decodedToken.uid;
+    } catch (err) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 },
+      );
+    }
+
     const formData = await request.formData();
     const name = formData.get("name") || "";
     const email = formData.get("email") || "";
-
     const isExternal = formData.get("isIITP") === "no";
     const requireAccommodation = formData.get("requireAccommodation") === "yes";
     const accommodationDays = Number(formData.get("accommodationDays") || "0");
     const couponCode = (formData.get("couponCode") || "").trim().toUpperCase();
 
-    let expectedWorkshopFee = isExternal ? 999 : 590;
+    let expectedWorkshopFee = isExternal ? 1199 : 599;
 
-    const VALID_COUPONS = {
-      [process.env.COUPON_799]: 799,
-      [process.env.COUPON_899]: 899,
-    };
-
-    if (isExternal && couponCode && VALID_COUPONS[couponCode]) {
-      expectedWorkshopFee = VALID_COUPONS[couponCode];
+    if (isExternal && couponCode) {
+      const couponSnap = await adminFirestore
+        .collection("coupons")
+        .doc(couponCode)
+        .get();
+      if (couponSnap.exists && couponSnap.data().isActive !== false) {
+        const prices = couponSnap.data().prices || {};
+        const couponPrice = Number(prices[String(expectedWorkshopFee)]);
+        if (Number.isFinite(couponPrice)) {
+          expectedWorkshopFee = couponPrice;
+        }
+      }
     }
 
     const expectedAccommodationFee =
       requireAccommodation && isExternal ? accommodationDays * 249 : 0;
-
     const expectedTotalAmount = expectedWorkshopFee + expectedAccommodationFee;
 
     let workshopScreenshotUrl = "Missing";
@@ -86,10 +110,15 @@ export async function POST(request) {
       formData.get("aadhaarScreenshot") &&
       formData.get("aadhaarScreenshot") !== "null"
     ) {
-      aadhaarUrl = await uploadToCloudinary(
-        formData.get("aadhaarScreenshot"),
-        `aadhaar_${name.replace(/\s+/g, "_")}_${Date.now()}`,
-      );
+      try {
+        aadhaarUrl = await uploadToCloudinary(
+          formData.get("aadhaarScreenshot"),
+          `aadhaar_${name.replace(/\s+/g, "_")}_${Date.now()}`,
+        );
+      } catch (err) {
+        console.error("ID upload failed", err);
+        aadhaarUrl = "UPLOAD_FAILED";
+      }
     }
 
     const rawDate = formData.get("registrationTime")
@@ -105,14 +134,13 @@ export async function POST(request) {
       hour12: true,
     });
 
-    const registrationId = `WS2026-${Math.floor(
-      10000 + Math.random() * 90000,
-    )}`;
+    const registrationId = `WS2026-${Math.floor(10000 + Math.random() * 90000)}`;
 
     await adminFirestore
       .collection("workshop_registrations")
       .doc(registrationId)
       .set({
+        uid,
         registrationId,
         name,
         gender: formData.get("gender") || "",
@@ -136,6 +164,7 @@ export async function POST(request) {
         accommodationScreenshotUrl,
         aadhaarUrl,
         registrationTime: cleanTime,
+        submittedAt: FieldValue.serverTimestamp(),
       });
 
     return NextResponse.json({ success: true, registrationId });

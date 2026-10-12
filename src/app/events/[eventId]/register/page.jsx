@@ -159,7 +159,7 @@ export default function FlagshipRegistrationPage({ params }) {
   return (
     <div
       className="min-h-screen pt-28 px-4 pb-16 font-sans text-slate-50 relative z-10 bg-cover bg-center"
-      style={{ backgroundImage: "url('/images/auth-backdrop.png')" }}
+      style={{ backgroundImage: "url('/images/backdrop.png')" }}
     >
       <div className="max-w-[850px] mx-auto bg-slate-900/80 backdrop-blur-xl border border-sky-500/20 rounded-3xl p-6 md:p-12 ">
         <header className="text-center mb-10">

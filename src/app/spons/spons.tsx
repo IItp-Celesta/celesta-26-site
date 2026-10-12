@@ -229,7 +229,7 @@ export default function SponsorsPage() {
             className="min-h-screen bg-black text-white relative overflow-hidden font-sans"
         >
             <div className="fixed inset-0 z-0">
-                <img src="/images/events-backdrop.png" alt="Background" className="w-full h-full object-cover opacity-75" />
+                <img src="/images/backdrop.png" alt="Background" className="w-full h-full object-cover opacity-75" />
             </div>
 
             <div className="absolute inset-0 z-0 opacity-50 [mask-image:radial-gradient(ellipse_at_center,transparent_65%,white_100%)]">

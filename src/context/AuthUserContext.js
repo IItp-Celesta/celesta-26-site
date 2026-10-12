@@ -29,13 +29,15 @@ export function AuthUserProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setAuthUser(user);
-
       if (!user) {
+        setAuthUser(null);
         setUserData(null);
         setLoading(false);
         return;
       }
+
+      setAuthUser(user);
+      setLoading(true);
 
       try {
         const token = await user.getIdToken();
@@ -46,11 +48,7 @@ export function AuthUserProvider({ children }) {
           },
         });
 
-        if (profileRes.data.success) {
-          setUserData(profileRes.data.user);
-        } else {
-          setUserData(null);
-        }
+        setUserData(profileRes.data.success ? profileRes.data.user : null);
       } catch (error) {
         console.error("Failed to fetch user profile:", error);
         setUserData(null);
@@ -74,15 +72,7 @@ export function AuthUserProvider({ children }) {
 
   const signUpWithEmail = async (email, password) => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
-
-      setAuthUser(userCredential.user);
-
-      return userCredential;
+      return await createUserWithEmailAndPassword(auth, email, password);
     } catch (error) {
       console.error(error);
       throw error;
@@ -91,15 +81,7 @@ export function AuthUserProvider({ children }) {
 
   const signInWithEmail = async (email, password) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
-
-      setAuthUser(userCredential.user);
-
-      return userCredential;
+      return await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
       console.error(error);
       throw error;
