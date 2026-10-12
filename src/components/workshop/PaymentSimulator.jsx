@@ -3,8 +3,10 @@ import { useState } from "react";
 import Image from "next/image";
 import imageCompression from "browser-image-compression";
 import { CheckCircle2, Upload, ArrowLeft, ArrowRight } from "lucide-react";
+import { useAuth } from "@/context/AuthUserContext";
 
 export default function PaymentSimulator({ onPaymentSuccess, formData = {}, feeSummary = {}, onBack }) {
+  const { authUser } = useAuth()
   const isExternal = formData.isIITP === "no";
   const requireAccommodation = formData.requireAccommodation === "yes";
   const showAccomPayment = requireAccommodation && feeSummary.accommodationFee > 0;
@@ -117,6 +119,7 @@ export default function PaymentSimulator({ onPaymentSuccess, formData = {}, feeS
   const handleSubmit = async () => {
     setLoading(true);
     try {
+      const token = await authUser.getIdToken();
       const submitData = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
         if (value !== undefined && value !== null) submitData.append(key, value);
@@ -144,6 +147,7 @@ export default function PaymentSimulator({ onPaymentSuccess, formData = {}, feeS
 
       const response = await fetch("/api/register-workshop", {
         method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
         body: submitData,
       });
 
@@ -191,7 +195,7 @@ export default function PaymentSimulator({ onPaymentSuccess, formData = {}, feeS
             <h3 className="text-lg font-semibold mb-2 text-white uppercase tracking-wider">Registration Payment</h3>
             <div className="text-3xl md:text-4xl font-bold text-cyan-400 mb-6">₹ {feeSummary.workshopFee}</div>
             <div className="bg-white p-3 rounded-2xl shadow-[0_0_20px_rgba(14,165,233,0.2)] mb-4 inline-block">
-              <Image src="/payment/qr1.jpeg" alt="Registration QR" width={220} height={220} className="rounded-xl object-cover" />
+              <Image src="/payment/qr1.png" alt="Registration QR" width={220} height={220} className="rounded-xl object-cover" />
             </div>
           </div>
 
@@ -232,7 +236,7 @@ export default function PaymentSimulator({ onPaymentSuccess, formData = {}, feeS
             <h3 className="text-lg font-semibold mb-2 text-white uppercase tracking-wider">Accommodation Payment</h3>
             <div className="text-3xl md:text-4xl font-bold text-amber-400 mb-6">₹ {feeSummary.accommodationFee}</div>
             <div className="bg-white p-3 rounded-2xl shadow-[0_0_20px_rgba(251,191,36,0.2)] mb-4 inline-block">
-              <Image src="/payment/qr.jpeg" alt="Accommodation QR" width={220} height={220} className="rounded-xl object-cover" />
+              <Image src="/payment/qr2.jpeg" alt="Accommodation QR" width={220} height={220} className="rounded-xl object-cover" />
             </div>
             <p className="text-xs text-amber-400/80 uppercase tracking-widest font-mono">Separate Scan Required</p>
           </div>
@@ -267,7 +271,7 @@ export default function PaymentSimulator({ onPaymentSuccess, formData = {}, feeS
           </div>
 
           <div className="max-w-2xl mx-auto">
-            <label className="text-sm text-gray-300 font-medium mb-3 block text-center">Upload Aadhaar Card Screenshot *</label>
+            <label className="text-sm text-gray-300 font-medium mb-3 block text-center">Upload Aadhaar Card Screenshot/Photo *</label>
             <label className="border-2 border-dashed border-white/20 hover:border-pink-400 rounded-xl p-10 md:p-14 text-center cursor-pointer transition-all flex flex-col items-center gap-4 bg-black/20">
               {aadhaarFile ? <CheckCircle2 size={48} className="text-green-400" /> : <Upload size={48} className="text-pink-400" />}
               <span className="font-medium text-gray-300 md:text-lg">{aadhaarFile ? "Aadhaar Attached" : "Tap to Upload Image"}</span>

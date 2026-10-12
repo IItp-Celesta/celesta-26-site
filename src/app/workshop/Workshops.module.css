@@ -1,6 +1,6 @@
 .background {
   min-height: 100vh;
-  background-image: url('/images/auth-backdrop.png');
+  background-image: url('/images/backdrop.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

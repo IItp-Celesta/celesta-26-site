@@ -168,7 +168,7 @@ export default function TeamsPage() {
     <main className="teams-page relative min-h-screen">
       <div className="fixed inset-0 z-0 text-white">
         <img
-          src="/images/events-backdrop.png"
+          src="/images/backdrop.png"
           alt="Background"
           className="w-full h-full object-cover opacity-90"
         />

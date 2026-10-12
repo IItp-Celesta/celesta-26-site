@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -10,12 +10,24 @@ import PaymentSimulator from "../../components/workshop/PaymentSimulator";
 import Confirmation from "../../components/workshop/Confirmation";
 
 import { registrationSchema } from "../../lib/schemas";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthUserContext";
 
 export default function WorkshopRegistrationPage() {
+  const { authUser, loading } = useAuth();
+  const router = useRouter();
+  useEffect(() => {
+    if (!loading && !authUser) {
+      router.replace("/login?redirect=/workshop-registration");
+    }
+  }, [loading, authUser, router]);
   const [currentStep, setCurrentStep] = useState(1);
   const [registrationId, setRegistrationId] = useState("");
   const [submittedData, setSubmittedData] = useState(null);
-  const [appliedCoupon, setAppliedCoupon] = useState({ code: null, price: null });
+  const [appliedCoupon, setAppliedCoupon] = useState({
+    code: null,
+    price: null,
+  });
 
   const {
     register,
@@ -37,50 +49,48 @@ export default function WorkshopRegistrationPage() {
   const couponCode = formValues.couponCode?.trim().toUpperCase();
 
   const handleVerifyCoupon = async () => {
-  if (!couponCode) {
-    setAppliedCoupon({ code: null, price: null });
-    return { valid: false, message: "Please enter a coupon code." };
-  }
-
-  try {
-    const res = await fetch("/api/register-workshop/validate-coupon", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: couponCode }),
-    });
-
-    const data = await res.json();
-
-    if (data.valid) {
-      setAppliedCoupon({
-        code: couponCode,
-        price: data.price,
-      });
-
-      return {
-        valid: true,
-        message: `Coupon applied! Workshop fee reduced to ₹${data.price}.`,
-      };
+    if (!couponCode) {
+      setAppliedCoupon({ code: null, price: null });
+      return { valid: false, message: "Please enter a coupon code." };
     }
 
-    setAppliedCoupon({ code: null, price: null });
+    try {
+      const baseAmount = isIITPStudent ? 599 : 1199;
+      const res = await fetch("/api/combo/validate-coupon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode, amount: baseAmount }),
+      });
+      const data = await res.json();
 
-    return {
-      valid: false,
-      message: data.message || "Invalid coupon code.",
-    };
-  } catch (error) {
-    setAppliedCoupon({ code: null, price: null });
+      if (data.valid) {
+        setAppliedCoupon({
+          code: couponCode,
+          price: data.couponPrice,
+        });
+        return {
+          valid: true,
+          message: `Coupon applied! Workshop fee reduced to ₹${data.couponPrice}.`,
+        };
+      }
 
-    return {
-      valid: false,
-      message: "Unable to verify coupon. Please try again.",
-    };
-  }
-};
+      setAppliedCoupon({ code: null, price: null });
+      return { valid: false, message: data.message || "Invalid coupon code." };
+    } catch (error) {
+      setAppliedCoupon({ code: null, price: null });
+      return {
+        valid: false,
+        message: "Unable to verify coupon. Please try again.",
+      };
+    }
+  };
 
-  let workshopFee = isIITPStudent ? 590 : 999;
-  if (!isIITPStudent && appliedCoupon.price && appliedCoupon.code === couponCode) {
+  let workshopFee = isIITPStudent ? 599 : 1199;
+  if (
+    !isIITPStudent &&
+    appliedCoupon.price &&
+    appliedCoupon.code === couponCode
+  ) {
     workshopFee = appliedCoupon.price;
   }
 
@@ -110,11 +120,18 @@ export default function WorkshopRegistrationPage() {
     setRegistrationId(generatedId);
     setCurrentStep(3);
   };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div
       className="page-wrapper"
-      style={{ backgroundImage: "url('/images/auth-backdrop.png')" }}
+      style={{ backgroundImage: "url('/images/backdrop.png')" }}
     >
       <div className="glass-container">
         <header style={{ textAlign: "center", marginBottom: "3rem" }}>
@@ -127,11 +144,12 @@ export default function WorkshopRegistrationPage() {
               letterSpacing: "0.5px",
             }}
           >
-            Celesta 2026 Tech Workshop Series (22 & 23 August)
+            Celesta 2026 Tech Workshop (31st Oct & 1st Nov)
           </p>
         </header>
-        
+
         <main style={{ animation: "fadeIn 0.5s ease-out" }}>
+          {/*
         <div style={{ padding: "2rem", backgroundColor: "[#0e121f]", borderRadius: "12px", border: "1px solid rgba(239, 68, 68, 0.3)" }}>
             <h2 style={{ color: "#ef4444", fontSize: "2rem", fontWeight: "800", marginBottom: "1rem", textTransform: "uppercase", letterSpacing: "1px" }}>
               Registrations Closed
@@ -140,7 +158,8 @@ export default function WorkshopRegistrationPage() {
               Thank you for the overwhelming response! The registrations for the Celesta 2026 Tech Workshop are now officially closed. 
             </p>
           </div>
-          {/*
+          */}
+
           {currentStep === 1 && (
             <form
               onSubmit={handleSubmit(onSubmit)}
@@ -206,7 +225,6 @@ export default function WorkshopRegistrationPage() {
               feeSummary={feeSummary}
             />
           )}
-          */}
         </main>
       </div>
 

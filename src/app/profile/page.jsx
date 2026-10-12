@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useInvoices } from "@/hooks/useInvoices";
 import { useComboOrders } from "@/hooks/useComboOrders";
 import { useAccommodationRequests } from "@/hooks/useAccommodationRequests";
+import { useWorkshopRegistrations } from "@/hooks/useWorkshopRegistrations";
 import { CheckCircle2, Clock } from "lucide-react";
 import React from "react";
 import toast from "react-hot-toast";
@@ -38,24 +39,52 @@ export default function Profile() {
   const router = useRouter();
   const { authUser, userData, loading, signOutUser } = useAuth();
   const qrRef = useRef(null);
+  const redirectingRef = useRef(false);
   const [qrValue, setQrValue] = useState("");
 
-  const { invoices } = useInvoices();
+  const { invoices, loading: invoicesLoading } = useInvoices();
   const { comboOrders, loading: combosLoading } = useComboOrders();
   const { accommodationRequests, loading: accomLoading } =
     useAccommodationRequests();
+  const { workshopRegistrations, loading: workshopsLoading } =
+    useWorkshopRegistrations();
+
+  const dataLoading =
+    invoicesLoading || combosLoading || accomLoading || workshopsLoading;
+
+  const hasNothing = [
+    invoices,
+    comboOrders,
+    accommodationRequests,
+    workshopRegistrations,
+  ].every((list) => list.length === 0);
 
   useEffect(() => {
-    if (!loading) {
+    if (loading || redirectingRef.current) return;
+
+    const handleAuth = async () => {
       if (!authUser) {
-        toast.error("Please login first to view your profile!");
+        redirectingRef.current = true;
+        toast.error("Please login first to view your profile!", {
+          id: "auth-redirect",
+        });
         router.replace("/login?redirect=/profile");
       } else if (!userData) {
-        toast.error("Profile not found. Please register again.");
-        signOutUser();
-        router.replace("/register");
+        redirectingRef.current = true;
+        toast.error("Profile not found. Please register again.", {
+          id: "auth-redirect",
+        });
+
+        try {
+          await signOutUser();
+        } catch (error) {
+          console.error("Sign out failed:", error);
+        } finally {
+          router.replace("/register");
+        }
       }
-    }
+    };
+    handleAuth();
   }, [authUser, userData, loading, router, signOutUser]);
 
   useEffect(() => {
@@ -76,23 +105,26 @@ export default function Profile() {
   }, [authUser, userData]);
 
   /* ───────── QR TO IMAGE ───────── */
-  const qrToBlob = async () => {
-    const svg = qrRef.current?.querySelector("svg");
-    if (!svg) return null;
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-    canvas.width = 400;
-    canvas.height = 400;
-    return new Promise((resolve) => {
+  const qrToBlob = () =>
+    new Promise((resolve) => {
+      const svg = qrRef.current?.querySelector("svg");
+      if (!svg) return resolve(null);
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = 400;
+      const ctx = canvas.getContext("2d");
+      const img = new window.Image();
       img.onload = () => {
-        ctx.drawImage(img, 0, 0, 400, 400);
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, 400, 400);
+        ctx.drawImage(img, 20, 20, 360, 360);
         canvas.toBlob(resolve);
       };
-      img.src = "data:image/svg+xml;base64," + btoa(svgData);
+      img.onerror = () => resolve(null);
+      img.src =
+        "data:image/svg+xml;base64," +
+        btoa(unescape(encodeURIComponent(svgData)));
     });
-  };
 
   const downloadQR = async () => {
     const blob = await qrToBlob();
@@ -102,21 +134,25 @@ export default function Profile() {
     a.href = url;
     a.download = `${userData.celestaId}_QR.png`;
     a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const shareQR = async () => {
     const blob = await qrToBlob();
     if (!blob) return;
     const file = new File([blob], "celesta-qr.png", { type: "image/png" });
-    if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        title: "Celesta Entry QR",
-        text: `Entry QR for ${userData.displayName}`,
-      });
-    } else {
-      downloadQR();
+    try {
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "Celesta Entry QR",
+          text: `Entry QR for ${userData.displayName}`,
+        });
+      } else {
+        downloadQR();
+      }
+    } catch (err) {
+      if (err.name !== "AbortError") downloadQR();
     }
   };
 
@@ -146,11 +182,12 @@ export default function Profile() {
           <CardDescription className="text-white/60 text-sm">
             Celesta 2026 · IIT Patna
             <button
-              onClick={() => {
-                signOutUser();
+              onClick={async () => {
+                redirectingRef.current = true;
+                await signOutUser();
                 router.replace("/");
               }}
-              className="mx-4 px-2 py-1 text-neutral-500 text-xs bg-neutral-900 uppercase tracking-wide rounded"
+              className="mx-4 px-2 py-1 text-white text-xs bg-red-500 uppercase tracking-wide rounded"
             >
               Log Out
             </button>
@@ -181,7 +218,7 @@ export default function Profile() {
                 userData.qrEnabled ? "bg-white" : "bg-white/80"
               } transition-all duration-300 `}
             >
-              {userData.qrEnabled ? (
+              {false ? (
                 qrValue ? (
                   <QRCodeSVG value={qrValue} size={260} />
                 ) : (
@@ -201,9 +238,9 @@ export default function Profile() {
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="bg-black/60 px-4 py-2 rounded-lg text-center">
                       <p className="text-xs text-white font-medium">
-                        Register in any event
+                         QR unavailable
                       </p>
-                      <p className="text-[11px] text-white/70">to unlock QR</p>
+                      <p className="text-[11px] text-white/70">Entry will be done manually at gate</p>
                     </div>
                   </div>
                 </>
@@ -214,7 +251,8 @@ export default function Profile() {
               <div className="flex gap-3 mt-6">
                 <Button
                   size="sm"
-                  variant="outline text-black"
+                  variant="outline"
+                  className="text-black"
                   onClick={downloadQR}
                 >
                   <Download className="w-4 h-4 mr-2" />
@@ -222,7 +260,8 @@ export default function Profile() {
                 </Button>
                 <Button
                   size="sm"
-                  variant="outline text-black"
+                  variant="outline"
+                  className=" text-black"
                   onClick={shareQR}
                 >
                   <Share2 className="w-4 h-4 mr-2" />
@@ -261,9 +300,11 @@ export default function Profile() {
             </Link>
           </div>
 
-          {invoices.length === 0 &&
-          comboOrders.length === 0 &&
-          accommodationRequests.length === 0 ? (
+          {dataLoading ? (
+            <div className="py-10 text-center text-sm text-white/50 w-full">
+              Loading your tickets...
+            </div>
+          ) : hasNothing ? (
             <CardFooter className="justify-center text-sm text-white/50 py-10 w-full">
               No Paid Invoices
             </CardFooter>
@@ -275,7 +316,8 @@ export default function Profile() {
                 </h2>
               </div>
 
-              {!combosLoading && comboOrders.length > 0 && (
+              {/* Passes */}
+              {comboOrders.length > 0 && (
                 <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-8">
                   <div className="bg-black/30 p-3 px-4 border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-2">
                     <div>
@@ -292,7 +334,7 @@ export default function Profile() {
                       return (
                         <div
                           key={order.id}
-                          className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors"
+                          className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors"
                         >
                           <div>
                             <h4 className="font-semibold text-white">
@@ -344,7 +386,9 @@ export default function Profile() {
                   </div>
                 </div>
               )}
-              {!accomLoading && accommodationRequests.length > 0 && (
+
+              {/* Accommodation */}
+              {accommodationRequests.length > 0 && (
                 <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-8">
                   <div className="bg-black/30 p-3 px-4 border-b border-white/10">
                     <h3 className="font-semibold text-white text-sm">
@@ -412,6 +456,78 @@ export default function Profile() {
                 </div>
               )}
 
+              {/* Workshops */}
+              {workshopRegistrations.length > 0 && (
+                <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden mb-8">
+                  <div className="bg-black/30 p-3 px-4 border-b border-white/10">
+                    <h3 className="font-semibold text-white text-sm">
+                      Workshop Registrations
+                    </h3>
+                  </div>
+
+                  <div className="flex flex-col">
+                    {workshopRegistrations.map((reg) => {
+                      const isVerified = reg.status === "VERIFIED";
+                      return (
+                        <div
+                          key={reg.id}
+                          className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <h4 className="font-semibold text-white">
+                              {reg.workshop || reg.title || "Workshop"}
+                            </h4>
+
+                            <div className="text-sm text-neutral-400 mt-1.5 space-y-0.5">
+                              <p>
+                                Attendee:{" "}
+                                <span className="text-white/70">
+                                  {reg.name}
+                                </span>
+                              </p>
+                              {reg.requireAccommodation ? (
+                                <p>
+                                  Accommodation:{" "}
+                                  <span className="text-white/70">
+                                    Booked ({reg.accommodationDays} Days)
+                                  </span>
+                                </p>
+                              ) : (
+                                <p>
+                                  Accommodation:{" "}
+                                  <span className="text-white/70">
+                                    Not Booked/Required
+                                  </span>
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-3 md:gap-1">
+                            {reg.amountPaid != null && (
+                              <span className="text-lg font-semibold text-white">
+                                ₹{reg.amountPaid}
+                              </span>
+                            )}
+                            {isVerified ? (
+                              <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400">
+                                <CheckCircle2 size={14} /> Approved
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1.5 text-xs font-medium text-amber-400">
+                                <Clock size={14} />
+                                {reg.status?.replaceAll("_", " ") || "Pending"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Invoices */}
               {invoices.length > 0 && (
                 <div className="space-y-4 mb-8 flex flex-col">
                   {invoices.map((invoice) => {

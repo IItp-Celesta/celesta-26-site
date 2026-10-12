@@ -57,7 +57,7 @@ export default function Register() {
 
       try {
         const res = await axios.post(
-          "/api/register",
+          "/api/login",
           {},
           { headers: { Authorization: `Bearer ${token}` } },
         );
