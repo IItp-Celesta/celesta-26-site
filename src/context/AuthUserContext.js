@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import {
   onAuthStateChanged,
   signInWithPopup,
@@ -16,6 +16,8 @@ const AuthUserContext = createContext({
   authUser: null,
   userData: null,
   loading: true,
+  fetchUserProfile: async () => null,
+  setUserData: () => {},
   signInWithGoogle: async () => {},
   signOutUser: async () => {},
   signInWithEmail: async () => {},
@@ -27,38 +29,50 @@ export function AuthUserProvider({ children }) {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchUserProfile = useCallback(async (userToFetch = null) => {
+    const targetUser = userToFetch || auth.currentUser;
+    if (!targetUser) {
+      setUserData(null);
+      setLoading(false);
+      return null;
+    }
+
+    try {
+      setLoading(true);
+      const token = await targetUser.getIdToken(true);
+
+      const profileRes = await axios.get("/api/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const profile = profileRes.data.success ? profileRes.data.user : null;
+      setUserData(profile);
+      return profile;
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+      setUserData(null);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setAuthUser(user);
       if (!user) {
-        setAuthUser(null);
         setUserData(null);
         setLoading(false);
         return;
       }
 
-      setAuthUser(user);
-      setLoading(true);
-
-      try {
-        const token = await user.getIdToken();
-
-        const profileRes = await axios.get("/api/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setUserData(profileRes.data.success ? profileRes.data.user : null);
-      } catch (error) {
-        console.error("Failed to fetch user profile:", error);
-        setUserData(null);
-      } finally {
-        setLoading(false);
-      }
+      await fetchUserProfile(user);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [fetchUserProfile]);
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
@@ -94,6 +108,8 @@ export function AuthUserProvider({ children }) {
         authUser,
         userData,
         loading,
+        fetchUserProfile,
+        setUserData,
         signInWithGoogle,
         signOutUser,
         signInWithEmail,

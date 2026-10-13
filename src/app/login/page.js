@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 
 export default function LogIn() {
-  const { authUser, loading, signInWithGoogle, signInWithEmail, signOutUser } =
+  const { authUser, loading, signInWithGoogle, signInWithEmail, signOutUser, fetchUserProfile } =
     useAuth();
 
   const [formData, setFormData] = useState({
@@ -36,6 +36,7 @@ export default function LogIn() {
             },
           );
           if (response.data.success) {
+            await fetchUserProfile(authUser);
             if (response.data.role == "user") router.replace("/profile");
             if (response.data.role == "admin") router.replace("/admin");
           }
@@ -47,7 +48,7 @@ export default function LogIn() {
       }
     }
     check();
-  }, [authUser, router]);
+  }, [authUser, router, fetchUserProfile]);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -71,6 +72,7 @@ export default function LogIn() {
 
       if (response.data.success) {
         toast.success("Login successfully!");
+        await fetchUserProfile(userCredential.user);
         if (response.data.role == "user") router.push("/profile");
         if (response.data.role == "admin") router.push("/admin");
       } else {
@@ -121,6 +123,7 @@ export default function LogIn() {
 
       if (response.data.success) {
         toast.success("Login successfully!");
+        await fetchUserProfile(userCredential.user);
         router.push("/profile");
       } else {
         toast.error(response.data.message || "Login failed");
@@ -137,27 +140,44 @@ export default function LogIn() {
 
   return (
     <div
-      className={`bg-muted flex min-h-svh gap-8 items-center justify-center p-6 md:p-10 ${styles.background} text-white overflow-x-hidden`}
+      className={`p-4 md:p-10 bg-muted ${styles.background} text-white min-h-svh flex flex-col items-center justify-center overflow-x-hidden`}
     >
-      <div className="flex flex-col items-center justify-center w-full max-w-full px-2">
-        <motion.div
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          className="h-full w-full p-2"
-        >
-          <h1 className="font-bold text-7xl text-grad p-2 race text-center">
-            LOGIN
-          </h1>
-        </motion.div>
+      <motion.div
+        initial={{ opacity: 0, x: -140 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-full"
+      >
+        <h1 className="font-bold text-5xl md:text-6xl text-grad race mt-16 p-2 text-center md:text-left">
+          LOGIN
+        </h1>
+      </motion.div>
 
-        <motion.form
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          onSubmit={handleSubmit}
-          className={`h-full w-full max-w-md sm:w-[90%] lg:w-[25vw] flex flex-col items-center gap-8 justify-center px-4 py-6 ${styles.glassCard}`}
-        >
+      <motion.form
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        onSubmit={handleSubmit}
+        className={`w-full max-w-md sm:w-[90%] lg:w-[25vw] flex flex-col items-center gap-8 justify-center px-4 py-6 ${styles.glassCard}`}
+      >
+          <div className="w-full flex flex-col items-center gap-4">
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={isDisabled}
+              className="w-full flex items-center justify-center gap-2 p-2 border-2 border-teal-600 rounded-lg text-white hover:bg-teal-600/20 transition-colors"
+            >
+              <FcGoogle size={24} />
+              Sign in with Google
+            </button>
+
+            <div className="flex items-center gap-4 w-full">
+              <hr className="flex-1 border-white/20" />
+              <span className="text-white/50 text-sm">OR</span>
+              <hr className="flex-1 border-white/20" />
+            </div>
+          </div>
+
           <div className="flex flex-col gap-8 w-full">
             {/* Email */}
             <div className="flex flex-col gap-2 text-xl w-full">
@@ -212,22 +232,6 @@ export default function LogIn() {
             {isDisabled ? "Logging In..." : "Login"}
           </button>
 
-          <div className="flex items-center gap-4 w-full my-1">
-             <hr className="flex-1 border-white/20" />
-             <span className="text-white/50 text-sm">OR</span>
-             <hr className="flex-1 border-white/20" />
-          </div>
-
-          <button
-             type="button"
-             onClick={handleGoogleSignIn}
-             disabled={isDisabled}
-             className="w-full flex items-center justify-center gap-2 p-2 border-2 border-teal-600 rounded-lg text-white hover:bg-teal-600/20 transition-colors"
-          >
-             <FcGoogle size={24} />
-             Sign in with Google
-          </button>
-
           <button
             type="button"
             onClick={() => router.push("/register")}
@@ -239,7 +243,6 @@ export default function LogIn() {
             </p>
           </button>
         </motion.form>
-      </div>
     </div>
   );
 }
