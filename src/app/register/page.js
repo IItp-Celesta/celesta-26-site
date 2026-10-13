@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 
 export default function Register() {
-  const { authUser, loading, signUpWithEmail, signInWithGoogle, signOutUser } = useAuth();
+  const { authUser, loading, signUpWithEmail, signInWithGoogle, signOutUser, fetchUserProfile } = useAuth();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -63,13 +63,14 @@ export default function Register() {
         );
 
         if (res.data.success) {
+          await fetchUserProfile(authUser);
           if (res.data.role === "user") router.replace("/profile");
           if (res.data.role === "admin") router.replace("/admin");
         }
       } catch {}
     }
     check();
-  }, [authUser, router]);
+  }, [authUser, router, fetchUserProfile]);
 
   const handleGoogleSignUp = async () => {
     try {
@@ -91,6 +92,7 @@ export default function Register() {
         const loginCheck = await axios.post("/api/login", {}, { headers: { Authorization: `Bearer ${token}` } });
         if (loginCheck.data.success) {
            toast.success("Already registered! Logging you in...");
+           await fetchUserProfile(user);
            if (loginCheck.data.role === "user") router.push("/profile");
            if (loginCheck.data.role === "admin") router.push("/admin");
            return;
@@ -107,6 +109,7 @@ export default function Register() {
 
       if (response.data.success) {
         toast.success("Registered successfully!");
+        await fetchUserProfile(user);
         router.push("/profile");
       } else {
         toast.error(response.data.message || "Registration failed");
@@ -209,6 +212,7 @@ export default function Register() {
         }
 
         toast.success("Registered successfully!");
+        await fetchUserProfile(user);
         router.push("/profile");
       } catch (apiError) {
         await user.delete();
@@ -281,6 +285,24 @@ export default function Register() {
 
         {!otpSent && (
           <>
+            <div className="w-full flex flex-col items-center gap-4">
+              <button
+                type="button"
+                onClick={handleGoogleSignUp}
+                disabled={isOtpDisabled || isGoogleLoading}
+                className="mx-auto w-full max-w-xs flex items-center justify-center gap-2 p-2 border-2 border-teal-600 rounded-lg text-white hover:bg-teal-600/20 transition-colors"
+              >
+                <FcGoogle size={24} />
+                {isGoogleLoading ? "Loading..." : "Sign up with Google"}
+              </button>
+
+              <div className="flex items-center gap-4 w-full max-w-xs mx-auto">
+                <hr className="flex-1 border-white/20" />
+                <span className="text-white/50 text-sm">OR</span>
+                <hr className="flex-1 border-white/20" />
+              </div>
+            </div>
+
             <div className="flex gap-10 justify-between flex-wrap">
               <div className="flex flex-col gap-6 flex-1 min-w-[250px]">
                 <div className="flex flex-col gap-2 text-xl">
@@ -401,20 +423,13 @@ export default function Register() {
               {isOtpDisabled ? "Sending OTP..." : "Send OTP"}
             </button>
 
-            <div className="flex items-center gap-4 w-full max-w-xs mx-auto my-4">
-               <hr className="flex-1 border-white/20" />
-               <span className="text-white/50 text-sm">OR</span>
-               <hr className="flex-1 border-white/20" />
-            </div>
-
             <button
-               type="button"
-               onClick={handleGoogleSignUp}
-               disabled={isOtpDisabled || isGoogleLoading}
-               className="mx-auto w-full max-w-xs flex items-center justify-center gap-2 p-2 border-2 border-teal-600 rounded-lg text-white hover:bg-teal-600/20 transition-colors"
+              type="button"
+              onClick={() => router.push("/login")}
+              className="text-md text-white hover:text-white/90 hover:underline transition-colors mt-2 mx-auto"
             >
-               <FcGoogle size={24} />
-               {isGoogleLoading ? "Loading..." : "Sign up with Google"}
+              Already have an account?{" "}
+              <span className="text-blue-400 inline ml-1">Login</span>
             </button>
           </>
         )}

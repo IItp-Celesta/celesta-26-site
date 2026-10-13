@@ -37,7 +37,7 @@ import styles from "./Profile.module.css";
 
 export default function Profile() {
   const router = useRouter();
-  const { authUser, userData, loading, signOutUser } = useAuth();
+  const { authUser, userData, loading, signOutUser, fetchUserProfile } = useAuth();
   const qrRef = useRef(null);
   const redirectingRef = useRef(false);
   const [qrValue, setQrValue] = useState("");
@@ -70,6 +70,10 @@ export default function Profile() {
         });
         router.replace("/login?redirect=/profile");
       } else if (!userData) {
+        // Attempt to fetch profile once more before signing out
+        const profile = await fetchUserProfile(authUser);
+        if (profile) return;
+
         redirectingRef.current = true;
         toast.error("Profile not found. Please register again.", {
           id: "auth-redirect",
@@ -85,7 +89,7 @@ export default function Profile() {
       }
     };
     handleAuth();
-  }, [authUser, userData, loading, router, signOutUser]);
+  }, [authUser, userData, loading, router, signOutUser, fetchUserProfile]);
 
   useEffect(() => {
     async function fetchQR() {
