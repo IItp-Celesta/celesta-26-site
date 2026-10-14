@@ -4,7 +4,9 @@ import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthUserContext";
 import { useRouter } from "next/navigation";
-import { ChevronDown, ChevronUp, CheckCircle2 } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle2, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import styles from "@/app/register/Register.module.css";
 
 const PRICE_PER_DAY = 249;
 const MAX_FILE_SIZE_MB = 5;
@@ -13,7 +15,7 @@ const AVAILABLE_DATES = ["30th Oct", "31st Oct", "1st Nov"];
 const compressImageFast = (file, maxWidth = 1600) => {
   return new Promise((resolve, reject) => {
     if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-      return reject(new Error(`File ${file.name} exceeds the 5MB limit.`));
+      return reject(new Error(`File ${file.name} exceeds the ${MAX_FILE_SIZE_MB}MB limit.`));
     }
 
     const img = new Image();
@@ -58,7 +60,7 @@ export default function AccommodationPage() {
   const [paymentFile, setPaymentFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [selectedDates, setSelectedDates] = useState(AVAILABLE_DATES);
+  const [selectedDates, setSelectedDates] = useState([]);
   const [numMembers, setNumMembers] = useState(1);
   const [activeAccordion, setActiveAccordion] = useState(0);
 
@@ -229,156 +231,265 @@ export default function AccommodationPage() {
     }
   };
 
-  if (loading) {
+  const inputClass = "p-2.5 border-2 border-white/80 rounded-lg text-white bg-transparent w-full focus:outline-none focus:ring-0 focus:border-teal-600 placeholder:text-white/40 transition-colors disabled:opacity-50";
+
+  if (loading || !authUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-          <p className="text-md text-slate-300">Loading Page...</p>
+      <div className={`p-4 md:p-10 bg-muted ${styles.background} text-white min-h-svh flex items-center justify-center`}>
+        Loading...
       </div>
     );
   }
 
-
   return (
-    <div className="min-h-screen bg-[url('/images/backdrop.png')] bg-cover bg-fixed bg-center flex justify-center p-4 pt-28 pb-12 text-white">
-      <div className="bg-slate-900/95 border border-slate-800 rounded-lg w-full max-w-3xl p-6 md:p-8 h-fit">
+    <div className={`px-4 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 bg-muted ${styles.background} text-white min-h-svh flex flex-col items-center justify-start overflow-x-hidden`}>
+      <motion.div
+        initial={{ opacity: 0, x: -140 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-4xl mb-8 text-center md:text-left overflow-hidden"
+      >
+        <h1 className="font-bold text-2xl min-[400px]:text-3xl sm:text-4xl md:text-5xl text-grad race py-2 uppercase tracking-wide break-words">
+          Accommodation Booking
+        </h1>
+        <p className="text-white/70 text-sm sm:text-base md:text-lg px-2 tracking-wide mt-1">
+          For participants registered in flagship events (₹{PRICE_PER_DAY} / day)
+        </p>
+      </motion.div>
 
-        <div className="mb-8 border-b border-slate-800 pb-4">
-          <h1 className="text-2xl font-bold uppercase tracking-wider">Accommodation Booking</h1>
-          <h3 className="text-md text-slate-300 ">For participants registered in flagship events</h3>
-          <p className="text-slate-400 text-sm mt-1">Rs. {PRICE_PER_DAY} per person/day (Min 2 Days)</p>
-        </div>
+      <motion.main
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-4xl mb-12 flex flex-col gap-8"
+      >
+        <form onSubmit={handleUploadAndSubmit} className="flex flex-col gap-6 md:gap-8 w-full">
+          
+          {/* ─── SECTION 1: BOOKING DETAILS ──────────────────────────── */}
+          <div className="w-full flex flex-col gap-6 p-6 md:p-8 rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl">
+            <h2 className="m-0 text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
+              1. Booking Details
+            </h2>
 
-        <form onSubmit={handleUploadAndSubmit} className="flex flex-col gap-6">
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Number of People */}
-            <div className="bg-slate-800/50 p-4 rounded border border-slate-700">
-              <label className="block text-sm font-semibold mb-3">Number of People</label>
-              <div className="flex items-center gap-3">
-                <button type="button" onClick={() => handleNumMembersChange(-1)} disabled={numMembers <= 1 || isSubmitting} className="w-8 h-8 bg-slate-700 hover:bg-slate-600 rounded disabled:opacity-50">-</button>
-                <span className="w-8 text-center font-bold text-lg">{numMembers}</span>
-                <button type="button" onClick={() => handleNumMembersChange(1)} disabled={numMembers >= 10 || isSubmitting} className="w-8 h-8 bg-slate-700 hover:bg-slate-600 rounded disabled:opacity-50">+</button>
-              </div>
-            </div>
-
-            {/* Select Dates */}
-            <div className="bg-slate-800/50 p-4 rounded border border-slate-700">
-              <label className="block text-sm font-semibold mb-3">Select Dates (Min 2 consecutive days)</label>
-              <div className="flex gap-2">
-                {AVAILABLE_DATES.map((date) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                <label className="text-white">Number of People *</label>
+                <div className="flex items-center gap-4">
                   <button
-                    key={date}
                     type="button"
-                    onClick={() => toggleDate(date)}
-                    disabled={isSubmitting}
-                    className={`flex-1 py-2 rounded text-xs font-bold border disabled:opacity-50 ${selectedDates.includes(date)
-                        ? "bg-sky-600 border-sky-500 text-white"
-                        : "bg-slate-800 border-slate-600 text-slate-300 hover:bg-slate-700"
-                      }`}
+                    onClick={() => handleNumMembersChange(-1)}
+                    disabled={numMembers <= 1 || isSubmitting}
+                    className="w-11 h-11 flex items-center justify-center bg-white/[0.05] border-2 border-white/40 hover:bg-teal-600/20 hover:border-teal-500 rounded-lg text-xl font-bold disabled:opacity-50 transition-colors cursor-pointer"
                   >
-                    {date}
+                    -
                   </button>
-                ))}
+                  <span className="w-8 text-center font-bold text-xl">{numMembers}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleNumMembersChange(1)}
+                    disabled={numMembers >= 10 || isSubmitting}
+                    className="w-11 h-11 flex items-center justify-center bg-white/[0.05] border-2 border-white/40 hover:bg-teal-600/20 hover:border-teal-500 rounded-lg text-xl font-bold disabled:opacity-50 transition-colors cursor-pointer"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                <label className="text-white">Select Dates (Min 2 Days) *</label>
+                <div className="flex flex-wrap gap-3">
+                  {AVAILABLE_DATES.map((date) => {
+                    const isSelected = selectedDates.includes(date);
+                    return (
+                      <button
+                        key={date}
+                        type="button"
+                        onClick={() => toggleDate(date)}
+                        disabled={isSubmitting}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] md:text-[16px] font-bold border-2 transition-all duration-300 disabled:opacity-50 cursor-pointer ${
+                          isSelected
+                            ? "bg-teal-500 border-teal-500 text-black shadow-[0_0_15px_rgba(20,184,166,0.4)]"
+                            : "bg-white/[0.02] border-white/40 text-white/70 hover:border-teal-500 hover:text-white hover:bg-teal-600/10"
+                        }`}
+                      >
+                        {isSelected && <CheckCircle2 size={18} className="text-black" />}
+                        {date}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Members List */}
-          <div className="flex flex-col gap-3">
-            {members.map((member, idx) => {
-              const isActive = activeAccordion === idx;
-              const isFilled = member.name && member.aadhaarNo && member.aadhaarFile;
+          {/* ─── SECTION 2: MEMBER DETAILS ──────────────────────────── */}
+          <div className="w-full flex flex-col gap-6 p-6 md:p-8 rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl">
+            <h2 className="m-0 text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
+              2. Member Details
+            </h2>
 
-              return (
-                <div key={idx} className="bg-slate-800/50 rounded border border-slate-700 overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => setActiveAccordion(isActive ? -1 : idx)}
-                    className="w-full p-4 flex justify-between items-center bg-slate-800 hover:bg-slate-700 transition-colors"
+            <div className="flex flex-col gap-4">
+              {members.map((member, idx) => {
+                const isActive = activeAccordion === idx;
+                const isFilled = member.name && member.aadhaarNo && member.aadhaarFile;
+
+                return (
+                  <div
+                    key={idx}
+                    className="rounded-xl border border-white/20 flex flex-col overflow-hidden bg-white/[0.05] transition-colors"
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-xs font-bold text-slate-300 border border-slate-700">
-                        {idx + 1}
-                      </span>
-                      <span className="font-semibold text-sm text-slate-200">
-                        Person Details {member.name && <span className="font-normal text-slate-400">- {member.name}</span>}
-                      </span>
-                    </div>
-                    {isFilled && !isActive ? (
-                      <CheckCircle2 size={18} className="text-green-500" />
-                    ) : isActive ? (
-                      <ChevronUp size={18} className="text-slate-400" />
-                    ) : (
-                      <ChevronDown size={18} className="text-slate-400" />
-                    )}
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveAccordion(isActive ? -1 : idx)}
+                      className={`w-full p-4 md:p-5 text-left border-none cursor-pointer flex justify-between items-center transition-colors ${
+                        isActive
+                          ? "bg-teal-600/20 border-b border-white/20"
+                          : "bg-transparent hover:bg-white/[0.02]"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center justify-center w-7 h-7 rounded-full bg-teal-600/20 text-[14px] font-bold text-teal-400 border border-teal-500/50">
+                          {idx + 1}
+                        </span>
+                        <h3 className={`m-0 text-[16px] md:text-[18px] font-semibold ${isActive ? "text-teal-400" : "text-white/90"}`}>
+                          Member Details {member.name && <span className="font-normal text-white/50">- {member.name}</span>}
+                        </h3>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        {isFilled && !isActive ? (
+                          <CheckCircle2 size={20} className="text-teal-400" />
+                        ) : isActive ? (
+                          <ChevronUp size={20} className="text-teal-400" />
+                        ) : (
+                          <ChevronDown size={20} className="text-white/60" />
+                        )}
+                      </div>
+                    </button>
 
-                  {isActive && (
-                    <div className="p-4 border-t border-slate-700 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs text-slate-400 mb-1">Full Name *</label>
-                        <input type="text" required disabled={isSubmitting} value={member.name} onChange={(e) => handleMemberChange(idx, "name", e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm outline-none focus:border-sky-500 disabled:opacity-50" />
+                    <div className={`p-4 md:p-5 grid-cols-1 md:grid-cols-2 gap-6 bg-transparent ${isActive ? "grid" : "hidden"}`}>
+                      <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                        <label className="text-white">Full Name *</label>
+                        <input type="text" required disabled={isSubmitting} value={member.name} onChange={(e) => handleMemberChange(idx, "name", e.target.value)} placeholder="Full Name" className={inputClass} />
                       </div>
-                      <div>
-                        <label className="block text-xs text-slate-400 mb-1">Email *</label>
-                        <input type="email" required disabled={isSubmitting} value={member.email} onChange={(e) => handleMemberChange(idx, "email", e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm outline-none focus:border-sky-500 disabled:opacity-50" />
+
+                      <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                        <label className="text-white">Email Address *</label>
+                        <input type="email" required disabled={isSubmitting} value={member.email} onChange={(e) => handleMemberChange(idx, "email", e.target.value)} placeholder="xyz@college.ac.in" className={inputClass} />
                       </div>
-                      <div>
-                        <label className="block text-xs text-slate-400 mb-1">Phone Number *</label>
-                        <input type="tel" required maxLength={10} disabled={isSubmitting} value={member.phone} onChange={(e) => handleMemberChange(idx, "phone", e.target.value.replace(/\D/g, ''))} className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm outline-none focus:border-sky-500 disabled:opacity-50" />
+
+                      <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                        <label className="text-white">Phone Number *</label>
+                        <input type="tel" required maxLength={10} disabled={isSubmitting} value={member.phone} onChange={(e) => handleMemberChange(idx, "phone", e.target.value.replace(/\D/g, ''))} placeholder="9876543210" className={inputClass} />
                       </div>
-                      <div>
-                        <label className="block text-xs text-slate-400 mb-1">Gender *</label>
-                        <select required disabled={isSubmitting} value={member.gender} onChange={(e) => handleMemberChange(idx, "gender", e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm outline-none focus:border-sky-500 disabled:opacity-50">
-                          <option value="" disabled>Select</option>
-                          <option value="Male">Male</option>
-                          <option value="Female">Female</option>
-                          <option value="Other">Other</option>
+
+                      <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                        <label className="text-white">Gender *</label>
+                        <select required disabled={isSubmitting} value={member.gender} onChange={(e) => handleMemberChange(idx, "gender", e.target.value)} className={`${inputClass} cursor-pointer`}>
+                          <option value="" disabled className="bg-neutral-900 text-white">Select Gender</option>
+                          <option value="Male" className="bg-neutral-900 text-white">Male</option>
+                          <option value="Female" className="bg-neutral-900 text-white">Female</option>
+                          <option value="Other" className="bg-neutral-900 text-white">Other</option>
                         </select>
                       </div>
-                      <div>
-                        <label className="block text-xs text-slate-400 mb-1">Aadhaar Number *</label>
-                        <input type="text" required maxLength={12} disabled={isSubmitting} value={member.aadhaarNo} onChange={(e) => handleMemberChange(idx, "aadhaarNo", e.target.value.replace(/\D/g, ''))} className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm outline-none focus:border-sky-500 disabled:opacity-50" />
+
+                      <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                        <label className="text-white">Aadhaar Number *</label>
+                        <input type="text" required maxLength={12} disabled={isSubmitting} value={member.aadhaarNo} onChange={(e) => handleMemberChange(idx, "aadhaarNo", e.target.value.replace(/\D/g, ''))} placeholder="12-Digit Aadhaar" className={inputClass} />
                       </div>
-                      <div>
-                        <label className="block text-xs text-slate-400 mb-1">Aadhaar (JPG/PNG, Max 5MB) *</label>
-                        <input type="file" required disabled={isSubmitting} accept="image/png, image/jpeg, image/jpg" onChange={(e) => handleFileSelect(e, (file) => handleMemberChange(idx, "aadhaarFile", file))} className="w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-slate-700 file:text-white cursor-pointer disabled:opacity-50" />
+
+                      <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                        <label className="text-white">Aadhaar Document *</label>
+                        <label className="border-2 border-dashed border-white/40 hover:border-teal-500 hover:bg-teal-600/10 rounded-xl p-3 text-center cursor-pointer transition-all flex flex-col justify-center items-center h-full bg-white/[0.02]">
+                           <input type="file" required disabled={isSubmitting} accept="image/png, image/jpeg, image/jpg" onChange={(e) => handleFileSelect(e, (file) => handleMemberChange(idx, "aadhaarFile", file))} className="block w-full max-w-[200px] text-[12px] text-white/70 mx-auto
+                            file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0
+                            file:text-[12px] file:font-semibold file:bg-teal-600/20 file:text-teal-400
+                            hover:file:bg-teal-600/30 file:cursor-pointer cursor-pointer transition-colors" />
+                        </label>
                       </div>
                     </div>
-                  )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ─── SECTION 3: CHECKOUT SUMMARY ──────────────────────────── */}
+          <div className="border border-teal-500/30 p-6 md:p-8 rounded-2xl backdrop-blur-md shadow-2xl flex flex-col gap-6">
+            <h3 className="m-0 text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
+              3. Payment & Summary
+            </h3>
+
+            <div className="flex flex-col md:flex-row gap-8">
+              {/* QR Code Side */}
+              <div className="flex-1 flex flex-col items-center justify-center text-center md:border-r border-white/20 md:pr-8">
+                <h3 className="text-[16px] md:text-[18px] font-bold mb-4 text-white uppercase tracking-wider state-wide">
+                  Scan to Pay
+                </h3>
+                <div className="bg-white p-3 rounded-2xl shadow-[0_0_20px_rgba(146,235,255,0.25)] mb-4 inline-block">
+                  <img src="/payment/qr2.jpeg" alt="UPI QR Code" className="w-[180px] h-[180px] object-cover rounded-xl" />
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Payment Section */}
-          <div className="mt-4 pt-6 border-t border-slate-800">
-            <div className="flex justify-between items-center bg-slate-800 p-4 rounded mb-6 border border-slate-700">
-              <span className="text-sm font-semibold">Total Amount</span>
-              <span className="text-2xl font-bold text-sky-400">Rs. {totalAmount}</span>
-            </div>
-
-            <div className="w-48 h-48 mx-auto bg-white p-2 rounded mb-6">
-              <img src="/payment/qr2.jpeg" alt="UPI QR Code" className="w-full h-full object-contain" />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div>
-                <label className="block text-xs text-slate-400 mb-1">UPI Transaction ID / UTR *</label>
-                <input type="text" required disabled={isSubmitting} value={txnId} onChange={(e) => setTxnId(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm outline-none focus:border-sky-500 disabled:opacity-50" />
               </div>
-              <div>
-                <label className="block text-xs text-slate-400 mb-1">Payment Screenshot (Max 5MB) *</label>
-                <input type="file" required disabled={isSubmitting} accept="image/png, image/jpeg, image/jpg" onChange={(e) => handleFileSelect(e, setPaymentFile)} className="w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-slate-700 file:text-white cursor-pointer disabled:opacity-50" />
+
+              <div className="flex-[1.2] flex flex-col justify-center gap-6">
+                <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                  <label className="text-white">Transaction ID / UTR *</label>
+                  <input type="text" required disabled={isSubmitting} value={txnId} onChange={(e) => setTxnId(e.target.value)} placeholder="Enter Transaction ID" className={inputClass} />
+                </div>
+
+                <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                  <label className="text-white">Payment Screenshot *</label>
+                  <label className="border-2 border-dashed border-white/40 hover:border-teal-500 hover:bg-teal-600/10 rounded-xl p-4 text-center cursor-pointer transition-all flex flex-col items-center gap-2 bg-white/[0.02]">
+                    <span className="text-[14px] md:text-[16px] text-white/90 font-medium mb-1">
+                      Click to Upload Receipt
+                    </span>
+                    <input type="file" required disabled={isSubmitting} accept="image/png, image/jpeg, image/jpg" onChange={(e) => handleFileSelect(e, setPaymentFile)} className="block w-full max-w-xs text-[14px] text-white/70 mx-auto
+                      file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                      file:text-[14px] file:font-semibold file:bg-teal-600/20 file:text-teal-400
+                      hover:file:bg-teal-600/30 file:cursor-pointer cursor-pointer transition-colors" />
+                  </label>
+                </div>
               </div>
             </div>
 
-            <button type="submit" disabled={isSubmitting} className="w-full py-3 rounded font-bold uppercase tracking-wide bg-sky-600 hover:bg-sky-500 text-white disabled:bg-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed">
-              {isSubmitting ? "Processing..." : "Submit Booking"}
-            </button>
+            <hr className="border-t border-dashed border-white/20 m-0 my-2" />
+
+            <div className="flex justify-between items-center">
+              <div className="flex flex-col">
+                <span className="text-lg md:text-xl font-bold text-white uppercase tracking-wide state-wide">
+                  Final Total
+                </span>
+                <span className="text-[14px] md:text-[16px] text-white/60">
+                  (₹{PRICE_PER_DAY} × {numMembers} person × {selectedDates.length} days)
+                </span>
+              </div>
+              <span className="text-2xl md:text-3xl font-black text-[#92EBFF] drop-shadow-[0_0_12px_rgba(146,235,255,0.4)]">
+                ₹ {totalAmount}
+              </span>
+            </div>
+
+            <div className="flex justify-center mt-2">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`${styles.btn} flex items-center justify-center gap-3 text-[16px] md:text-[18px] w-full md:w-auto px-10 ${
+                  isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                {isSubmitting ? (
+                  "Processing Booking..."
+                ) : (
+                  <>
+                    Confirm Booking (₹{totalAmount})
+                    <ArrowRight size={22} className="inline ml-2" />
+                  </>
+                )}
+              </button>
+            </div>
           </div>
+
         </form>
-      </div>
+      </motion.main>
     </div>
   );
 }

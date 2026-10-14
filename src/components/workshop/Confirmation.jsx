@@ -12,14 +12,14 @@ export default function Confirmation({ registrationId, formData, feeSummary }) {
       </h2>
 
       <div className="w-full max-w-md mx-auto p-6 rounded-xl bg-black/40 border border-white/20 shadow-2xl text-left flex flex-col gap-4">
-        <h4 className="m-0 text-white border-b border-white/20 pb-3 text-base md:text-lg uppercase tracking-wider state-wide">
+        <h4 className="m-0 text-white border-b border-white/20 pb-3 text-lg md:text-xl uppercase tracking-wider state-wide">
           Official Pass Summary
         </h4>
 
-        <div className="flex flex-col gap-3 text-sm md:text-base">
+        <div className="flex flex-col gap-3 text-[16px] md:text-[18px]">
           <div className="flex justify-between items-center gap-2 flex-wrap">
             <span className="text-white/60">Registration ID:</span>
-            <strong className="font-mono text-base md:text-lg text-[#92EBFF]">
+            <strong className="font-mono text-[16px] md:text-[18px] text-[#92EBFF]">
               {registrationId}
             </strong>
           </div>
@@ -54,7 +54,7 @@ export default function Confirmation({ registrationId, formData, feeSummary }) {
 
           <hr className="border-t border-dashed border-white/20 my-2" />
 
-          <div className="flex justify-between items-center font-bold text-lg">
+          <div className="flex justify-between items-center font-bold text-lg md:text-xl">
             <span className="text-white">Amount Processed:</span>
             <span className="text-teal-400">₹{feeSummary.totalAmount}</span>
           </div>
@@ -64,7 +64,7 @@ export default function Confirmation({ registrationId, formData, feeSummary }) {
       <button
         type="button"
         onClick={() => window.location.reload()}
-        className="mt-2 px-6 py-2.5 border-2 border-teal-600 rounded-lg text-white hover:bg-teal-600/20 font-semibold transition-colors cursor-pointer"
+        className="mt-2 px-6 py-2.5 border-2 border-teal-600 rounded-lg text-white hover:bg-teal-600/20 text-[16px] md:text-[18px] font-semibold transition-colors cursor-pointer"
       >
         Register another attendee
       </button>

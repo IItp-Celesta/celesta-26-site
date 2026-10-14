@@ -34,14 +34,14 @@ export default function RegistrationForm({
 
   return (
    <div className="w-full flex flex-col gap-6 p-6 md:p-8 rounded-2xl  backdrop-blur-md border border-white/20 shadow-2xl">
-      <h2 className="text-xl md:text-2xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
+      <h2 className="text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
         1. Personal &amp; Academic Details
       </h2>
 
       <div className="flex flex-col gap-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* FULL NAME */}
-          <div className="flex flex-col gap-2 text-lg md:text-xl w-full">
+          <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
             <label className="text-white">Full Name *</label>
             <input
               type="text"
@@ -57,7 +57,7 @@ export default function RegistrationForm({
           </div>
 
           {/* GENDER */}
-          <div className="flex flex-col gap-2 text-lg md:text-xl w-full">
+          <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
             <label className="text-white">Gender *</label>
             <select
               {...register("gender")}
@@ -86,7 +86,7 @@ export default function RegistrationForm({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* EMAIL */}
-          <div className="flex flex-col gap-2 text-lg md:text-xl w-full">
+          <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
             <label className="text-white flex items-center gap-2 flex-wrap">
               <span>Email Address *</span>
               {isEmailValid ? (
@@ -108,7 +108,7 @@ export default function RegistrationForm({
           </div>
 
           {/* MOBILE NUMBER */}
-          <div className="flex flex-col gap-2 text-lg md:text-xl w-full">
+          <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
             <label className="text-white flex items-center gap-2 flex-wrap">
               <span>Mobile Number *</span>
               {isPhoneValid ? (
@@ -132,7 +132,7 @@ export default function RegistrationForm({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* COLLEGE */}
-          <div className="flex flex-col gap-2 text-lg md:text-xl w-full">
+          <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
             <label className="text-white">College / School *</label>
             <input
               type="text"
@@ -148,7 +148,7 @@ export default function RegistrationForm({
           </div>
 
           {/* CITY / STATE */}
-          <div className="flex flex-col gap-2 text-lg md:text-xl w-full">
+          <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
             <label className="text-white">City / State *</label>
             <input
               type="text"
@@ -165,7 +165,7 @@ export default function RegistrationForm({
         </div>
 
         {/* WORKSHOP TRACK */}
-        <div className="flex flex-col gap-2 text-lg md:text-xl w-full">
+        <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
           <label className="text-white">Workshop Applying For *</label>
           <select
             {...register("workshop")}
@@ -204,7 +204,7 @@ export default function RegistrationForm({
         <div className="p-4 md:p-5 rounded-xl bg-white/[0.05] border border-white/20 flex flex-col gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <label className="text-lg md:text-xl font-semibold text-white">
+              <label className="text-[16px] md:text-[18px] font-semibold text-white">
                 Are you an IIT Patna Student? *
               </label>
 
@@ -264,7 +264,7 @@ export default function RegistrationForm({
           </div>
 
           {isIITP === "yes" && (
-            <div className="flex flex-col gap-2 text-lg md:text-xl pt-2">
+            <div className="flex flex-col gap-2 text-[16px] md:text-[18px] pt-2">
               <label className="text-teal-400 text-base md:text-lg font-medium">
                 Roll Number *
               </label>
@@ -288,7 +288,7 @@ export default function RegistrationForm({
 
         {/* ACCOMMODATION */}
         <div className="flex flex-col gap-3">
-          <label className="text-lg md:text-xl font-semibold text-white">
+          <label className="text-[16px] md:text-[18px] font-semibold text-white">
             Accommodation
           </label>
 
@@ -364,7 +364,7 @@ export default function RegistrationForm({
 
         {/* COUPON CODE */}
         {isIITP === "no" && (
-          <div className="flex flex-col gap-2 text-lg md:text-xl">
+          <div className="flex flex-col gap-2 text-[16px] md:text-[18px]">
             <label className="text-white">Coupon Code</label>
 
             <div className="flex gap-3">

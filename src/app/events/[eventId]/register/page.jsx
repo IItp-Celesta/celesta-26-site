@@ -4,13 +4,15 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { flagshipTeamSchema } from "@/lib/schemas"; // Import the new schema
+import { flagshipTeamSchema } from "@/lib/schemas";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthUserContext";
 import FlagshipRegistrationForm from "@/components/events/FlagshipRegistrationForm";
 import toast from "react-hot-toast";
 import data from "@/app/events/events.json";
 import imageCompression from "browser-image-compression";
+import { motion } from "framer-motion";
+import styles from "@/app/register/Register.module.css"; 
 
 export default function FlagshipRegistrationPage({ params }) {
   const router = useRouter();
@@ -139,7 +141,7 @@ export default function FlagshipRegistrationPage({ params }) {
       });
 
       toast.success("Added to Cart successfully!", { id: toastId });
-      router.push("/cart"); // Take user to checkout
+      router.push("/cart");
     } catch (error) {
       console.error("Submission error:", error);
       toast.error("Document upload failed. Please try again.", { id: toastId });
@@ -150,44 +152,53 @@ export default function FlagshipRegistrationPage({ params }) {
 
   if (loading || !authUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-        Logging in...
+      <div
+        className={`p-4 md:p-10 bg-muted ${styles.background} text-white min-h-svh flex items-center justify-center`}
+      >
+        Loading...
       </div>
     );
   }
 
   return (
     <div
-      className="min-h-screen pt-28 px-4 pb-16 font-sans text-slate-50 relative z-10 bg-cover bg-center"
-      style={{ backgroundImage: "url('/images/backdrop.png')" }}
+      className={`px-4 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 bg-muted ${styles.background} text-white min-h-svh flex flex-col items-center justify-start overflow-x-hidden`}
     >
-      <div className="max-w-[850px] mx-auto bg-slate-900/80 backdrop-blur-xl border border-sky-500/20 rounded-3xl p-6 md:p-12 ">
-        <header className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-wider mb-2 bg-gradient-to-r from-sky-300 to-blue-500 bg-clip-text text-transparent">
-            {eventName} Registration
-          </h1>
-          <p className="text-slate-400 text-lg tracking-wide m-0">
-            Celesta 2026 Flagship Events
-          </p>
-        </header>
+      <motion.div
+        initial={{ opacity: 0, x: -140 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-4xl mb-8 text-center md:text-left"
+      >
+        <h1 className="font-bold text-3xl sm:text-4xl md:text-6xl text-grad race py-2 uppercase tracking-wide">
+          {eventName} Registration
+        </h1>
+        <p className="text-white/70 text-sm sm:text-base md:text-lg px-2 tracking-wide mt-1">
+          Celesta 2026 Flagship Events
+        </p>
+      </motion.div>
 
-        <main className="animate-[fadeIn_0.5s_ease-out]">
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-10"
-          >
-            <FlagshipRegistrationForm
-              register={register}
-              errors={errors}
-              watch={watch}
-              eventFee={eventFee}
-              isUploading={isUploading}
-              minTeamSize={minTeamSize}
-              maxTeamSize={maxTeamSize}
-            />
-          </form>
-        </main>
-      </div>
+      <motion.main
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-4xl mb-12 flex flex-col gap-8"
+      >
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-8 w-full"
+        >
+          <FlagshipRegistrationForm
+            register={register}
+            errors={errors}
+            watch={watch}
+            eventFee={eventFee}
+            isUploading={isUploading}
+            minTeamSize={minTeamSize}
+            maxTeamSize={maxTeamSize}
+          />
+        </form>
+      </motion.main>
     </div>
   );
 }

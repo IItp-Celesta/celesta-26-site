@@ -6,22 +6,22 @@ export default function FeeCalculator({ formValues, feeSummary }) {
   const userType = isIITP ? "IIT Patna Student" : "External Participant";
 
   return (
-   <div className="border border-teal-500/30 p-6 md:p-8 rounded-2xl backdrop-blur-md shadow-2xl flex flex-col gap-6">
-      <h3 className="m-0 text-xl md:text-2xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
+    <div className="border border-teal-500/30 p-6 md:p-8 rounded-2xl backdrop-blur-md shadow-2xl flex flex-col gap-6">
+      <h3 className="m-0 text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
         2. Fee Breakdown
       </h3>
 
-      <div className="flex flex-col gap-4 text-base md:text-lg">
+      <div className="flex flex-col gap-4 text-[16px] md:text-[18px]">
         <div className="flex justify-between text-white/80 items-center">
           <div className="flex flex-col">
             <span>Registration Fee ({userType})</span>
           </div>
           <div className="flex items-center gap-3">
             {!isIITP && (
-              <span className="line-through text-white/40 text-sm">₹1399</span>
+              <span className="line-through text-white/40 text-[14px] md:text-[16px]">₹1399</span>
             )}
             {isIITP && (
-              <span className="line-through text-white/40 text-sm">₹799</span>
+              <span className="line-through text-white/40 text-[14px] md:text-[16px]">₹799</span>
             )}
             <span className="font-bold text-white text-lg md:text-xl">
               ₹ {workshopFee}
@@ -45,10 +45,10 @@ export default function FeeCalculator({ formValues, feeSummary }) {
 
       <div className="flex justify-between items-center">
         <div className="flex flex-col">
-          <span className="text-xl font-bold text-white uppercase tracking-wide state-wide">
+          <span className="text-lg md:text-xl font-bold text-white uppercase tracking-wide state-wide">
             Final Total
           </span>
-          <span className="text-xs text-white/60">
+          <span className="text-[14px] md:text-[16px] text-white/60">
             (Split payments on next step)
           </span>
         </div>

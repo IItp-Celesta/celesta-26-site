@@ -198,11 +198,11 @@ export default function PaymentSimulator({
           type="button"
           onClick={handlePrevious}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 border-2 border-teal-600 rounded-lg text-white hover:bg-teal-600/20 font-medium text-sm disabled:opacity-50 transition-colors cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2 border-2 border-teal-600 rounded-lg text-white hover:bg-teal-600/20 font-medium text-[16px] md:text-[18px] disabled:opacity-50 transition-colors cursor-pointer"
         >
           <ArrowLeft size={18} /> {step === 1 ? "Edit Details" : "Back"}
         </button>
-        <div className="text-xs md:text-sm text-white/80 uppercase tracking-widest bg-white/10 px-4 py-2 rounded-full border border-white/20 state-wide">
+        <div className="text-sm md:text-base text-white/80 uppercase tracking-widest bg-white/10 px-4 py-2 rounded-full border border-white/20 state-wide">
           {step === 1 && "1. Registration"}
           {step === 2 && "2. Accommodation"}
           {step === 3 && "3. Identity Verification"}
@@ -212,7 +212,7 @@ export default function PaymentSimulator({
       {/* Grand Total Reminder*/}
       <div className="backdrop-blur-md border border-teal-500/30 shadow-2xl rounded-2xl p-5 md:p-6 flex justify-between items-center">
         <div className="text-left">
-          <h2 className="text-white text-sm md:text-base font-bold uppercase tracking-wider state-wide mb-1">
+          <h2 className="text-white text-[16px] md:text-[18px] font-bold uppercase tracking-wider state-wide mb-1">
             Grand Total Due
           </h2>
           <p className="text-xs text-teal-300">Multiple scans required</p>
@@ -226,7 +226,7 @@ export default function PaymentSimulator({
       {step === 1 && (
         <div className="backdrop-blur-md rounded-2xl p-6 md:p-8 border border-teal-500/30 shadow-2xl flex flex-col md:flex-row gap-8">
           <div className="flex-1 flex flex-col items-center justify-center text-center md:border-r border-b md:border-b-0 border-white/20 pb-6 md:pb-0 md:pr-8">
-            <h3 className="text-lg font-bold mb-2 text-white uppercase tracking-wider state-wide">
+            <h3 className="text-lg md:text-xl font-bold mb-2 text-white uppercase tracking-wider state-wide">
               Registration Payment
             </h3>
             <div className="text-3xl md:text-4xl font-bold text-[#92EBFF] mb-6">
@@ -245,7 +245,7 @@ export default function PaymentSimulator({
 
           <div className="flex-[1.2] flex flex-col justify-center gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="flex flex-col gap-2 text-lg">
+              <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
                 <label className="text-white">Your UPI ID *</label>
                 <input
                   type="text"
@@ -259,7 +259,7 @@ export default function PaymentSimulator({
                 )}
               </div>
 
-              <div className="flex flex-col gap-2 text-lg">
+              <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
                 <label className="text-white">Txn ID / UTR *</label>
                 <input
                   type="text"
@@ -274,7 +274,7 @@ export default function PaymentSimulator({
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 text-lg">
+            <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
               <label className="text-white">Payment Screenshot *</label>
               <label className="border-2 border-dashed border-white/40 hover:border-teal-500 hover:bg-teal-600/10 rounded-xl p-6 text-center cursor-pointer transition-all flex flex-col items-center gap-2 bg-white/[0.02]">
                 {regFile ? (
@@ -282,7 +282,7 @@ export default function PaymentSimulator({
                 ) : (
                   <Upload size={28} className="text-[#92EBFF]" />
                 )}
-                <span className="text-base text-white/90">
+                <span className="text-[16px] md:text-[18px] text-white/90">
                   {regFile ? "Screenshot Attached" : "Upload Receipt"}
                 </span>
                 <input
@@ -311,7 +311,7 @@ export default function PaymentSimulator({
       {step === 2 && (
         <div className="backdrop-blur-md rounded-2xl p-6 md:p-8 border border-teal-500/30 shadow-2xl flex flex-col md:flex-row gap-8">
           <div className="flex-1 flex flex-col items-center justify-center text-center md:border-r border-b md:border-b-0 border-white/20 pb-6 md:pb-0 md:pr-8">
-            <h3 className="text-lg font-bold mb-2 text-white uppercase tracking-wider state-wide">
+            <h3 className="text-lg md:text-xl font-bold mb-2 text-white uppercase tracking-wider state-wide">
               Accommodation Payment
             </h3>
             <div className="text-3xl md:text-4xl font-bold text-[#E3F9B3] mb-6">
@@ -332,7 +332,7 @@ export default function PaymentSimulator({
           </div>
 
           <div className="flex-[1.2] flex flex-col justify-center gap-6">
-            <div className="flex flex-col gap-2 text-lg">
+            <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
               <label className="text-white">Transaction ID / UTR *</label>
               <input
                 type="text"
@@ -346,7 +346,7 @@ export default function PaymentSimulator({
               )}
             </div>
 
-            <div className="flex flex-col gap-2 text-lg">
+            <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
               <label className="text-white">Payment Screenshot *</label>
               <label className="border-2 border-dashed border-white/40 hover:border-teal-500 hover:bg-teal-600/10 rounded-xl p-6 text-center cursor-pointer transition-all flex flex-col items-center gap-2 bg-white/[0.02]">
                 {accomFile ? (
@@ -354,7 +354,7 @@ export default function PaymentSimulator({
                 ) : (
                   <Upload size={28} className="text-[#E3F9B3]" />
                 )}
-                <span className="text-base text-white/90">
+                <span className="text-[16px] md:text-[18px] text-white/90">
                   {accomFile ? "Screenshot Attached" : "Upload Receipt"}
                 </span>
                 <input
@@ -383,16 +383,16 @@ export default function PaymentSimulator({
       {step === 3 && (
         <div className="backdrop-blur-md rounded-2xl p-6 md:p-8 border border-teal-500/30 shadow-2xl">
           <div className="text-center mb-8">
-            <h3 className="text-xl md:text-2xl font-bold mb-2 text-white uppercase tracking-wider state-wide">
+            <h3 className="text-lg md:text-xl font-bold mb-2 text-white uppercase tracking-wider state-wide">
               Identity Verification
             </h3>
-            <p className="text-sm md:text-base text-white/70">
+            <p className="text-[14px] md:text-[16px] text-white/70">
               Required for non-IITP participants.
             </p>
           </div>
 
           <div className="max-w-2xl mx-auto flex flex-col gap-3">
-            <label className="text-lg text-white font-medium text-center">
+            <label className="text-[16px] md:text-[18px] text-white font-medium text-center">
               Upload Aadhaar Card Screenshot/Photo *
             </label>
             <label className="border-2 border-dashed border-white/40 hover:border-teal-500 hover:bg-teal-600/10 rounded-xl p-10 md:p-14 text-center cursor-pointer transition-all flex flex-col items-center gap-4 bg-white/[0.02]">
@@ -401,7 +401,7 @@ export default function PaymentSimulator({
               ) : (
                 <Upload size={48} className="text-[#FB7AC3]" />
               )}
-              <span className="font-medium text-white md:text-lg">
+              <span className="font-medium text-white text-[16px] md:text-[18px]">
                 {aadhaarFile ? "Aadhaar Attached" : "Tap to Upload Image"}
               </span>
               <p className="text-xs text-white/50">
@@ -437,7 +437,7 @@ export default function PaymentSimulator({
           onClick={handleNext}
           className={`${styles.btn} ${
             loading ? "opacity-50 cursor-not-allowed" : ""
-          } flex items-center justify-center gap-3`}
+          } flex items-center justify-center gap-3 text-[16px] md:text-[18px]`}
         >
           {loading ? (
             "Processing..."
