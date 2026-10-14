@@ -1,191 +1,70 @@
-export default function Confirmation({
-  registrationId,
-  formData,
-  feeSummary,
-}) {
+"use client";
+
+export default function Confirmation({ registrationId, formData, feeSummary }) {
   return (
-    <div
-      style={{
-        animation: "popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
-        border: "1px solid #14532d",
-        padding: "2.5rem 2rem",
-        borderRadius: "16px",
-        backgroundColor: "#0f172a",
-        textAlign: "center",
-        color: "#f8fafc",
-      }}
-    >
-      <div
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "60px",
-          height: "60px",
-          backgroundColor: "#14532d",
-          borderRadius: "50%",
-          color: "#4ade80",
-          fontSize: "2rem",
-          fontWeight: "bold",
-          marginBottom: "1rem",
-          border: "1px solid #22c55e",
-        }}
-      >
+    <div className="p-6 md:p-10 rounded-2xl backdrop-blur-md border border-teal-500/35 shadow-2xl text-center text-white flex flex-col items-center gap-6">
+      <div className="inline-flex items-center justify-center w-16 h-16 bg-teal-600/20 rounded-full text-teal-400 text-3xl font-bold border-2 border-teal-500 shadow-[0_0_20px_rgba(20,184,166,0.3)]">
         ✓
       </div>
 
-      <h2
-        style={{
-          color: "#4ade80",
-          fontSize: "1.75rem",
-          fontWeight: "800",
-          margin: "0 0 0.5rem 0",
-        }}
-      >
+      <h2 className="text-grad race text-2xl md:text-4xl font-bold uppercase tracking-wider m-0">
         Registration Successful!
       </h2>
 
-
-      <div
-        style={{
-          maxWidth: "450px",
-          margin: "0 auto",
-          padding: "1.5rem",
-          borderRadius: "12px",
-          backgroundColor: "#1e293b",
-          border: "1px solid #334155",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
-          textAlign: "left",
-        }}
-      >
-        <h4
-          style={{
-            margin: "0 0 1rem 0",
-            color: "#f8fafc",
-            borderBottom: "1px solid #334155",
-            paddingBottom: "0.5rem",
-            fontSize: "1rem",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          }}
-        >
+      <div className="w-full max-w-md mx-auto p-6 rounded-xl bg-black/40 border border-white/20 shadow-2xl text-left flex flex-col gap-4">
+        <h4 className="m-0 text-white border-b border-white/20 pb-3 text-base md:text-lg uppercase tracking-wider state-wide">
           Official Pass Summary
         </h4>
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.75rem",
-            fontSize: "0.95rem",
-          }}
-        >
-          <div>
-            <span style={{ color: "#94a3b8" }}>Registration ID:</span>{" "}
-            <strong
-              style={{
-                fontFamily: "monospace",
-                fontSize: "1.1rem",
-                color: "#60a5fa",
-              }}
-            >
+        <div className="flex flex-col gap-3 text-sm md:text-base">
+          <div className="flex justify-between items-center gap-2 flex-wrap">
+            <span className="text-white/60">Registration ID:</span>
+            <strong className="font-mono text-base md:text-lg text-[#92EBFF]">
               {registrationId}
             </strong>
           </div>
 
-          <div>
-            <span style={{ color: "#94a3b8" }}>Workshop Track:</span>{" "}
-            <strong style={{ color: "#f8fafc" }}>
-              {formData.workshop}
-            </strong>
+          <div className="flex justify-between items-center gap-2 flex-wrap">
+            <span className="text-white/60">Workshop Track:</span>
+            <strong className="text-white">{formData.workshop}</strong>
           </div>
 
-          <div>
-            <span style={{ color: "#94a3b8" }}>Attendee:</span>{" "}
-            <span
-              style={{
-                color: "#e2e8f0",
-                fontWeight: "500",
-              }}
-            >
-              {formData.name}
-            </span>
+          <div className="flex justify-between items-center gap-2 flex-wrap">
+            <span className="text-white/60">Attendee:</span>
+            <span className="text-white font-medium">{formData.name}</span>
           </div>
 
           {formData.isIITP === "yes" && (
-            <div>
-              <span style={{ color: "#94a3b8" }}>IITP Roll No:</span>{" "}
-              <span
-                style={{
-                  fontFamily: "monospace",
-                  color: "#e2e8f0",
-                }}
-              >
+            <div className="flex justify-between items-center gap-2 flex-wrap">
+              <span className="text-white/60">IITP Roll No:</span>
+              <span className="font-mono text-white">
                 {formData.rollNumber}
               </span>
             </div>
           )}
 
-          <div>
-            <span style={{ color: "#94a3b8" }}>Housing Allocation:</span>{" "}
-            <span
-              style={{
-                color: "#e2e8f0",
-                fontWeight: "500",
-              }}
-            >
+          <div className="flex justify-between items-center gap-2 flex-wrap">
+            <span className="text-white/60">Housing Allocation:</span>
+            <span className="text-white font-medium">
               {formData.requireAccommodation === "yes"
                 ? "Campus Hostel Booked"
                 : "Not Requested"}
             </span>
           </div>
 
-          <hr
-            style={{
-              border: "none",
-              borderTop: "1px dashed #475569",
-              margin: "0.5rem 0",
-            }}
-          />
+          <hr className="border-t border-dashed border-white/20 my-2" />
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontWeight: "700",
-              fontSize: "1.05rem",
-            }}
-          >
-            <span style={{ color: "#f8fafc" }}>Amount Processed:</span>
-            <span style={{ color: "#4ade80" }}>
-              ₹{feeSummary.totalAmount}
-            </span>
+          <div className="flex justify-between items-center font-bold text-lg">
+            <span className="text-white">Amount Processed:</span>
+            <span className="text-teal-400">₹{feeSummary.totalAmount}</span>
           </div>
         </div>
       </div>
 
       <button
+        type="button"
         onClick={() => window.location.reload()}
-        style={{
-          marginTop: "2rem",
-          background: "transparent",
-          border: "1px solid #334155",
-          color: "#4ade80",
-          padding: "0.75rem 1.5rem",
-          borderRadius: "8px",
-          fontWeight: "600",
-          cursor: "pointer",
-          fontSize: "0.95rem",
-          transition: "all 0.2s ease",
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.backgroundColor = "#1e293b";
-          e.target.style.borderColor = "#4ade80";
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.backgroundColor = "transparent";
-          e.target.style.borderColor = "#334155";
-        }}
+        className="mt-2 px-6 py-2.5 border-2 border-teal-600 rounded-lg text-white hover:bg-teal-600/20 font-semibold transition-colors cursor-pointer"
       >
         Register another attendee
       </button>

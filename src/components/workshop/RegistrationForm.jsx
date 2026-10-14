@@ -12,162 +12,88 @@ export default function RegistrationForm({
   const [couponStatus, setCouponStatus] = useState(null);
   const isIITP = watch("isIITP");
   const emailValue = watch("email");
-  const phoneValue = watch("phone"); // Updated to match backend
+  const phoneValue = watch("phone");
   const couponField = register("couponCode");
 
   const isEmailValid = emailValue && !errors.email;
   const isPhoneValid = phoneValue && !errors.phone;
 
-  // Reusable input style for dark mode
-  const inputStyle = (hasError) => ({
-    width: "100%",
-    padding: "0.7rem",
-    border: `1px solid ${hasError ? "#ef4444" : "#334155"}`,
-    borderRadius: "8px",
-    boxSizing: "border-box",
-    backgroundColor: "rgba(15, 23, 42, 0.6)",
-    color: "#f8fafc",
-    outline: "none",
-    transition: "border-color 0.2s",
-  });
+  const getInputClass = (hasError) =>
+    `p-2.5 border-2 rounded-lg text-white bg-transparent w-full focus:outline-none focus:ring-0 transition-colors placeholder:text-white/40 ${
+      hasError
+        ? "border-red-500 focus:border-red-500"
+        : "border-white/80 focus:border-teal-600"
+    }`;
 
-  const selectStyle = (hasError) => ({
-    width: "100%",
-    height: "44px",
-    padding: "0 0.8rem",
-    border: `1px solid ${hasError ? "#ef4444" : "#334155"}`,
-    borderRadius: "7px",
-    boxSizing: "border-box",
-    backgroundColor: "#0f172a",
-    color: "#f8fafc",
-    fontSize: "0.9rem",
-    outline: "none",
-    cursor: "pointer",
-  });
+  const getSelectClass = (hasError) =>
+    `p-2.5 border-2 rounded-lg text-white bg-transparent w-full focus:outline-none focus:ring-0 cursor-pointer transition-colors ${
+      hasError
+        ? "border-red-500 focus:border-red-500"
+        : "border-white/80 focus:border-teal-600"
+    }`;
 
   return (
-    <div
-      style={{
-        border: "1px solid rgba(14, 165, 233, 0.2)",
-        padding: "2rem",
-        borderRadius: "16px",
-        backgroundColor: "rgba(30, 41, 59, 0.4)",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
-      }}
-    >
-      <h2
-        style={{
-          marginTop: 0,
-          marginBottom: "1.5rem",
-          fontSize: "1.3rem",
-          fontWeight: "700",
-          color: "#f8fafc",
-          borderBottom: "1px solid #334155",
-          paddingBottom: "0.75rem",
-        }}
-      >
-        1. Personal & Academic Details
+   <div className="w-full flex flex-col gap-6 p-6 md:p-8 rounded-2xl  backdrop-blur-md border border-white/20 shadow-2xl">
+      <h2 className="text-xl md:text-2xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
+        1. Personal &amp; Academic Details
       </h2>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "1.25rem",
-          }}
-        >
+      <div className="flex flex-col gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* FULL NAME */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                marginBottom: "0.5rem",
-                fontWeight: "600",
-                fontSize: "0.9rem",
-                color: "#cbd5e1",
-              }}
-            >
-              Full Name *
-            </label>
+          <div className="flex flex-col gap-2 text-lg md:text-xl w-full">
+            <label className="text-white">Full Name *</label>
             <input
               type="text"
               {...register("name")}
               placeholder="Your Name"
-              style={inputStyle(errors.name)}
+              className={getInputClass(errors.name)}
             />
             {errors.name && (
-              <span
-                style={{
-                  color: "#f87171",
-                  fontSize: "0.85rem",
-                  marginTop: "4px",
-                  display: "block",
-                }}
-              >
+              <span className="text-red-400 text-sm">
                 {errors.name.message}
               </span>
             )}
           </div>
 
           {/* GENDER */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                marginBottom: "0.5rem",
-                fontWeight: "600",
-                fontSize: "0.9rem",
-                color: "#cbd5e1",
-              }}
+          <div className="flex flex-col gap-2 text-lg md:text-xl w-full">
+            <label className="text-white">Gender *</label>
+            <select
+              {...register("gender")}
+              className={getSelectClass(errors.gender)}
             >
-              Gender *
-            </label>
-            <select {...register("gender")} style={selectStyle(errors.gender)}>
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
+              <option value="" className="bg-neutral-900 text-white">
+                Select Gender
+              </option>
+              <option value="Male" className="bg-neutral-900 text-white">
+                Male
+              </option>
+              <option value="Female" className="bg-neutral-900 text-white">
+                Female
+              </option>
+              <option value="Other" className="bg-neutral-900 text-white">
+                Other
+              </option>
             </select>
             {errors.gender && (
-              <span
-                style={{
-                  color: "#f87171",
-                  fontSize: "0.85rem",
-                  marginTop: "4px",
-                  display: "block",
-                }}
-              >
+              <span className="text-red-400 text-sm">
                 {errors.gender.message}
               </span>
             )}
           </div>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "1.25rem",
-          }}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* EMAIL */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                marginBottom: "0.5rem",
-                fontWeight: "600",
-                fontSize: "0.9rem",
-                color: "#cbd5e1",
-              }}
-            >
-              Email Address *{" "}
+          <div className="flex flex-col gap-2 text-lg md:text-xl w-full">
+            <label className="text-white flex items-center gap-2 flex-wrap">
+              <span>Email Address *</span>
               {isEmailValid ? (
-                <span style={{ color: "#4ade80" }}>✓</span>
+                <span className="text-teal-400 text-base">✓</span>
               ) : (
                 errors.email && (
-                  <span style={{ color: "#f87171", fontSize: "0.8rem" }}>
+                  <span className="text-red-400 text-xs">
                     ({errors.email.message})
                   </span>
                 )
@@ -177,27 +103,19 @@ export default function RegistrationForm({
               type="email"
               {...register("email")}
               placeholder="xyz@iitp.ac.in"
-              style={inputStyle(errors.email)}
+              className={getInputClass(errors.email)}
             />
           </div>
 
           {/* MOBILE NUMBER */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                marginBottom: "0.5rem",
-                fontWeight: "600",
-                fontSize: "0.9rem",
-                color: "#cbd5e1",
-              }}
-            >
-              Mobile Number *{" "}
+          <div className="flex flex-col gap-2 text-lg md:text-xl w-full">
+            <label className="text-white flex items-center gap-2 flex-wrap">
+              <span>Mobile Number *</span>
               {isPhoneValid ? (
-                <span style={{ color: "#4ade80" }}>✓</span>
+                <span className="text-teal-400 text-base">✓</span>
               ) : (
                 errors.phone && (
-                  <span style={{ color: "#f87171", fontSize: "0.8rem" }}>
+                  <span className="text-red-400 text-xs">
                     ({errors.phone.message})
                   </span>
                 )
@@ -205,146 +123,104 @@ export default function RegistrationForm({
             </label>
             <input
               type="text"
-              {...register("phone")} // Updated to match backend
+              {...register("phone")}
               placeholder="9876543210"
-              style={inputStyle(errors.phone)}
+              className={getInputClass(errors.phone)}
             />
           </div>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "1.25rem",
-          }}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* COLLEGE */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                marginBottom: "0.5rem",
-                fontWeight: "600",
-                fontSize: "0.9rem",
-                color: "#cbd5e1",
-              }}
-            >
-              College / School *
-            </label>
+          <div className="flex flex-col gap-2 text-lg md:text-xl w-full">
+            <label className="text-white">College / School *</label>
             <input
               type="text"
               {...register("college")}
               placeholder="IIT Patna"
-              style={inputStyle(errors.college)}
+              className={getInputClass(errors.college)}
             />
+            {errors.college && (
+              <span className="text-red-400 text-sm">
+                {errors.college.message}
+              </span>
+            )}
           </div>
 
           {/* CITY / STATE */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                marginBottom: "0.5rem",
-                fontWeight: "600",
-                fontSize: "0.9rem",
-                color: "#cbd5e1",
-              }}
-            >
-              City / State *
-            </label>
+          <div className="flex flex-col gap-2 text-lg md:text-xl w-full">
+            <label className="text-white">City / State *</label>
             <input
               type="text"
               {...register("cityState")}
               placeholder="Patna, Bihar"
-              style={inputStyle(errors.cityState)}
+              className={getInputClass(errors.cityState)}
             />
+            {errors.cityState && (
+              <span className="text-red-400 text-sm">
+                {errors.cityState.message}
+              </span>
+            )}
           </div>
         </div>
 
         {/* WORKSHOP TRACK */}
-        <div>
-          <label
-            style={{
-              display: "block",
-              marginBottom: "0.5rem",
-              fontWeight: "600",
-              fontSize: "0.9rem",
-              color: "#cbd5e1",
-            }}
-          >
-            Workshop Applying For *
-          </label>
+        <div className="flex flex-col gap-2 text-lg md:text-xl w-full">
+          <label className="text-white">Workshop Applying For *</label>
           <select
             {...register("workshop")}
-            style={selectStyle(errors.workshop)}
+            className={getSelectClass(errors.workshop)}
           >
-            <option value="">Choose Technology Track</option>
-            <option value="Artificial Intelligence">
+            <option value="" className="bg-neutral-900 text-white">
+              Choose Technology Track
+            </option>
+            <option
+              value="Artificial Intelligence"
+              className="bg-neutral-900 text-white"
+            >
               Artificial Intelligence
             </option>
-            <option value="Ethical Hacking">Ethical Hacking</option>
-            <option value="Drone Technology">Robotics</option>
+            <option
+              value="Ethical Hacking"
+              className="bg-neutral-900 text-white"
+            >
+              Ethical Hacking
+            </option>
+            <option
+              value="Drone Technology"
+              className="bg-neutral-900 text-white"
+            >
+              Robotics
+            </option>
           </select>
           {errors.workshop && (
-            <span
-              style={{
-                color: "#f87171",
-                fontSize: "0.85rem",
-                marginTop: "4px",
-                display: "block",
-              }}
-            >
+            <span className="text-red-400 text-sm">
               {errors.workshop.message}
             </span>
           )}
         </div>
 
         {/* IITP STATUS */}
-        <div
-          style={{
-            backgroundColor: "rgba(15, 23, 42, 0.4)",
-            padding: "1.25rem",
-            borderRadius: "10px",
-            border: "1px solid #334155",
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.8rem",
-          }}
-        >
+        <div className="p-4 md:p-5 rounded-xl bg-white/[0.05] border border-white/20 flex flex-col gap-4">
           <div>
-            <div
-              style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
-            >
-              <label
-                style={{
-                  fontWeight: "700",
-                  fontSize: "0.95rem",
-                  color: "#e2e8f0",
-                }}
-              >
+            <div className="flex items-center gap-2">
+              <label className="text-lg md:text-xl font-semibold text-white">
                 Are you an IIT Patna Student? *
               </label>
 
-              {/* Clickable Info Icon */}
               <button
                 type="button"
                 onClick={() => setShowPrograms(!showPrograms)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: showPrograms ? "#38bdf8" : "#94a3b8", // Changes color when active
-                  cursor: "pointer",
-                  padding: "0",
-                  display: "flex",
-                  alignItems: "center",
-                  transition: "color 0.2s",
-                }}
+                className={`p-1 rounded-full transition-colors ${
+                  showPrograms
+                    ? "text-teal-400"
+                    : "text-white/60 hover:text-white"
+                }`}
                 aria-label="Toggle eligible programs info"
               >
                 <svg
-                  width="18"
-                  height="18"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -359,80 +235,37 @@ export default function RegistrationForm({
               </button>
             </div>
 
-            {/* Hidden Info Badge that appears on click */}
             {showPrograms && (
-              <div
-                style={{
-                  fontSize: "0.75rem",
-                  color: "#bae6fd",
-                  backgroundColor: "rgba(14, 165, 233, 0.1)",
-                  padding: "0.5rem 0.75rem",
-                  borderRadius: "6px",
-                  borderLeft: "3px solid #0ea5e9",
-                  marginTop: "0.8rem",
-                  lineHeight: "1.4",
-                  display: "inline-block",
-                  animation: "fadeIn 0.2s ease-out",
-                }}
-              >
+              <div className="mt-2 inline-block text-xs md:text-sm text-teal-200 bg-teal-600/20 px-3 py-1.5 rounded-lg border-l-4 border-teal-400">
                 Only for offline degree students
               </div>
             )}
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "1.5rem",
-              marginTop: "0.25rem",
-              marginBottom: isIITP === "yes" ? "0.5rem" : "0",
-            }}
-          >
-            <label
-              style={{
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                color: "#cbd5e1",
-                fontSize: "0.9rem",
-              }}
-            >
-              <input type="radio" value="yes" {...register("isIITP")} /> Yes, I
-              am
+          <div className="flex flex-wrap gap-6">
+            <label className="cursor-pointer flex items-center gap-2 text-white/90 text-base md:text-lg">
+              <input
+                type="radio"
+                value="yes"
+                {...register("isIITP")}
+                className="accent-teal-500 w-4 h-4"
+              />
+              Yes, I am
             </label>
-            <label
-              style={{
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                color: "#cbd5e1",
-                fontSize: "0.9rem",
-              }}
-            >
-              <input type="radio" value="no" {...register("isIITP")} /> No,
-              another college
+            <label className="cursor-pointer flex items-center gap-2 text-white/90 text-base md:text-lg">
+              <input
+                type="radio"
+                value="no"
+                {...register("isIITP")}
+                className="accent-teal-500 w-4 h-4"
+              />
+              No, another college
             </label>
           </div>
 
           {isIITP === "yes" && (
-            <div
-              style={{
-                marginTop: "0.25rem",
-                animation: "fadeIn 0.3s ease-out",
-              }}
-            >
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "0.4rem",
-                  fontWeight: "600",
-                  fontSize: "0.85rem",
-                  color: "#38bdf8",
-                }}
-              >
+            <div className="flex flex-col gap-2 text-lg md:text-xl pt-2">
+              <label className="text-teal-400 text-base md:text-lg font-medium">
                 Roll Number *
               </label>
               <input
@@ -442,21 +275,10 @@ export default function RegistrationForm({
                 {...register("rollNumber", {
                   setValueAs: (value) => value.toUpperCase(),
                 })}
-                style={{
-                  ...inputStyle(errors.rollNumber),
-                  borderColor: errors.rollNumber ? "#ef4444" : "#0ea5e9",
-                }}
+                className={getInputClass(errors.rollNumber)}
               />
-
               {errors.rollNumber && (
-                <span
-                  style={{
-                    color: "#f87171",
-                    fontSize: "0.85rem",
-                    marginTop: "4px",
-                    display: "block",
-                  }}
-                >
+                <span className="text-red-400 text-sm">
                   {errors.rollNumber.message}
                 </span>
               )}
@@ -465,142 +287,68 @@ export default function RegistrationForm({
         </div>
 
         {/* ACCOMMODATION */}
-        <div>
-          <label
-            style={{
-              display: "block",
-              marginBottom: "0.5rem",
-              fontWeight: "700",
-              fontSize: "0.95rem",
-              color: "#e2e8f0",
-            }}
-          >
+        <div className="flex flex-col gap-3">
+          <label className="text-lg md:text-xl font-semibold text-white">
             Accommodation
           </label>
 
           {isIITP === "no" ? (
-            <div
-              style={{
-                padding: "0.5rem 0",
-                animation: "fadeIn 0.3s ease-out",
-              }}
-            >
-              <span
-                style={{
-                  display: "block",
-                  marginBottom: "0.75rem",
-                  fontSize: "0.9rem",
-                  color: "#94a3b8",
-                }}
-              >
+            <div className="flex flex-col gap-4">
+              <span className="text-sm md:text-base text-white/70">
                 Do you require accommodation on campus? (+₹249/day)
               </span>
-              <div style={{ display: "flex", gap: "2rem" }}>
-                <label
-                  style={{
-                    cursor: "pointer",
-                    color: "#cbd5e1",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
+              <div className="flex gap-8">
+                <label className="cursor-pointer text-white/90 flex items-center gap-2 text-base md:text-lg">
                   <input
                     type="radio"
                     value="yes"
                     {...register("requireAccommodation")}
+                    className="accent-teal-500 w-4 h-4"
                   />
                   Yes
                 </label>
 
-                <label
-                  style={{
-                    cursor: "pointer",
-                    color: "#cbd5e1",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
+                <label className="cursor-pointer text-white/90 flex items-center gap-2 text-base md:text-lg">
                   <input
                     type="radio"
                     value="no"
                     {...register("requireAccommodation")}
+                    className="accent-teal-500 w-4 h-4"
                   />
                   No
                 </label>
               </div>
 
               {watch("requireAccommodation") === "yes" && (
-                <div style={{ marginTop: "1rem" }}>
-                  <label
-                    style={{
-                      display: "block",
-                      marginBottom: "0.75rem",
-                      fontWeight: "600",
-                      fontSize: "0.85rem",
-                      color: "#38bdf8",
-                    }}
-                  >
+                <div className="flex flex-col gap-3 mt-2">
+                  <label className="text-base md:text-lg font-medium text-teal-400">
                     Number of Accommodation Days
                   </label>
 
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
-                      gap: "0.75rem",
-                    }}
-                  >
-                    <label
-                      style={{
-                        cursor: "pointer",
-                        padding: "0.8rem",
-                        border: "1px solid #334155",
-                        borderRadius: "8px",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.6rem",
-                        color: "#cbd5e1",
-                        transition: "all 0.2s ease",
-                      }}
-                    >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label className="cursor-pointer p-3.5 border-2 border-white/30 hover:border-teal-600 rounded-lg flex items-center gap-3 text-white bg-white/[0.03] transition-colors">
                       <input
                         type="radio"
                         value="1"
                         {...register("accommodationDays")}
+                        className="accent-teal-500 w-4 h-4"
                       />
-
                       <span>
-                        <strong style={{ color: "#f8fafc" }}>1 Day</strong>
-                        <br />
-                        <small style={{ color: "#64748b" }}>₹249</small>
+                        <strong className="text-white block">1 Day</strong>
+                        <small className="text-white/60">₹249</small>
                       </span>
                     </label>
 
-                    <label
-                      style={{
-                        cursor: "pointer",
-                        padding: "0.8rem",
-                        border: "1px solid #334155",
-                        borderRadius: "8px",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.6rem",
-                        color: "#cbd5e1",
-                        transition: "all 0.2s ease",
-                      }}
-                    >
+                    <label className="cursor-pointer p-3.5 border-2 border-white/30 hover:border-teal-600 rounded-lg flex items-center gap-3 text-white bg-white/[0.03] transition-colors">
                       <input
                         type="radio"
                         value="2"
                         {...register("accommodationDays")}
+                        className="accent-teal-500 w-4 h-4"
                       />
-
                       <span>
-                        <strong style={{ color: "#f8fafc" }}>2 Days</strong>
-                        <br />
-                        <small style={{ color: "#64748b" }}>₹498</small>
+                        <strong className="text-white block">2 Days</strong>
+                        <small className="text-white/60">₹498</small>
                       </span>
                     </label>
                   </div>
@@ -608,37 +356,18 @@ export default function RegistrationForm({
               )}
             </div>
           ) : (
-            <div
-              style={{
-                padding: "0.75rem",
-                backgroundColor: "rgba(14, 165, 233, 0.1)",
-                border: "1px solid rgba(14, 165, 233, 0.2)",
-                borderRadius: "8px",
-                color: "#38bdf8",
-                fontSize: "0.9rem",
-                fontWeight: "500",
-                animation: "fadeIn 0.3s ease-out",
-              }}
-            >
+            <div className="p-3 rounded-lg bg-teal-600/20 border border-teal-500/40 text-teal-300 text-sm md:text-base font-medium">
               Not Required
             </div>
           )}
         </div>
-        {isIITP === "no" && (
-          <div style={{ marginTop: "0.25rem" }}>
-            <label
-              style={{
-                display: "block",
-                marginBottom: "0.4rem",
-                fontSize: "0.85rem",
-                fontWeight: "600",
-                color: "#cbd5e1",
-              }}
-            >
-              Coupon Code
-            </label>
 
-            <div style={{ display: "flex", gap: "0.4rem" }}>
+        {/* COUPON CODE */}
+        {isIITP === "no" && (
+          <div className="flex flex-col gap-2 text-lg md:text-xl">
+            <label className="text-white">Coupon Code</label>
+
+            <div className="flex gap-3">
               <input
                 type="text"
                 {...couponField}
@@ -647,10 +376,7 @@ export default function RegistrationForm({
                   couponField.onChange(e);
                   setCouponStatus(null);
                 }}
-                style={{
-                  ...inputStyle(false),
-                  flex: 1,
-                }}
+                className={getInputClass(false)}
               />
 
               <button
@@ -672,12 +398,7 @@ export default function RegistrationForm({
                     });
                   }
                 }}
-                style={{
-                  padding: "0 0.9rem",
-                  color: "#fff",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                }}
+                className="px-6 py-2 border-2 border-teal-600 rounded-lg text-white text-base font-semibold hover:bg-teal-600/20 transition-colors cursor-pointer shrink-0"
               >
                 Apply
               </button>
@@ -685,11 +406,9 @@ export default function RegistrationForm({
 
             {couponStatus && (
               <div
-                style={{
-                  marginTop: "0.3rem",
-                  fontSize: "0.75rem",
-                  color: couponStatus.valid ? "#4ade80" : "#f87171",
-                }}
+                className={`text-sm mt-1 ${
+                  couponStatus.valid ? "text-teal-400" : "text-red-400"
+                }`}
               >
                 {couponStatus.message}
               </div>
