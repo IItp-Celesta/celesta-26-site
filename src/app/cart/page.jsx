@@ -318,6 +318,7 @@ export default function CartPage() {
         onClose={() => setCheckoutModalOpen(false)}
         onSubmit={initiateCheckout}
         cart={cart}
+        totalPrice={totalPrice}
       />
 
       <ComboCheckoutModal

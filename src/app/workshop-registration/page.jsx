@@ -128,7 +128,7 @@ export default function WorkshopRegistrationPage() {
   if (loading) {
     return (
       <div
-        className={`p-4 md:p-10 bg-muted ${styles.background} text-white min-h-svh flex items-center justify-center`}
+        className="min-h-screen flex items-center justify-center bg-slate-900 text-white"
       >
         Loading...
       </div>

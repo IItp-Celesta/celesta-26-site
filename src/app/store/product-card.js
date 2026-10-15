@@ -13,13 +13,13 @@ export default function ProductCard({ name, cost, img_src, id, type }) {
 
   const isInCart = cart.some((item) => item.id === id);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!authUser) {
       toast.error("Please login first to purchase pass");
       return;
     }
-    addToCart({ name, cost, img_src, id, type });
-    toast.success("Added to cart");
+    const added = await addToCart({ name, cost, img_src, id, type });
+    if (added) toast.success("Added to cart");
   };
 
   const handleRemoveFromCart = () => {

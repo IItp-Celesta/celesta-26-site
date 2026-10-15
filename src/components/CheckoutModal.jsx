@@ -6,7 +6,13 @@ import imageCompression from "browser-image-compression";
 import toast from "react-hot-toast";
 import { isPassItem } from "@/lib/pricing_algo";
 
-export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) {
+export default function CheckoutModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  cart = [],
+  totalPrice = 0,
+}) {
   const { authUser } = useAuth(); // Needed strictly for the secure upload token
 
   const hasPass = cart.some(isPassItem);
@@ -19,6 +25,12 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) 
   const [aadhaarFile, setAadhaarFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
+  const [couponCode, setCouponCode] = useState("");
+  const [couponPrice, setCouponPrice] = useState(null);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
+  const payable = couponPrice !== null ? couponPrice : totalPrice;
+
   useEffect(() => {
     if (isOpen) {
       setName("");
@@ -27,6 +39,8 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) 
       setGender("");
       setPhone("");
       setAadhaarFile(null);
+      setCouponCode("");
+      setCouponPrice(null);
     }
   }, [isOpen]);
 
@@ -50,6 +64,30 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) 
     if (!res.ok) throw new Error("Failed to upload document");
     const data = await res.json();
     return data.secure_url;
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return toast.error("Please enter a coupon code.");
+    setIsApplyingCoupon(true);
+    try {
+      const res = await fetch("/api/combo/validate-coupon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode.trim(), amount: totalPrice }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.valid) {
+        setCouponPrice(null);
+        return toast.error(data.message || "Invalid coupon code.");
+      }
+      setCouponPrice(data.couponPrice);
+      toast.success(`Coupon applied! New price: ₹${data.couponPrice}`);
+    } catch {
+      setCouponPrice(null);
+      toast.error("Failed to validate coupon.");
+    } finally {
+      setIsApplyingCoupon(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -103,6 +141,9 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) 
         college: college || "Not Provided",
         phone,
         aadhaar: aadhaarUrl,
+        ...(couponPrice !== null && {
+          couponCode: couponCode.trim().toUpperCase(),
+        }),
       };
 
       if (onSubmit) {
@@ -124,7 +165,6 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
       <div className="bg-slate-900 border border-white/10 rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
-        
         <div className="p-6 border-b border-white/10 flex justify-between items-center shrink-0 bg-slate-900 z-10">
           <div>
             <h2 className="text-xl font-bold text-white">
@@ -146,11 +186,16 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) 
         </div>
 
         <div className="p-6 overflow-y-auto">
-          <form id="checkout-form" onSubmit={handleSubmit} className="space-y-4">
-            
+          <form
+            id="checkout-form"
+            onSubmit={handleSubmit}
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-white/60 mb-1">Name *</label>
+                <label className="block text-xs font-medium text-white/60 mb-1">
+                  Name *
+                </label>
                 <input
                   type="text"
                   value={name}
@@ -160,7 +205,9 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) 
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-white/60 mb-1">Email *</label>
+                <label className="block text-xs font-medium text-white/60 mb-1">
+                  Email *
+                </label>
                 <input
                   type="email"
                   value={email}
@@ -173,7 +220,9 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-white/60 mb-1">Phone Number *</label>
+                <label className="block text-xs font-medium text-white/60 mb-1">
+                  Phone Number *
+                </label>
                 <input
                   type="tel"
                   value={phone}
@@ -185,14 +234,18 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) 
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-white/60 mb-1">Gender *</label>
+                <label className="block text-xs font-medium text-white/60 mb-1">
+                  Gender *
+                </label>
                 <select
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
                   className="text-white w-full px-3 py-2 bg-slate-800 border border-white/10 rounded-md focus:outline-none focus:border-sky-500 text-sm"
                   required
                 >
-                  <option value="" disabled>Select</option>
+                  <option value="" disabled>
+                    Select
+                  </option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                   <option value="Other">Other</option>
@@ -201,7 +254,9 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) 
             </div>
 
             <div className="pt-2">
-              <label className="block text-xs font-medium text-white/60 mb-1">College Name</label>
+              <label className="block text-xs font-medium text-white/60 mb-1">
+                College Name
+              </label>
               <input
                 type="text"
                 value={college}
@@ -210,9 +265,11 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) 
                 placeholder="Your Institute (Optional)"
               />
             </div>
-            
+
             <div className="pt-2">
-              <label className="block text-xs font-medium text-white/60 mb-1">Aadhaar (JPG/PNG) *</label>
+              <label className="block text-xs font-medium text-white/60 mb-1">
+                Aadhaar (JPG/PNG) *
+              </label>
               <input
                 type="file"
                 accept="image/png, image/jpeg, image/jpg"
@@ -221,7 +278,42 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) 
                 required
               />
             </div>
-            
+            <div className="pt-2">
+              <label className="block text-xs font-medium text-white/60 mb-1">
+                Coupon Code
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={(e) => {
+                    setCouponCode(e.target.value.toUpperCase());
+                    setCouponPrice(null);
+                  }}
+                  placeholder="Enter coupon code"
+                  className="flex-1 px-3 py-2 bg-slate-800 border border-white/10 rounded-md text-sm text-white focus:outline-none focus:border-sky-500"
+                />
+                <button
+                  type="button"
+                  onClick={handleApplyCoupon}
+                  disabled={isApplyingCoupon || !couponCode.trim()}
+                  className="px-4 py-2 bg-sky-500/20 text-sky-400 border border-sky-500/30 rounded-md text-sm font-semibold hover:bg-sky-500/30 disabled:opacity-50"
+                >
+                  {isApplyingCoupon ? "..." : "Apply"}
+                </button>
+              </div>
+              <div className="flex justify-between items-center mt-3 text-sm">
+                <span className="text-white/60">Total Payable</span>
+                <span>
+                  {couponPrice !== null && (
+                    <span className="line-through text-white/40 mr-2">
+                      ₹{totalPrice}
+                    </span>
+                  )}
+                  <span className="font-bold text-sky-400">₹{payable}</span>
+                </span>
+              </div>
+            </div>
           </form>
         </div>
 
@@ -250,7 +342,6 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit, cart = [] }) 
             )}
           </button>
         </div>
-
       </div>
     </div>
   );

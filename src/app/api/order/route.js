@@ -20,6 +20,42 @@ const feeBySlug = Object.fromEntries(
   ]),
 );
 
+async function applyCoupon(rawCode, baseAmount) {
+  const code = String(rawCode || "")
+    .trim()
+    .toUpperCase();
+  if (!code) return { valid: false, message: "Please enter a coupon code" };
+
+  const snap = await adminFirestore.collection("coupons").doc(code).get();
+  if (!snap.exists) return { valid: false, message: "Invalid coupon code" };
+
+  const coupon = snap.data();
+
+  if (coupon.isActive === false) {
+    return { valid: false, message: "This coupon is no longer active" };
+  }
+
+  if (coupon.expiresAt) {
+    const expiry = new Date(coupon.expiresAt).getTime();
+    if (!Number.isNaN(expiry) && Date.now() > expiry) {
+      return { valid: false, message: "This coupon has expired" };
+    }
+  }
+
+  const couponPrice = Number((coupon.prices || {})[String(baseAmount)]);
+  if (!Number.isFinite(couponPrice)) {
+    return {
+      valid: false,
+      message: "This coupon is not applicable to this cart",
+    };
+  }
+  if (couponPrice < 0 || couponPrice > baseAmount) {
+    return { valid: false, message: "Invalid coupon configuration" };
+  }
+
+  return { valid: true, code, couponPrice };
+}
+
 async function priceCart(cart) {
   return Promise.all(
     cart.map(async (item) => {
@@ -86,7 +122,23 @@ export async function POST(req) {
       }
     }
 
-    const total = calculateCartTotal(cart, pastInvoices);
+    const baseTotal = calculateCartTotal(cart, pastInvoices);
+
+    let total = baseTotal;
+    let appliedCoupon = null;
+
+    if (parsed.data.payload.couponCode) {
+      const result = await applyCoupon(
+        parsed.data.payload.couponCode,
+        baseTotal,
+      );
+      if (!result.valid) {
+        return json({ success: false, message: result.message }, 400);
+      }
+      total = result.couponPrice;
+      appliedCoupon = result.code;
+    }
+
     if (total <= 0) {
       return json({ success: false, message: "Nothing to charge." }, 400);
     }
@@ -97,6 +149,8 @@ export async function POST(req) {
       cart,
       payload: parsed.data.payload,
       total,
+      originalTotal: baseTotal,
+      couponCode: appliedCoupon,
       status: "PENDING",
       createdAt: new Date().toISOString(),
     });

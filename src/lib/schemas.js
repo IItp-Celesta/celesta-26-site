@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isPassItem } from "@/lib/pricing_algo";
+import { isPassItem, isEventItem } from "@/lib/pricing_algo";
 
 export const registrationSchema = z
   .object({
@@ -66,6 +66,7 @@ export const flagshipTeamSchema = z.object({
   teamName: z.string().min(2, "Team name is required"),
   college: z.string().min(2, "College is required"),
   numMembers: z.string().or(z.number()),
+  numBots: z.string().or(z.number()).optional(),
   members: z.array(
     z.object({
       name: z.string().min(2, "Full name is required"),
@@ -128,6 +129,7 @@ const checkoutPayloadSchema = z.object({
   phone: z.string().regex(/^\d{10}$/, "Must be exactly 10 digits"),
   email: z.string().email().optional(),
   aadhaar: z.string().optional(),
+  couponCode: z.string().trim().max(50).optional(),
 });
 
 export const orderRequestSchema = z
@@ -150,6 +152,13 @@ export const orderRequestSchema = z
         code: z.ZodIssueCode.custom,
         path: ["cart"],
         message: "Strict Limit: Only 1 ticket/pass is allowed per account.",
+      });
+    }
+    if (data.cart.some(isEventItem) && data.cart.some(isPassItem)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["cart"],
+        message: "Events and passes cannot be purchased together.",
       });
     }
 

@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import toast from "react-hot-toast";
-import { isPassItem } from "@/lib/pricing_algo";
+import { isPassItem, isEventItem } from "@/lib/pricing_algo";
 
 const CartContext = createContext();
 
@@ -44,19 +44,30 @@ export const CartProvider = ({ children }) => {
   };
 
   const addToCart = async (item) => {
-    if (!currentUser) return;
+    if (!currentUser) return false;
     const updatedCart = [...cart];
 
     const itemIsPass = isPassItem(item);
     if (itemIsPass && updatedCart.some((i) => isPassItem(i))) {
       toast.error("You can only purchase 1 ticket/pass per account.");
-      return;
+      return false;
+    }
+    if (itemIsPass && updatedCart.some((i) => isEventItem(i))) {
+      toast.error(
+        "Passes and event registrations can't be bought together. Please checkout your events first.",
+      );
+      return false;
+    }
+    if (isEventItem(item) && updatedCart.some((i) => isPassItem(i))) {
+      toast.error(
+        "Event registrations and passes can't be bought together. Please checkout or remove your pass first.",
+      );
+      return false;
     }
 
-    // RULE 2: the exact same item can't be added twice
     if (updatedCart.some((i) => i.id === item.id)) {
       toast.error("This item is already in your cart.");
-      return;
+      return false;
     }
     updatedCart.push({
       ...item,
@@ -64,6 +75,7 @@ export const CartProvider = ({ children }) => {
     });
     setCart(updatedCart);
     saveCartLocally(updatedCart, currentUser.uid);
+    return true;
   };
 
   const removeFromCart = async (itemId) => {

@@ -12,11 +12,11 @@ import toast from "react-hot-toast";
 import data from "@/app/events/events.json";
 import imageCompression from "browser-image-compression";
 import { motion } from "framer-motion";
-import styles from "@/app/register/Register.module.css"; 
+import { isPassItem } from "@/lib/pricing_algo";
 
 export default function FlagshipRegistrationPage({ params }) {
   const router = useRouter();
-  const { addToCart } = useCart();
+  const { addToCart, cart } = useCart();
   const { authUser, loading } = useAuth();
 
   const [isUploading, setIsUploading] = useState(false);
@@ -30,6 +30,7 @@ export default function FlagshipRegistrationPage({ params }) {
   const eventFee = event?.fee;
   const minTeamSize = event?.min || 1;
   const maxTeamSize = event?.max || 5;
+  const fee1 = event?.fee1;
 
   const {
     register,
@@ -102,12 +103,19 @@ export default function FlagshipRegistrationPage({ params }) {
       toast.error("Critical Error: Event price is missing. Contact support.");
       return;
     }
+    if (cart.some(isPassItem)) {
+      toast.error(
+        "Event registrations and passes can't be bought together. Please checkout or remove your pass first.",
+      );
+      return;
+    }
 
     setIsUploading(true);
     const toastId = toast.loading("Adding to Cart...");
 
     try {
-      const totalAmount = eventFee;
+      const numBots = parseInt(formDataObj.numBots || "1", 10);
+      const totalAmount = eventFee * numBots;
       const processedMembers = await Promise.all(
         formDataObj.members.map(async (member) => {
           let secureFileId = "";
@@ -132,13 +140,18 @@ export default function FlagshipRegistrationPage({ params }) {
         registrationTime: new Date().toISOString(),
       };
 
-      addToCart({
+      const added = await addToCart({
         id: `EVENT_${eventId}_${Date.now()}`,
         name: `${eventName} (${formDataObj.teamName})`,
         cost: totalAmount,
         type: "event",
         teamDetails: safeTeamDetails,
       });
+
+      if (!added) {
+        toast.dismiss(toastId);
+        return;
+      }
 
       toast.success("Added to Cart successfully!", { id: toastId });
       router.push("/cart");
@@ -153,7 +166,7 @@ export default function FlagshipRegistrationPage({ params }) {
   if (loading || !authUser) {
     return (
       <div
-        className={`p-4 md:p-10 bg-muted ${styles.background} text-white min-h-svh flex items-center justify-center`}
+        className={`min-h-screen flex items-center justify-center bg-slate-900 text-white`}
       >
         Loading...
       </div>
@@ -161,9 +174,7 @@ export default function FlagshipRegistrationPage({ params }) {
   }
 
   return (
-    <div
-      className={`px-4 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 bg-muted ${styles.background} text-white min-h-svh flex flex-col items-center justify-start overflow-x-hidden`}
-    >
+    <div className="px-4 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 bg-[url('/images/backdrop.png')] bg-cover bg-center bg-no-repeat text-white min-h-svh flex flex-col items-center justify-start overflow-x-hidden">
       <motion.div
         initial={{ opacity: 0, x: -140 }}
         animate={{ opacity: 1, x: 0 }}
@@ -192,6 +203,7 @@ export default function FlagshipRegistrationPage({ params }) {
             register={register}
             errors={errors}
             watch={watch}
+            fee1={fee1}
             eventFee={eventFee}
             isUploading={isUploading}
             minTeamSize={minTeamSize}
