@@ -12,7 +12,6 @@ import toast from "react-hot-toast";
 import data from "@/app/events/events.json";
 import imageCompression from "browser-image-compression";
 import { motion } from "framer-motion";
-import styles from "@/app/register/Register.module.css"; 
 
 export default function FlagshipRegistrationPage({ params }) {
   const router = useRouter();
@@ -30,6 +29,7 @@ export default function FlagshipRegistrationPage({ params }) {
   const eventFee = event?.fee;
   const minTeamSize = event?.min || 1;
   const maxTeamSize = event?.max || 5;
+  const fee1 = event?.fee1;
 
   const {
     register,
@@ -153,7 +153,7 @@ export default function FlagshipRegistrationPage({ params }) {
   if (loading || !authUser) {
     return (
       <div
-        className={`p-4 md:p-10 bg-muted ${styles.background} text-white min-h-svh flex items-center justify-center`}
+        className={`min-h-screen flex items-center justify-center bg-slate-900 text-white`}
       >
         Loading...
       </div>
@@ -161,9 +161,7 @@ export default function FlagshipRegistrationPage({ params }) {
   }
 
   return (
-    <div
-      className={`px-4 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 bg-muted ${styles.background} text-white min-h-svh flex flex-col items-center justify-start overflow-x-hidden`}
-    >
+    <div className="px-4 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 bg-[url('/images/backdrop.png')] bg-cover bg-center bg-no-repeat text-white min-h-svh flex flex-col items-center justify-start overflow-x-hidden">
       <motion.div
         initial={{ opacity: 0, x: -140 }}
         animate={{ opacity: 1, x: 0 }}
@@ -192,6 +190,7 @@ export default function FlagshipRegistrationPage({ params }) {
             register={register}
             errors={errors}
             watch={watch}
+            fee1={fee1}
             eventFee={eventFee}
             isUploading={isUploading}
             minTeamSize={minTeamSize}

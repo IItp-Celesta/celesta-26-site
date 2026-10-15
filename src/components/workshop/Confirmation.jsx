@@ -60,6 +60,14 @@ export default function Confirmation({ registrationId, formData, feeSummary }) {
           </div>
         </div>
       </div>
+      <a
+        href="https://chat.whatsapp.com/Lsc3iUTEoDiC1b5JPYeGaC"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-green-400 hover:text-green-300 font-semibold"
+      >
+        Join WhatsApp Group for further updates →
+      </a>
 
       <button
         type="button"

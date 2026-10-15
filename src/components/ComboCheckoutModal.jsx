@@ -152,7 +152,8 @@ export default function ComboCheckoutModal({
         },
         txnId,
         screenshotUrl,
-        couponCode: couponPrice !== null ? couponCode.trim().toUpperCase() : null,
+        couponCode:
+          couponPrice !== null ? couponCode.trim().toUpperCase() : null,
         originalAmount: baseAmount,
         totalAmount,
         status: "PENDING_VERIFICATION",
@@ -243,7 +244,9 @@ export default function ComboCheckoutModal({
         {/* QR */}
         <div className="bg-white rounded-xl p-3 w-fit mx-auto mb-3 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
           <img
-            src="/payment/qr.jpeg"
+            src={
+              baseAmount === 899 ? "/payment/qr-gymkhana.png" : "/payment/qr.jpeg"
+            }
             alt="UPI QR Code"
             className="w-40 h-40 object-contain"
           />
