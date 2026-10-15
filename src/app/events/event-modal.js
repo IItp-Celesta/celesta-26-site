@@ -119,13 +119,19 @@ export default function EventModal({ event, onClose }) {
                       : "Prize TBA"}
                   </span>
                   {event.mode && (
-                    <span className="text-white/90 border border-white/20 px-2 rounded-md">
+                    <span className="text-white/90 border border-white/20 px-2 py-1 rounded-md inline-flex items-center gap-2">
                       📍 {event.mode}
                     </span>
                   )}
                   {event.fee && (
-                    <span className="text-white/90 border border-white/20 px-2 rounded-md">
-                      💰 Fee: ₹{event.fee}
+                    <span className="inline-flex items-center gap-2 text-white/90 border border-white/20 px-2 rounded-md py-1 text-md">
+                      <span>💰 Fee:</span>
+                      <span className="relative text-xs text-white/70 line-through decoration-1">
+                        ₹{event.fee1}
+                      </span>
+                      <span className="text-white/90">
+                        ₹{event.fee}
+                      </span>
                     </span>
                   )}
                 </div>

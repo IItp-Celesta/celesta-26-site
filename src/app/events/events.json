@@ -11,6 +11,7 @@
       "prize_pool": "1st: ₹10,000 | 2nd: ₹6,000 | 3rd: ₹4,000 | Total: ₹20,000",
       "mode": "Offline",
       "fee": 800,
+      "fee1":1000,
       "arena_model_link": "-",
       "max": 4
     },
@@ -25,6 +26,7 @@
       "prize_pool": "1st: ₹40,000 | 2nd: ₹25,000 | 3rd: ₹15,000 | Total: ₹80,000",
       "mode": "Offline",
       "fee": 1200,
+      "fee1":1400,
       "arena_model_link": null,
       "max": 5
     },
@@ -39,6 +41,7 @@
       "prize_pool": "1st: ₹60,000 | 2nd: ₹40,000 | 3rd: ₹20,000 | Total: ₹1,20,000",
       "mode": "Offline",
       "fee": 2000,
+      "fee1":2200,
       "arena_model_link": null,
       "max": 5
     },
@@ -53,6 +56,7 @@
       "prize_pool": "1st: ₹18,000 | 2nd: ₹10,000 | 3rd: ₹7,000 | Total: ₹35,000",
       "mode": "Offline",
       "fee": 900,
+      "fee1":1100,
       "arena_model_link": "-",
       "max": 3
     },
@@ -67,6 +71,7 @@
       "prize_pool": "1st: ₹10,000 | 2nd: ₹6,000 | 3rd: ₹4,000 | Total: ₹20,000",
       "mode": "Offline",
       "fee": 800,
+      "fee1":1000,
       "arena_model_link": "-",
       "max": 4
     },
@@ -81,6 +86,7 @@
       "prize_pool": "1st: ₹10,000 | 2nd: ₹6,000 | 3rd: ₹4,000 | Total: ₹20,000",
       "mode": "Offline",
       "fee": 800,
+      "fee1":1000,
       "arena_model_link": null,
       "max": 3
     },
@@ -99,6 +105,7 @@
       "prize_pool": "1st: ₹20,000 | 2nd: ₹12,000 | 3rd: ₹8,000 | Total: ₹40,000",
       "mode": "Offline",
       "fee": 1300,
+      "fee1":1500,
       "arena_model_link": null
     },
     {
@@ -116,6 +123,7 @@
       "prize_pool": "1st: ₹12,000 | 2nd: ₹8,000 | 3rd: ₹5,000 | Total: ₹25,000",
       "mode": "Offline",
       "fee": 800,
+      "fee1":1000,
       "arena_model_link": null,
       "max": 4
     },
@@ -130,6 +138,7 @@
       "prize_pool": "1st: ₹6,000 | 2nd: ₹3,500 | 3rd: ₹2,500 | Total: ₹12,000",
       "mode": "Offline",
       "fee": 550,
+      "fee1":750,
       "arena_model_link": "-",
       "min": 2,
       "max": 5

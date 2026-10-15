@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronRight } from "lucide-react";
 import styles from "@/app/register/Register.module.css";
 
 export default function FlagshipRegistrationForm({
@@ -8,6 +8,7 @@ export default function FlagshipRegistrationForm({
   errors,
   watch,
   eventFee,
+  fee1,
   isUploading,
   minTeamSize = 1,
   maxTeamSize = 5,
@@ -31,36 +32,29 @@ export default function FlagshipRegistrationForm({
   }, [numMembersInt]);
 
   const getInputClass = (hasError) =>
-    `p-2.5 border-2 rounded-lg text-white bg-transparent w-full focus:outline-none focus:ring-0 transition-colors placeholder:text-white/40 ${
-      hasError
-        ? "border-red-500 focus:border-red-500"
-        : "border-white/80 focus:border-teal-600"
+    `p-2.5 border-2 rounded-lg text-white bg-transparent w-full outline-none transition-colors placeholder:text-white/40 ${
+      hasError ? "border-red-500" : "border-white/80 focus:border-teal-600"
     }`;
 
   const getSelectClass = (hasError) =>
-    `p-2.5 border-2 rounded-lg text-white bg-transparent w-full focus:outline-none focus:ring-0 cursor-pointer transition-colors ${
-      hasError
-        ? "border-red-500 focus:border-red-500"
-        : "border-white/80 focus:border-teal-600"
+    `p-2.5 border-2 rounded-lg text-white bg-transparent w-full outline-none cursor-pointer transition-colors ${
+      hasError ? "border-red-500" : "border-white/80 focus:border-teal-600"
     }`;
 
-  const getMemberError = (index, field) => {
-    return errors?.members?.[index]?.[field];
-  };
+  const getMemberError = (index, field) => errors?.members?.[index]?.[field];
 
   return (
-    <div className="w-full flex flex-col gap-6 md:gap-8">
-      {/* ─── SECTION 1 & 2: MAIN GLASSMORPHIC CARD ──────────────────────────── */}
-      <div className="w-full flex flex-col gap-6 p-6 md:p-8 rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl">
-        {/* TEAM INFORMATION HEADER */}
-        <h2 className="text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide m-0">
+    <div className="flex flex-col gap-6 md:gap-8">
+      {/* ─── SECTION 1 & 2: MAIN CARD ─── */}
+      <div className="flex flex-col gap-6 p-6 md:p-8 rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl">
+        <h2 className="text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
           1. Team Information
         </h2>
 
         <div className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             {/* Team Name */}
-            <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+            <div className="flex flex-col gap-2 text-base md:text-lg">
               <label className="text-white">Team Name *</label>
               <input
                 type="text"
@@ -76,7 +70,7 @@ export default function FlagshipRegistrationForm({
             </div>
 
             {/* College */}
-            <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+            <div className="flex flex-col gap-2 text-base md:text-lg">
               <label className="text-white">College *</label>
               <input
                 type="text"
@@ -92,7 +86,7 @@ export default function FlagshipRegistrationForm({
             </div>
 
             {/* Num Members */}
-            <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+            <div className="flex flex-col gap-2 text-base md:text-lg">
               <label className="text-white">Number of Team Members *</label>
               <select
                 {...register("numMembers", { required: true })}
@@ -114,7 +108,7 @@ export default function FlagshipRegistrationForm({
             </div>
 
             {/* Num Bots */}
-            <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+            <div className="flex flex-col gap-2 text-base md:text-lg">
               <label className="text-white">
                 Number of Bots (If applicable)
               </label>
@@ -136,8 +130,7 @@ export default function FlagshipRegistrationForm({
           </div>
         </div>
 
-        {/* MEMBER DETAILS HEADER */}
-        <h2 className="text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide m-0 mt-4">
+        <h2 className="text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 mt-4 state-wide">
           2. Member Details
         </h2>
 
@@ -150,24 +143,20 @@ export default function FlagshipRegistrationForm({
             return (
               <div
                 key={index}
-                className={`rounded-xl border flex flex-col overflow-hidden bg-white/[0.05] transition-colors ${
+                className={`rounded-xl border bg-white/5 overflow-hidden ${
                   hasError && !isExpanded ? "border-red-500" : "border-white/20"
                 }`}
               >
                 <button
                   type="button"
                   onClick={() => setExpandedMember(isExpanded ? null : index)}
-                  className={`w-full p-4 md:p-5 text-left border-none cursor-pointer flex justify-between items-center transition-colors ${
+                  className={`w-full p-4 md:p-5 flex justify-between items-center text-left ${
                     isExpanded
-                      ? "bg-teal-600/20 border-b border-white/20"
-                      : "bg-transparent hover:bg-white/[0.02]"
+                      ? "bg-white/10 text-white/90"
+                      : "text-white/90 hover:bg-white/5"
                   }`}
                 >
-                  <h3
-                    className={`m-0 text-[16px] md:text-[18px] font-semibold ${
-                      isExpanded ? "text-teal-400" : "text-white/90"
-                    }`}
-                  >
+                  <h3 className="text-base md:text-lg font-semibold">
                     Member {index + 1} {index === 0 ? "(Team Leader)" : ""}
                   </h3>
                   <div className="flex items-center gap-3">
@@ -176,23 +165,23 @@ export default function FlagshipRegistrationForm({
                         Incomplete
                       </span>
                     )}
-                    <span
-                      className={`font-bold ${
-                        isExpanded ? "text-teal-400" : "text-white/60"
-                      }`}
-                    >
-                      {isExpanded ? "▼" : "▶"}
+                    <span>
+                      {isExpanded ? (
+                        <ChevronDown size={18} />
+                      ) : (
+                        <ChevronRight size={18} />
+                      )}
                     </span>
                   </div>
                 </button>
 
                 <div
-                  className={`p-4 md:p-5 grid-cols-1 md:grid-cols-2 gap-6 bg-transparent ${
+                  className={`p-4 md:p-5 md:grid-cols-2 gap-6 ${
                     isExpanded ? "grid" : "hidden"
                   }`}
                 >
                   {/* Name */}
-                  <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                  <div className="flex flex-col gap-2 text-base md:text-lg">
                     <label className="text-white">Full Name *</label>
                     <input
                       type="text"
@@ -210,7 +199,7 @@ export default function FlagshipRegistrationForm({
                   </div>
 
                   {/* Email */}
-                  <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                  <div className="flex flex-col gap-2 text-base md:text-lg">
                     <label className="text-white">Email Address *</label>
                     <input
                       type="email"
@@ -232,7 +221,7 @@ export default function FlagshipRegistrationForm({
                   </div>
 
                   {/* Phone */}
-                  <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                  <div className="flex flex-col gap-2 text-base md:text-lg">
                     <label className="text-white">Mobile Number *</label>
                     <input
                       type="tel"
@@ -251,7 +240,7 @@ export default function FlagshipRegistrationForm({
                   </div>
 
                   {/* Gender */}
-                  <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                  <div className="flex flex-col gap-2 text-base md:text-lg">
                     <label className="text-white">Gender *</label>
                     <select
                       {...register(`members.${index}.gender`, {
@@ -291,34 +280,28 @@ export default function FlagshipRegistrationForm({
                   </div>
 
                   {/* Aadhaar File Upload */}
-                  <div className="md:col-span-2 flex flex-col gap-2 text-[16px] md:text-[18px] w-full mt-2">
+                  <div className="md:col-span-2 flex flex-col gap-2 text-base md:text-lg">
                     <label className="text-white">
                       Aadhaar (PNG / JPEG / JPG) *
                     </label>
                     <label
-                      className={`border-2 border-dashed rounded-xl p-4 md:p-6 text-center transition-all flex flex-col items-center gap-2 bg-white/[0.02] cursor-pointer ${
+                      className={`flex items-center gap-3 p-2.5 border-2 border-dashed rounded-lg cursor-pointer hover:bg-white/5 ${
                         getMemberError(index, "aadhaar")
-                          ? "border-red-500 hover:bg-red-500/10"
-                          : "border-white/40 hover:border-teal-500 hover:bg-teal-600/10"
+                          ? "border-red-500"
+                          : "border-white/40"
                       }`}
                     >
-                      <span className="text-[14px] md:text-[16px] text-white/90 font-medium mb-1">
-                        Click to Upload Image
-                      </span>
                       <input
                         type="file"
                         accept="image/png, image/jpeg, image/jpg"
                         {...register(`members.${index}.aadhaar`, {
                           required: "ID is required",
                         })}
-                        className="block w-full max-w-xs text-[14px] text-white/70 mx-auto
-                          file:mr-4 file:py-2.5 file:px-5 file:rounded-lg file:border-0
-                          file:text-[14px] file:font-semibold file:bg-teal-600/20 file:text-teal-400
-                          hover:file:bg-teal-600/30 file:cursor-pointer cursor-pointer transition-colors"
+                        className="w-full min-w-0 text-sm text-slate-400 file:mr-4 file:px-4 file:py-1 file:rounded-md file:border-0 file:bg-slate-800 file:text-sm file:font-bold file:text-slate-300 file:cursor-pointer hover:file:bg-slate-700"
                       />
                     </label>
                     {getMemberError(index, "aadhaar") && (
-                      <span className="text-red-400 text-sm mt-1">
+                      <span className="text-red-400 text-sm">
                         {getMemberError(index, "aadhaar").message}
                       </span>
                     )}
@@ -330,52 +313,40 @@ export default function FlagshipRegistrationForm({
         </div>
       </div>
 
-      {/* ─── SECTION 3: CHECKOUT SUMMARY ────────────────────────── */}
-      <div className="border border-teal-500/30 p-6 md:p-8 rounded-2xl backdrop-blur-md shadow-2xl flex flex-col gap-6">
-        <h3 className="m-0 text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
+      {/* ─── SECTION 3: CHECKOUT SUMMARY ─── */}
+      <div className="p-6 md:p-8 rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl flex flex-col gap-6">
+        <h3 className="text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
           3. Checkout Summary
         </h3>
 
-        <div className="flex flex-col gap-4 text-[16px] md:text-[18px]">
-          <div className="flex justify-between text-white/80 items-center">
-            <span>Registration Fee</span>
-            <span className="font-bold text-white text-lg md:text-xl">
-              ₹ {totalAmount}
-            </span>
-          </div>
-        </div>
-
-        <hr className="border-t border-dashed border-white/20 m-0" />
-
         <div className="flex justify-between items-center">
-          <div className="flex flex-col">
-            <span className="text-lg md:text-xl font-bold text-white uppercase tracking-wide state-wide">
-              Final Total
-            </span>
-          </div>
-          <span className="text-2xl md:text-3xl font-black text-[#92EBFF] drop-shadow-[0_0_12px_rgba(146,235,255,0.4)]">
-            ₹ {totalAmount}
+          <span className="text-lg md:text-xl font-bold text-white uppercase">
+            Registration Fee
           </span>
+          <div className="flex items-center gap-2 text-white">
+            <span className="text-white/70 line-through">
+              ₹{(fee1 || 0) * numBotsInt}
+            </span>{" "}
+            <span className="text-2xl">₹{totalAmount}</span>
+          </div>
         </div>
 
-        <div className="flex justify-center mt-2">
-          <button
-            type="submit"
-            disabled={isUploading}
-            className={`${styles.btn} flex items-center justify-center gap-3 text-[16px] md:text-[18px] w-full md:w-auto px-10 ${
-              isUploading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {isUploading ? (
-              "Uploading Documents..."
-            ) : (
-              <>
-                Add to Cart (₹{totalAmount})
-                <ArrowRight size={22} className="inline ml-2" />
-              </>
-            )}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={isUploading}
+          className={`${styles.btn} mx-auto flex items-center justify-center gap-3 px-10 w-full md:w-auto text-base md:text-lg ${
+            isUploading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          {isUploading ? (
+            "Uploading Documents..."
+          ) : (
+            <>
+              Add to Cart (₹{totalAmount})
+              <ArrowRight size={22} />
+            </>
+          )}
+        </button>
       </div>
     </div>
   );
