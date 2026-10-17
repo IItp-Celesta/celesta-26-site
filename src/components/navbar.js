@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthUserContext";
 import { useCart } from "@/context/CartContext";
 import { ShoppingCart } from "lucide-react";
-import { checkout } from "@/lib/checkout";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {

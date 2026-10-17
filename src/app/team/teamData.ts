@@ -62,7 +62,7 @@ export const teamData: TeamMember[] = [
 
     // Creative & Design
     { id: "creative", name: "Creative & Design", title: "The Visual Architects", parentId: "Committees" },
-    { id: "hima", name: "Hima Sai Chandana", title: "Coordinator", parentId: "creative", image: "/team-images/hima.jpg", linkedin: "#", x: "https://www.instagram.com/himasaichandana" },
+    { id: "arifa", name: "Mohammed Arifa Siddiqua", title: "Coordinator", parentId: "creative", image: "/team-images/arifa.jpeg", linkedin: "https://www.linkedin.com/in/mdarifasiddiqua/", x: "#" },
     { id: "kunal", name: "Kunal Deore", title: "Coordinator", parentId: "creative", image: "/team-images/kunal.jpeg", linkedin: "https://www.linkedin.com/in/krbd04/", x: "https://www.instagram.com/k.deore04/" },
     { id: "avi", name: "Avi Bharti", title: "Coordinator", parentId: "creative", image: "/team-images/avi.jpeg", linkedin: "https://www.linkedin.com/in/avi-bharti-029b1833b", x: "https://www.instagram.com/ave08_6/" },
     
@@ -85,6 +85,7 @@ export const teamData: TeamMember[] = [
     { id: "parnava", name: "Parnava Maitra", title: "Coordinator", parentId: "rsp", image: "/team-images/parnava.png", linkedin: "https://www.linkedin.com/in/parnava-maitra-84778b357", x: "https://www.instagram.com/parnava_12_maitra" },
     { id: "vidhi", name: "Vidhi Patel", title: "Coordinator", parentId: "rsp", image: "/team-images/vidhi.jpg", linkedin: "https://www.linkedin.com/in/vidhi-patel-5a1893310", x: "https://www.instagram.com/vidhi__patel__2756" },
     { id: "sushreeth", name: "G Sushreeth", title: "Coordinator", parentId: "rsp", image: "/team-images/sushreeth.jpg", linkedin: "https://in.linkedin.com/in/guruduwaru-sushreeth-b18a93326", x: "https://www.instagram.com/sushreeth_4533" },
+    { id: "abdul", name: "Abdul Hadi", title: "Coordinator", parentId: "rsp", image: "#", linkedin: "https://www.linkedin.com/in/abdul-hadi-519338361/", x:"#" },
 
     // Events
     { id: "events", name: "Events", title: "The Experience Engineers", parentId: "Committees" },
@@ -113,6 +114,6 @@ export const developersData: TeamMember[] = [
     {id: "dev-kartik", name:"Kartik Chawla ", title: "Sub-Coordinator", parentId:"tech",image:"/team-images/kartik.png", linkedin:"#", x: "#"},
     {id: "dev-aditya", name:"S Aditya ", title: "Sub-Coordinator", parentId:"tech",image:"/team-images/s-aditya.jpg", linkedin:"https://www.linkedin.com/in/aditya-s-one", x: "https://www.instagram.com/adityas.mp4"},
     {id: "dev-priyank", name:"Priyank Kalathiya ", title: "Sub-Coordinator", parentId:"tech",image:"/team-images/priyank.jpeg", linkedin:"https://www.linkedin.com/in/priyank-kalathiya-a039b8369/", x: "https://www.instagram.com/justpriyankk/"},
-    {id: "dev-anushka", name:"Anushka Gupta ", title: "Sub-Coordinator", parentId:"tech",image:"x", linkedin:"x", x: "x"},
+    {id: "dev-anushka", name:"Anushka Gupta ", title: "Sub-Coordinator", parentId:"tech",image:"#", linkedin:"#", x: "#"},
 
 ];

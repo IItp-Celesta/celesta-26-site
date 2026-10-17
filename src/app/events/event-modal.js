@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import styles from "./EventModal.module.css";
 import { useCart } from "@/context/CartContext";
 import toast from "react-hot-toast";
+import Loading from "@/components/Loading";
 
 export default function EventModal({ event, onClose }) {
   const [showForm, setShowForm] = useState(false);
   const router = useRouter();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const sameDate = event.start_date === event.end_date;
   // const hasExternalRegister = event.register_link && event.register_link !== "#";
@@ -23,6 +25,14 @@ export default function EventModal({ event, onClose }) {
       document.body.style.overflow = originalOverflow;
     };
   }, []);
+
+  if (isRedirecting) {
+    return (
+      <div className="fixed inset-0 z-100 bg-slate-950">
+        <Loading message="Loading..." />
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center ">
@@ -89,6 +99,7 @@ export default function EventModal({ event, onClose }) {
                   ) : (
                     <button
                       onClick={() => {
+                        setIsRedirecting(true);
                         const slug = event.name
                           .toLowerCase()
                           .replace(/\s+/g, "-");
@@ -129,9 +140,7 @@ export default function EventModal({ event, onClose }) {
                       <span className="relative text-xs text-white/70 line-through decoration-1">
                         ₹{event.fee1}
                       </span>
-                      <span className="text-white/90">
-                        ₹{event.fee}
-                      </span>
+                      <span className="text-white/90">₹{event.fee}</span>
                     </span>
                   )}
                 </div>

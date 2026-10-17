@@ -21,6 +21,7 @@ import {
 } from "@/lib/pricing_algo";
 
 import CheckoutModal from "@/components/CheckoutModal";
+import Loading from "@/components/Loading";
 
 export default function CartPage() {
   const router = useRouter();
@@ -43,21 +44,12 @@ export default function CartPage() {
   const hasPassInCart = cart.some(isPassItem);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-        Loading...
-      </div>
-    );
+    return <Loading message="Fetching your cart..." />;
   }
 
   if (!authUser) {
     router.replace("/login?redirect=/cart");
-
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-        Redirecting...
-      </div>
-    );
+    return <Loading message="Redirecting to secure login..." />;
   }
 
   const handleCheckoutClick = () => {

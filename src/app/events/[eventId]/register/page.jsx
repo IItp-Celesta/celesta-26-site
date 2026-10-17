@@ -13,6 +13,7 @@ import data from "@/app/events/events.json";
 import imageCompression from "browser-image-compression";
 import { motion } from "framer-motion";
 import { isPassItem } from "@/lib/pricing_algo";
+import Loading from "@/components/Loading";
 
 export default function FlagshipRegistrationPage({ params }) {
   const router = useRouter();
@@ -48,7 +49,7 @@ export default function FlagshipRegistrationPage({ params }) {
   useEffect(() => {
     if (!loading && !authUser) {
       toast.error("Please login first to register for events!");
-      router.push(`/login?redirect=/events/${eventId}/register`);
+      router.replace(`/login?redirect=/events/${eventId}/register`);
     }
   }, [authUser, loading, router, eventId]);
 
@@ -163,15 +164,8 @@ export default function FlagshipRegistrationPage({ params }) {
     }
   };
 
-  if (loading || !authUser) {
-    return (
-      <div
-        className={`min-h-screen flex items-center justify-center bg-slate-900 text-white`}
-      >
-        Loading...
-      </div>
-    );
-  }
+  if (loading || !authUser) return <Loading />;
+
 
   return (
     <div className="px-4 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 bg-[url('/images/backdrop.png')] bg-cover bg-center bg-no-repeat text-white min-h-svh flex flex-col items-center justify-start overflow-x-hidden">

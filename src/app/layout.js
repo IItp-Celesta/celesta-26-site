@@ -6,8 +6,7 @@ import FloatingNav from "@/components/floatnav";
 import FloatingCart from "@/components/floatcart";
 import { Toaster } from "react-hot-toast";
 import Footer from "@/components/footer";
-import Cart from "@/components/Cart";
-import Head from "next/head"; // ✅ import this
+import Head from "next/head";
 import { Analytics } from "@vercel/analytics/next";
 
 export default function RootLayout({ children }) {

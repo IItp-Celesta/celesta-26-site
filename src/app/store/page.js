@@ -1,14 +1,16 @@
 "use client";
 import ProductCard from "./product-card";
 import styles from "./Store.module.css";
-import data from "./events.json";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthUserContext";
 import { useEffect, useState } from "react";
 import { useProducts } from "@/hooks/useProducts";
+import Loading from "@/components/Loading";
 
 export default function Store() {
-  const { products } = useProducts();
+  const { products, loading } = useProducts();
+
+  if (loading) return <Loading message="Loading Store" />;
   return (
     <>
       <div

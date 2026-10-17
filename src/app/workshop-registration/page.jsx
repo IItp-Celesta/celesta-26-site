@@ -14,6 +14,7 @@ import { registrationSchema } from "../../lib/schemas";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthUserContext";
 import styles from "../register/Register.module.css";
+import Loading from "@/components/Loading";
 
 export default function WorkshopRegistrationPage() {
   const { authUser, loading } = useAuth();
@@ -126,13 +127,7 @@ export default function WorkshopRegistrationPage() {
   };
 
   if (loading) {
-    return (
-      <div
-        className="min-h-screen flex items-center justify-center bg-slate-900 text-white"
-      >
-        Loading...
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

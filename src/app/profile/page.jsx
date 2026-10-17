@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/ProfileCard";
 import { Button } from "@/components/ui/button";
 import styles from "./Profile.module.css";
+import Loading from "@/components/Loading";
 
 export default function Profile() {
   const router = useRouter();
@@ -161,11 +162,7 @@ export default function Profile() {
   };
 
   if (loading || !authUser || !userData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-        Loading Profile...
-      </div>
-    );
+    return ( <Loading message="Loading.."/>);
   }
 
   return (
