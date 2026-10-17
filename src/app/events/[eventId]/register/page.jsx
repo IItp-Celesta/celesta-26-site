@@ -10,7 +10,7 @@ import { useAuth } from "@/context/AuthUserContext";
 import FlagshipRegistrationForm from "@/components/events/FlagshipRegistrationForm";
 import toast from "react-hot-toast";
 import data from "@/app/events/events.json";
-import imageCompression from "browser-image-compression";
+import { uploadImage } from "@/lib/uploadImage";
 import { motion } from "framer-motion";
 import { isPassItem } from "@/lib/pricing_algo";
 import Loading from "@/components/Loading";
@@ -54,43 +54,8 @@ export default function FlagshipRegistrationPage({ params }) {
   }, [authUser, loading, router, eventId]);
 
   const uploadSecureID = async (file) => {
-    let fileToUpload = file;
-
-    if (file.type.startsWith("image/")) {
-      const options = {
-        maxSizeMB: 0.3,
-        maxWidthOrHeight: 1200,
-        useWebWorker: true,
-      };
-
-      try {
-        fileToUpload = await imageCompression(file, options);
-      } catch {
-        fileToUpload = file;
-      }
-    }
-
-    const formData = new FormData();
-    formData.append("file", fileToUpload);
-
     try {
-      const token = await authUser.getIdToken();
-
-      const res = await fetch("/api/upload-id", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      const uploadedData = await res.json();
-
-      if (!res.ok || !uploadedData.success) {
-        throw new Error("ID upload failed. Please try again.");
-      }
-
-      return uploadedData.secure_url;
+      return await uploadImage(file, authUser, { folder: "celesta_secure_ids" });
     } catch (error) {
       console.error(error);
       throw new Error("ID upload failed. Please try again.");

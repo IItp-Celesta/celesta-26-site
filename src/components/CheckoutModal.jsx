@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthUserContext";
-import imageCompression from "browser-image-compression";
+import { uploadImage } from "@/lib/uploadImage";
 import toast from "react-hot-toast";
 import { isPassItem } from "@/lib/pricing_algo";
 
@@ -41,29 +41,12 @@ export default function CheckoutModal({
       setAadhaarFile(null);
       setCouponCode("");
       setCouponPrice(null);
+      setIsUploading(false);
     }
   }, [isOpen]);
 
   const handleFileUpload = async (file) => {
-    const compressedFile = await imageCompression(file, {
-      maxSizeMB: 0.3,
-      maxWidthOrHeight: 1200,
-      useWebWorker: true,
-    });
-
-    const formData = new FormData();
-    formData.append("file", compressedFile);
-
-    const token = await authUser.getIdToken();
-    const res = await fetch("/api/upload-id", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
-    });
-
-    if (!res.ok) throw new Error("Failed to upload document");
-    const data = await res.json();
-    return data.secure_url;
+    return uploadImage(file, authUser);
   };
 
   const handleApplyCoupon = async () => {
@@ -100,6 +83,12 @@ export default function CheckoutModal({
 
     if (phone.length !== 10 || !/^\d+$/.test(phone)) {
       toast.error("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (aadhaarFile && !allowedTypes.includes(aadhaarFile.type)) {
+      toast.error("Only PNG, JPG, or JPEG images are allowed.");
       return;
     }
 
@@ -154,7 +143,7 @@ export default function CheckoutModal({
       onClose();
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error("Upload failed. Please try again.", { id: toastId });
+      toast.error(error.message || "Upload failed. Please try again.", { id: toastId });
     } finally {
       setIsUploading(false);
     }

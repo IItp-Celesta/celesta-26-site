@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import imageCompression from "browser-image-compression";
+import React, { useState, useEffect } from "react";
+import { uploadImage } from "@/lib/uploadImage";
 import toast from "react-hot-toast";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -29,6 +29,22 @@ export default function ComboCheckoutModal({
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setName("");
+      setEmail("");
+      setPhone("");
+      setGender("");
+      setCollege("");
+      setTxnId("");
+      setFile(null);
+      setIdFile(null);
+      setCouponCode("");
+      setCouponPrice(null);
+      setIsSubmitting(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen || !cartItem) return null;
 
@@ -89,6 +105,16 @@ export default function ComboCheckoutModal({
       return;
     }
 
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (file && !allowedTypes.includes(file.type)) {
+      toast.error("Only PNG, JPG, or JPEG images are allowed");
+      return;
+    }
+    if (idFile && !allowedTypes.includes(idFile.type)) {
+      toast.error("Only PNG, JPG, or JPEG images are allowed");
+      return;
+    }
+
     setIsSubmitting(true);
     const toastId = toast.loading("Submitting...");
 
@@ -97,45 +123,9 @@ export default function ComboCheckoutModal({
         throw new Error("You must be logged in");
       }
 
-      const token = await authUser.getIdToken();
-
-      const uploadFile = async (file) => {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const res = await fetch("/api/upload-id", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || "Failed to upload file");
-        }
-
-        return data.secure_url;
-      };
-
-      const [compressedFile, compressedIdFile] = await Promise.all([
-        imageCompression(file, {
-          maxSizeMB: 0.3,
-          maxWidthOrHeight: 1200,
-          useWebWorker: true,
-        }),
-        imageCompression(idFile, {
-          maxSizeMB: 0.5,
-          maxWidthOrHeight: 1600,
-          useWebWorker: true,
-        }),
-      ]);
-
       const [screenshotUrl, idDocumentUrl] = await Promise.all([
-        uploadFile(compressedFile),
-        uploadFile(compressedIdFile),
+        uploadImage(file, authUser),
+        uploadImage(idFile, authUser),
       ]);
 
       await addDoc(collection(db, "combo_orders"), {

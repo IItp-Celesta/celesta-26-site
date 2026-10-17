@@ -7,50 +7,12 @@ import { useRouter } from "next/navigation";
 import { ChevronDown, ChevronUp, CheckCircle2, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import styles from "@/app/register/Register.module.css";
+import Loading from "@/components/Loading";
+import { uploadImage } from "@/lib/uploadImage";
 
 const PRICE_PER_DAY = 249;
-const MAX_FILE_SIZE_MB = 5;
+const MAX_FILE_SIZE_MB = 25;
 const AVAILABLE_DATES = ["30th Oct", "31st Oct", "1st Nov"];
-
-const compressImageFast = (file, maxWidth = 1600) => {
-  return new Promise((resolve, reject) => {
-    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-      return reject(new Error(`File ${file.name} exceeds the ${MAX_FILE_SIZE_MB}MB limit.`));
-    }
-
-    const img = new Image();
-    const objectUrl = URL.createObjectURL(file);
-    img.src = objectUrl;
-
-    img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      const canvas = document.createElement("canvas");
-      const ratio = Math.min(maxWidth / img.width, 1);
-
-      canvas.width = Math.round(img.width * ratio);
-      canvas.height = Math.round(img.height * ratio);
-
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return reject(new Error("Unable to process image."));
-
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) return reject(new Error("Unable to compress image."));
-          resolve(new File([blob], `${file.name.replace(/\.[^/.]+$/, "")}.jpg`, { type: "image/jpeg" }));
-        },
-        "image/jpeg",
-        0.75
-      );
-    };
-
-    img.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      reject(new Error(`File ${file.name} is corrupted or unreadable.`));
-    };
-  });
-};
 
 export default function AccommodationPage() {
   const { authUser, loading } = useAuth();
@@ -113,6 +75,13 @@ export default function AccommodationPage() {
   const handleFileSelect = (e, callback) => {
     const file = e.target.files?.[0];
     if (file) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("Only PNG, JPG, or JPEG images are allowed.");
+        e.target.value = "";
+        callback(null);
+        return;
+      }
       if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
         toast.error(`File is too large. Max size is ${MAX_FILE_SIZE_MB}MB.`);
         e.target.value = "";
@@ -162,25 +131,7 @@ export default function AccommodationPage() {
     try {
       const token = await authUser.getIdToken();
 
-      const uploadFile = async (file) => {
-        let processedFile = file;
-        if (file.size > 500 * 1024) {
-          processedFile = await compressImageFast(file);
-        }
-
-        const formData = new FormData();
-        formData.append("file", processedFile);
-
-        const res = await fetch("/api/upload-id", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
-
-        const data = await res.json();
-        if (!res.ok || !data?.secure_url) throw new Error(data?.error || "Upload failed");
-        return data.secure_url;
-      };
+      const uploadFile = (file) => uploadImage(file, authUser);
 
       const finalMembers = [];
 
@@ -234,12 +185,7 @@ export default function AccommodationPage() {
   const inputClass = "p-2.5 border-2 border-white/80 rounded-lg text-white bg-transparent w-full focus:outline-none focus:ring-0 focus:border-teal-600 placeholder:text-white/40 transition-colors disabled:opacity-50";
 
   if (loading || !authUser) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-        Loading...
-      </div>
-    );
-  }
+    return (<Loading/>)}
 
   return (
     <div className={`px-4 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 bg-muted ${styles.background} text-white min-h-svh flex flex-col items-center justify-start overflow-x-hidden`}>

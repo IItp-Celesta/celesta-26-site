@@ -20,13 +20,11 @@ export async function POST(request) {
 
     //generation of celesta id
     const celestaId = `CEL26-${Math.floor(100000 + Math.random() * 900000)}`;
-
-    const IITP_REGEX = /^[a-zA-Z]+_[0-9]{4}[a-zA-Z]{2}[0-9]{2}@iitp\.ac\.in$/;
-    const qrEnabled = IITP_REGEX.test(decodedToken.email);
-
+    const qrEnabled = false;
 
 
     if (!userDoc.exists) {
+      await adminAuth.updateUser(uid, { emailVerified: true });
       await userDocRef.set({
         role: 'user',
         displayName: name,

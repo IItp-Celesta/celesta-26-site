@@ -1,35 +1,6 @@
 import { NextResponse } from "next/server";
 import { adminFirestore, adminAuth } from "@/lib/firebaseAdmin";
-import { v2 as cloudinary } from "cloudinary";
 import { FieldValue } from "firebase-admin/firestore";
-
-cloudinary.config({
-  cloud_name:
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
-    process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-const uploadToCloudinary = async (file, publicId) => {
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: "workshop_receipts",
-        public_id: publicId,
-        type: "private",
-        access_mode: "authenticated",
-      },
-      (error, result) => {
-        if (error) reject(error);
-        else resolve(result.secure_url);
-      },
-    );
-    uploadStream.end(buffer);
-  });
-};
 
 export async function POST(request) {
   try {
@@ -53,13 +24,14 @@ export async function POST(request) {
       );
     }
 
-    const formData = await request.formData();
-    const name = formData.get("name") || "";
-    const email = formData.get("email") || "";
-    const isExternal = formData.get("isIITP") === "no";
-    const requireAccommodation = formData.get("requireAccommodation") === "yes";
-    const accommodationDays = Number(formData.get("accommodationDays") || "0");
-    const couponCode = (formData.get("couponCode") || "").trim().toUpperCase();
+    const body = await request.json();
+    const name = body.name || "";
+    const email = body.email || "";
+    const isExternal = body.isIITP === "no" || body.isIITP === false;
+    const requireAccommodation =
+      body.requireAccommodation === "yes" || body.requireAccommodation === true;
+    const accommodationDays = Number(body.accommodationDays || 0);
+    const couponCode = (body.couponCode || "").trim().toUpperCase();
 
     let expectedWorkshopFee = isExternal ? 1199 : 599;
 
@@ -81,48 +53,16 @@ export async function POST(request) {
       requireAccommodation && isExternal ? accommodationDays * 249 : 0;
     const expectedTotalAmount = expectedWorkshopFee + expectedAccommodationFee;
 
-    let workshopScreenshotUrl = "Missing";
-    if (
-      formData.get("workshopScreenshot") &&
-      formData.get("workshopScreenshot") !== "null"
-    ) {
-      workshopScreenshotUrl = await uploadToCloudinary(
-        formData.get("workshopScreenshot"),
-        `reg_${name.replace(/\s+/g, "_")}_${Date.now()}`,
-      );
-    }
+    const workshopScreenshotUrl = body.workshopScreenshotUrl || "Missing";
+    const accommodationScreenshotUrl = requireAccommodation
+      ? body.accommodationScreenshotUrl || "Missing"
+      : "NOT_REQUIRED";
+    const aadhaarUrl = isExternal
+      ? body.aadhaarScreenshotUrl || "Missing"
+      : "NOT_REQUIRED";
 
-    let accommodationScreenshotUrl = "NOT_REQUIRED";
-    if (
-      requireAccommodation &&
-      formData.get("accommodationScreenshot") &&
-      formData.get("accommodationScreenshot") !== "null"
-    ) {
-      accommodationScreenshotUrl = await uploadToCloudinary(
-        formData.get("accommodationScreenshot"),
-        `accom_${name.replace(/\s+/g, "_")}_${Date.now()}`,
-      );
-    }
-
-    let aadhaarUrl = "NOT_REQUIRED";
-    if (
-      isExternal &&
-      formData.get("aadhaarScreenshot") &&
-      formData.get("aadhaarScreenshot") !== "null"
-    ) {
-      try {
-        aadhaarUrl = await uploadToCloudinary(
-          formData.get("aadhaarScreenshot"),
-          `aadhaar_${name.replace(/\s+/g, "_")}_${Date.now()}`,
-        );
-      } catch (err) {
-        console.error("ID upload failed", err);
-        aadhaarUrl = "UPLOAD_FAILED";
-      }
-    }
-
-    const rawDate = formData.get("registrationTime")
-      ? new Date(formData.get("registrationTime"))
+    const rawDate = body.registrationTime
+      ? new Date(body.registrationTime)
       : new Date();
     const cleanTime = rawDate.toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata",
@@ -135,31 +75,29 @@ export async function POST(request) {
     });
 
     const registrationId = `WS2026-${Math.floor(10000 + Math.random() * 90000)}`;
+    const docRef = adminFirestore.collection("workshop_registrations").doc();
 
-    await adminFirestore
-      .collection("workshop_registrations")
-      .doc(registrationId)
-      .set({
+    await docRef.set({
         uid,
         registrationId,
         name,
-        gender: formData.get("gender") || "",
+        gender: body.gender || "",
         email,
-        phone: formData.get("phone") || "",
-        college: formData.get("college") || "",
-        cityState: formData.get("cityState") || "",
-        rollNumber: formData.get("rollNumber") || "",
-        workshop: formData.get("workshop") || "",
+        phone: body.phone || "",
+        college: body.college || "",
+        cityState: body.cityState || "",
+        rollNumber: body.rollNumber || "",
+        workshop: body.workshop || "",
         isIITP: !isExternal,
         requireAccommodation,
-        accommodationDays: formData.get("accommodationDays") || "0",
+        accommodationDays,
         workshopFee: expectedWorkshopFee,
         accommodationFee: expectedAccommodationFee,
         amountPaid: expectedTotalAmount,
         couponCode,
-        upiId: formData.get("upiId") || "",
-        workshopTxnId: formData.get("workshopTxnId") || "",
-        accomTxnId: formData.get("accomTxnId") || "",
+        upiId: body.upiId || "",
+        workshopTxnId: body.workshopTxnId || "",
+        accomTxnId: body.accomTxnId || "",
         workshopScreenshotUrl,
         accommodationScreenshotUrl,
         aadhaarUrl,

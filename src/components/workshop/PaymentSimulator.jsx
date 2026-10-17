@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import imageCompression from "browser-image-compression";
+import { uploadImage } from "@/lib/uploadImage";
 import { CheckCircle2, Upload, ArrowLeft, ArrowRight } from "lucide-react";
 import { useAuth } from "@/context/AuthUserContext";
 import styles from "../../app/register/Register.module.css";
@@ -32,40 +32,30 @@ export default function PaymentSimulator({
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const handleFileChange = async (e, type) => {
-    let file = e.target.files[0];
+  const handleFileChange = (e, type) => {
+    const file = e.target.files[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      setErrors((prev) => ({ ...prev, [type]: "Only images are allowed." }));
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!allowedTypes.includes(file.type)) {
+      setErrors((prev) => ({
+        ...prev,
+        [type]: "Only PNG, JPG, or JPEG images are allowed.",
+      }));
       return;
     }
     setErrors((prev) => ({ ...prev, [type]: "" }));
 
-    const options = {
-      maxSizeMB: 0.4,
-      maxWidthOrHeight: 1024,
-      useWebWorker: true,
-    };
-    try {
-      const compressedFile = await imageCompression(file, options);
-      const objectUrl = URL.createObjectURL(compressedFile);
-
-      if (type === "reg") {
-        setRegFile(compressedFile);
-        setPreviews((prev) => ({ ...prev, reg: objectUrl }));
-      } else if (type === "accom") {
-        setAccomFile(compressedFile);
-        setPreviews((prev) => ({ ...prev, accom: objectUrl }));
-      } else {
-        setAadhaarFile(compressedFile);
-        setPreviews((prev) => ({ ...prev, aadhaar: objectUrl }));
-      }
-    } catch (error) {
-      setErrors((prev) => ({
-        ...prev,
-        [type]: "Error processing image. Try again.",
-      }));
+    const objectUrl = URL.createObjectURL(file);
+    if (type === "reg") {
+      setRegFile(file);
+      setPreviews((prev) => ({ ...prev, reg: objectUrl }));
+    } else if (type === "accom") {
+      setAccomFile(file);
+      setPreviews((prev) => ({ ...prev, accom: objectUrl }));
+    } else {
+      setAadhaarFile(file);
+      setPreviews((prev) => ({ ...prev, aadhaar: objectUrl }));
     }
   };
 
@@ -145,44 +135,69 @@ export default function PaymentSimulator({
     setLoading(true);
     try {
       const token = await authUser.getIdToken();
-      const submitData = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== undefined && value !== null)
-          submitData.append(key, value);
-      });
 
-      if (formData.couponCode) {
-        submitData.append("couponCode", formData.couponCode);
+      let workshopScreenshotUrl = "Missing";
+      let accommodationScreenshotUrl = "NOT_REQUIRED";
+      let aadhaarUrl = "NOT_REQUIRED";
+
+      const uploadTasks = [];
+      if (regFile) {
+        uploadTasks.push(
+          uploadImage(regFile, authUser, { folder: "workshop_receipts" }).then(
+            (url) => (workshopScreenshotUrl = url),
+          ),
+        );
       }
-      submitData.append("id", crypto.randomUUID());
-      submitData.append("workshopFee", feeSummary.workshopFee);
-      submitData.append("accommodationFee", feeSummary.accommodationFee);
-      submitData.append("totalAmount", feeSummary.totalAmount);
-
-      submitData.append("upiId", upiId);
-      submitData.append("workshopTxnId", regTxnId);
-
-      if (showAccomPayment) {
-        submitData.append("accomTxnId", accomTxnId);
-        if (accomFile) submitData.append("accommodationScreenshot", accomFile);
+      if (showAccomPayment && accomFile) {
+        uploadTasks.push(
+          uploadImage(accomFile, authUser, {
+            folder: "workshop_receipts",
+          }).then((url) => (accommodationScreenshotUrl = url)),
+        );
+      }
+      if (isExternal && aadhaarFile) {
+        uploadTasks.push(
+          uploadImage(aadhaarFile, authUser, {
+            folder: "workshop_receipts",
+          }).then((url) => (aadhaarUrl = url)),
+        );
       }
 
-      submitData.append("registrationTime", new Date().toISOString());
+      await Promise.all(uploadTasks);
 
-      if (regFile) submitData.append("workshopScreenshot", regFile);
-      if (aadhaarFile) submitData.append("aadhaarScreenshot", aadhaarFile);
+      const payload = {
+        ...formData,
+        workshopFee: feeSummary.workshopFee,
+        accommodationFee: feeSummary.accommodationFee,
+        totalAmount: feeSummary.totalAmount,
+        upiId,
+        workshopTxnId: regTxnId,
+        accomTxnId: showAccomPayment ? accomTxnId : "",
+        accommodationScreenshotUrl: showAccomPayment
+          ? accommodationScreenshotUrl
+          : "NOT_REQUIRED",
+        workshopScreenshotUrl,
+        aadhaarScreenshotUrl: isExternal ? aadhaarUrl : "NOT_REQUIRED",
+        registrationTime: new Date().toISOString(),
+      };
 
       const response = await fetch("/api/register-workshop", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: submitData,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
       if (result.success) onPaymentSuccess(result.registrationId);
       else alert(result.message || "Registration failed.");
     } catch (error) {
-      alert("A server error occurred. Please try again later.");
+      console.error("Workshop registration failed:", error);
+      alert(
+        error.message || "A server error occurred. Please try again later.",
+      );
     } finally {
       setLoading(false);
     }
@@ -287,7 +302,7 @@ export default function PaymentSimulator({
                 </span>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/png, image/jpeg, image/jpg"
                   onChange={(e) => handleFileChange(e, "reg")}
                   hidden
                 />
@@ -359,7 +374,7 @@ export default function PaymentSimulator({
                 </span>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/png, image/jpeg, image/jpg"
                   onChange={(e) => handleFileChange(e, "accom")}
                   hidden
                 />
@@ -404,12 +419,10 @@ export default function PaymentSimulator({
               <span className="font-medium text-white text-[16px] md:text-[18px]">
                 {aadhaarFile ? "Aadhaar Attached" : "Tap to Upload Image"}
               </span>
-              <p className="text-xs text-white/50">
-                Max size 400KB. JPG/PNG only.
-              </p>
+              <p className="text-xs text-white/50">PNG, JPG, or JPEG.</p>
               <input
                 type="file"
-                accept="image/*"
+                accept="image/png, image/jpeg, image/jpg"
                 onChange={(e) => handleFileChange(e, "aadhaar")}
                 hidden
               />

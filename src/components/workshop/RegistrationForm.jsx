@@ -187,7 +187,7 @@ export default function RegistrationForm({
               Ethical Hacking
             </option>
             <option
-              value="Drone Technology"
+              value="Robotics"
               className="bg-neutral-900 text-white"
             >
               Robotics
