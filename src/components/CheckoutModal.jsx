@@ -244,14 +244,15 @@ export default function CheckoutModal({
 
             <div className="pt-2">
               <label className="block text-xs font-medium text-white/60 mb-1">
-                College Name
+                College Name *
               </label>
               <input
                 type="text"
                 value={college}
                 onChange={(e) => setCollege(e.target.value)}
                 className="text-white w-full px-3 py-2 bg-slate-800 border border-white/10 rounded-md focus:outline-none focus:border-sky-500 text-sm"
-                placeholder="Your Institute (Optional)"
+                placeholder="Your Institute"
+                required
               />
             </div>
 
