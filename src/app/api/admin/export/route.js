@@ -20,23 +20,56 @@ const csvText = (value) => {
 
 const makeCsvRow = (values) => values.map(csvEscape).join(",");
 
-const toIST = (value) => {
-  if (!value) return "";
-  // Handle Firestore Timestamp objects (has toDate or _seconds)
-  let date;
-  if (value.toDate) date = value.toDate();
-  else if (value._seconds) date = new Date(value._seconds * 1000);
-  else date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-  return date.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
-};
-
+/** Parse Firestore Timestamps, ISO strings, numbers, or DD/MM/YYYY strings into epoch ms */
 const parseDate = (value) => {
   if (!value) return 0;
-  if (value.toDate) return value.toDate().getTime();
-  if (value._seconds) return value._seconds * 1000;
-  const time = new Date(value).getTime();
-  return Number.isFinite(time) ? time : 0;
+  if (typeof value.toDate === "function") return value.toDate().getTime();
+  if (typeof value._seconds === "number") return value._seconds * 1000;
+  if (typeof value.seconds === "number") return value.seconds * 1000;
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+
+  const str = String(value).trim();
+  const direct = new Date(str).getTime();
+  if (Number.isFinite(direct)) return direct;
+
+  // Handle en-IN formatted strings like "19/10/2026, 11:39:00 pm"
+  const match = str.match(
+    /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:,?\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(am|pm)?)?$/i,
+  );
+  if (match) {
+    const [, d, m, y, hh = "0", mm = "0", ss = "0", meridian] = match;
+    let hour = Number(hh);
+    if (meridian) {
+      const isPM = meridian.toLowerCase() === "pm";
+      if (isPM && hour < 12) hour += 12;
+      if (!isPM && hour === 12) hour = 0;
+    }
+    const parsed = new Date(
+      Number(y),
+      Number(m) - 1,
+      Number(d),
+      hour,
+      Number(mm),
+      Number(ss),
+    ).getTime();
+    if (Number.isFinite(parsed)) return parsed;
+  }
+
+  return 0;
+};
+
+const toIST = (value) => {
+  if (!value) return "";
+  let date;
+  if (typeof value.toDate === "function") date = value.toDate();
+  else if (typeof value._seconds === "number") date = new Date(value._seconds * 1000);
+  else if (typeof value.seconds === "number") date = new Date(value.seconds * 1000);
+  else {
+    const ms = parseDate(value);
+    date = ms ? new Date(ms) : new Date(value);
+  }
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
 };
 
 const csvResponse = (csvRows, exportType) =>
@@ -66,65 +99,290 @@ const readCollection = async (name) => {
   return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 };
 
-// ─── FEST_PASS helpers ──────────────────────────────────────────────────────
+// ─── FEST_PASS & Status Helpers ─────────────────────────────────────────────
 
 const PASS_DAYS = { FEST_PASS: 0, FEST_PASS2: 2, FEST_PASS3: 3 };
 const MULTI_DAY_PASSES = ["FEST_PASS2", "FEST_PASS3"];
 
-/** Extract the pass product name from an invoice's cart items */
-const getPassName = (cart) => {
-  if (!Array.isArray(cart)) return null;
-  for (const item of cart) {
-    const name = (item.name || "").toUpperCase().replace(/\s+/g, "_");
-    if (name in PASS_DAYS) return name;
-    // Also check by regex for passes like "Fest Pass 2"
-    if (/FEST.?PASS.?3/i.test(item.name || "")) return "FEST_PASS3";
-    if (/FEST.?PASS.?2/i.test(item.name || "")) return "FEST_PASS2";
-    if (/FEST.?PASS/i.test(item.name || "")) return "FEST_PASS";
+const isPaidStatus = (status) => {
+  const s = String(status || "").toUpperCase().trim();
+  return s === "PAID" || s === "SUCCESS" || s === "VERIFIED" || s === "COMPLETED";
+};
+
+/**
+ * Detect pass type ("FEST_PASS" | "FEST_PASS2" | "FEST_PASS3" | null) from a cart or order item.
+ * Checks item.id first (since Firestore `products` doc IDs are FEST_PASS, FEST_PASS2, FEST_PASS3),
+ * then item.name, then item.type + cost fallback (899 / 1749 / 1999).
+ */
+const detectPassFromItem = (item) => {
+  if (!item || typeof item !== "object") return null;
+
+  const rawId = String(item.id || item.productId || item.passId || "").trim();
+  const normId = rawId.toUpperCase().replace(/[\s\-]+/g, "_");
+  const rawName = String(item.name || item.prodName || item.title || "").trim();
+  const normName = rawName.toUpperCase().replace(/[\s\-]+/g, "_");
+  const rawType = String(item.type || "").trim().toLowerCase();
+  const cost = Number(item.cost ?? item.price ?? item.prodAmount ?? 0);
+
+  // 1. Direct key match on ID or Name
+  if (normId in PASS_DAYS) return normId;
+  if (normName in PASS_DAYS) return normName;
+
+  // 2. Regex match on ID (most reliable)
+  if (/FEST.?PASS.?3/i.test(rawId) || /PASS.?3\b/i.test(rawId)) return "FEST_PASS3";
+  if (/FEST.?PASS.?2/i.test(rawId) || /PASS.?2\b/i.test(rawId)) return "FEST_PASS2";
+  if (/FEST.?PASS/i.test(rawId)) return "FEST_PASS";
+
+  // 3. Regex match on Name
+  if (
+    /FEST.?PASS.?3/i.test(rawName) ||
+    /(?:PRONITE|PASS|COMBO).*3\s*DAY/i.test(rawName) ||
+    /3\s*DAY.*(?:PRONITE|PASS|ACCOM)/i.test(rawName) ||
+    /PASS\s*3\b/i.test(rawName)
+  ) {
+    return "FEST_PASS3";
   }
+  if (
+    /FEST.?PASS.?2/i.test(rawName) ||
+    /(?:PRONITE|PASS|COMBO).*2\s*DAY/i.test(rawName) ||
+    /2\s*DAY.*(?:PRONITE|PASS|ACCOM)/i.test(rawName) ||
+    /PASS\s*2\b/i.test(rawName)
+  ) {
+    return "FEST_PASS2";
+  }
+  if (/FEST.?PASS/i.test(rawName)) {
+    return "FEST_PASS";
+  }
+
+  // 4. Fallback if item.type is "pass" or name mentions "Pronite"
+  const isPassLike =
+    rawType === "pass" ||
+    rawType === "pronite" ||
+    rawType === "combo" ||
+    /PRONITE/i.test(rawName);
+
+  if (isPassLike) {
+    if (cost >= 1900) return "FEST_PASS3"; // Base price 1999
+    if (cost >= 1500) return "FEST_PASS2"; // Base price 1749
+    return "FEST_PASS"; // Base price 899
+  }
+
   return null;
 };
 
-const getComboPassName = (item) => {
-  if (!item) return null;
-  const name = (item.name || "").toUpperCase().replace(/\s+/g, "_");
-  if (name in PASS_DAYS) return name;
-  if (/FEST.?PASS.?3/i.test(item.name || "")) return "FEST_PASS3";
-  if (/FEST.?PASS.?2/i.test(item.name || "")) return "FEST_PASS2";
-  if (/FEST.?PASS/i.test(item.name || "")) return "FEST_PASS";
-  return null;
+/** Find the pass name and matching cart item from an invoice/order cart */
+const findPassInInvoice = (inv) => {
+  const cart = Array.isArray(inv?.cart) ? inv.cart : [];
+  let fallback = null;
+
+  for (const item of cart) {
+    const passName = detectPassFromItem(item);
+    if (passName) {
+      if (MULTI_DAY_PASSES.includes(passName)) {
+        return { passName, passItem: item };
+      }
+      if (!fallback) fallback = { passName, passItem: item };
+    }
+  }
+
+  if (fallback) return fallback;
+
+  // Fallback to paymentDetails.prodDetails if cart was empty
+  const prodDetails = inv?.paymentDetails?.prodDetails;
+  if (Array.isArray(prodDetails)) {
+    for (const prod of prodDetails) {
+      const passName = detectPassFromItem(prod);
+      if (passName) return { passName, passItem: prod };
+    }
+  }
+
+  return { passName: null, passItem: null };
 };
 
-const isAccommodationRequired = (row) =>
-  row.requireAccommodation === true ||
-  String(row.requireAccommodation || "").toLowerCase() === "yes";
+/** Extract pass name from a combo_orders document */
+const getComboPassName = (order) => {
+  if (!order) return null;
+  if (order.item) {
+    const fromItem = detectPassFromItem(order.item);
+    if (fromItem) return fromItem;
+  }
+  if (Array.isArray(order.items || order.cart)) {
+    const { passName } = findPassInInvoice({ cart: order.items || order.cart });
+    if (passName) return passName;
+  }
+  return detectPassFromItem(order);
+};
 
-// ─── Export: accom ──────────────────────────────────────────────────────────
+/** Build lookup maps for users and orders by doc.id and doc.uid */
+const buildLookupMaps = (users = [], orders = []) => {
+  const usersByUid = {};
+  for (const u of users) {
+    if (u.id) usersByUid[u.id] = u;
+    if (u.uid) usersByUid[u.uid] = u;
+  }
+
+  const ordersByKey = {};
+  for (const o of orders) {
+    if (o.id) ordersByKey[o.id] = o;
+    if (o.uid && !ordersByKey[o.uid]) ordersByKey[o.uid] = o;
+  }
+
+  return { usersByUid, ordersByKey };
+};
+
+/**
+ * Extract attendee details for an invoice/order, handling:
+ * - `payload.aadhar` (single 'a' in `invoices`) and `payload.aadhaar` (in `orders`)
+ * - `passItem.teamDetails.members[0]`
+ * - `paymentDetails.custDetails` (`custEmail`, `custMobile`)
+ * - Fallback to `orders` and `users` via `uid`
+ */
+const extractInvoiceAttendee = (inv, passItem, usersByUid = {}, ordersByKey = {}) => {
+  const payload = inv?.payload || {};
+  const member0 = passItem?.teamDetails?.members?.[0] || {};
+  const custDetails = inv?.paymentDetails?.custDetails || {};
+  const userDoc = (inv?.uid && usersByUid[inv.uid]) || {};
+  const orderDoc =
+    (inv?.id && ordersByKey[inv.id]) ||
+    (inv?.uid && ordersByKey[inv.uid]) ||
+    {};
+  const orderPayload = orderDoc.payload || {};
+  const orderMember0 = orderDoc.cart?.[0]?.teamDetails?.members?.[0] || {};
+
+  const name =
+    payload.name ||
+    member0.name ||
+    inv?.name ||
+    orderPayload.name ||
+    orderMember0.name ||
+    userDoc.name ||
+    userDoc.displayName ||
+    userDoc.fullName ||
+    "";
+
+  const email =
+    payload.email ||
+    member0.email ||
+    inv?.email ||
+    custDetails.custEmail ||
+    orderPayload.email ||
+    orderMember0.email ||
+    userDoc.email ||
+    "";
+
+  const gender =
+    payload.gender ||
+    member0.gender ||
+    inv?.gender ||
+    orderPayload.gender ||
+    orderMember0.gender ||
+    userDoc.gender ||
+    "";
+
+  const phone =
+    payload.phone ||
+    member0.phone ||
+    inv?.phone ||
+    custDetails.custMobile ||
+    orderPayload.phone ||
+    orderMember0.phone ||
+    userDoc.phone ||
+    userDoc.phoneNumber ||
+    "";
+
+  const college =
+    payload.college ||
+    passItem?.teamDetails?.college ||
+    inv?.college ||
+    orderPayload.college ||
+    orderDoc.cart?.[0]?.teamDetails?.college ||
+    userDoc.college ||
+    "";
+
+  const aadhaar =
+    payload.aadhaar ||
+    payload.aadhar ||
+    payload.aadhaarUrl ||
+    payload.aadharUrl ||
+    payload.idDocumentUrl ||
+    payload.collegeId ||
+    member0.aadhaar ||
+    member0.aadhar ||
+    member0.aadhaarUrl ||
+    orderPayload.aadhaar ||
+    orderPayload.aadhar ||
+    orderMember0.aadhaar ||
+    userDoc.aadhaar ||
+    userDoc.aadhar ||
+    userDoc.aadhaarUrl ||
+    "";
+
+  return { name, email, gender, phone, college, aadhaar };
+};
+
+/** Combine paid records from `invoices` and any paid records in `orders` not already in `invoices` */
+const getUnifiedPaidGatewayRecords = (invoices = [], orders = []) => {
+  const seenIds = new Set();
+  const records = [];
+
+  for (const inv of invoices) {
+    seenIds.add(inv.id);
+    if (isPaidStatus(inv.status)) {
+      records.push(inv);
+    }
+  }
+
+  for (const ord of orders) {
+    if (seenIds.has(ord.id)) continue;
+    if (isPaidStatus(ord.status)) {
+      records.push(ord);
+    }
+  }
+
+  return records;
+};
+
+const isAccommodationRequired = (row) => {
+  if (row.requireAccommodation === true) return true;
+  const val = String(row.requireAccommodation || "").toLowerCase().trim();
+  if (val === "yes" || val === "true" || val === "1") return true;
+  if (Number(row.accommodationFee) > 0) return true;
+  if (row.accommodationScreenshotUrl || row.accomTxnId) return true;
+  return false;
+};
+
+// ─── 1. Export: accom (Hostel Sheet) ────────────────────────────────────────
 
 async function exportAccom() {
-  // Read all 4 sources in parallel
-  const [workshopRegs, accomRequests, invoices, comboOrders] = await Promise.all([
-    readCollection("workshop_registrations"),
-    readCollection("accommodation_requests"),
-    readCollection("invoices"),
-    readCollection("combo_orders"),
-  ]);
+  const [workshopRegs, accomRequests, invoices, comboOrders, orders, users] =
+    await Promise.all([
+      readCollection("workshop_registrations"),
+      readCollection("accommodation_requests"),
+      readCollection("invoices"),
+      readCollection("combo_orders"),
+      readCollection("orders"),
+      readCollection("users"),
+    ]);
+
+  const { usersByUid, ordersByKey } = buildLookupMaps(users, orders);
+  const paidGatewayRecords = getUnifiedPaidGatewayRecords(invoices, orders);
 
   const rows = [];
 
   // 1. Workshops with requireAccommodation
   for (const reg of workshopRegs) {
     if (!isAccommodationRequired(reg)) continue;
+    const rawTime = reg.submittedAt || reg.registrationTime;
     rows.push({
-      time: parseDate(reg.registrationTime),
-      timeStr: toIST(reg.registrationTime),
-      status: "Workshop Reg",
+      time: parseDate(rawTime),
+      timeStr: toIST(reg.submittedAt) || reg.registrationTime || "",
+      status: reg.status || "Workshop Reg",
       name: reg.name || "",
       gender: reg.gender || "",
       phone: reg.phone || "",
-      days: "",
+      days: reg.accommodationDays ?? "",
       price: Number(reg.accommodationFee) || 0,
-      aadhaar: reg.aadhaarUrl || "",
+      aadhaar: reg.aadhaarUrl || reg.aadhaar || reg.aadhar || "",
       payment: reg.accommodationScreenshotUrl || reg.screenshotUrl || "",
       source: `Workshop / ${reg.workshop || "N/A"}`,
     });
@@ -132,95 +390,145 @@ async function exportAccom() {
 
   // 2. Direct accommodation bookings — one row per booked member
   for (const req of accomRequests) {
-    const members = Array.isArray(req.bookedMembers) ? req.bookedMembers : [];
-    const numDays = req.totalDays || (Array.isArray(req.selectedDates) ? req.selectedDates.length : 0);
-    const perMemberPrice = members.length > 0 ? Math.round((req.totalAmount || 0) / members.length) : (req.totalAmount || 0);
+    const members = Array.isArray(req.bookedMembers)
+      ? req.bookedMembers
+      : Array.isArray(req.members)
+        ? req.members
+        : [];
+    const numDays =
+      req.totalDays ??
+      (Array.isArray(req.selectedDates) ? req.selectedDates.length : "");
+    const totalAmount = Number(req.totalAmount) || 0;
+    const rawTime = req.submittedAt || req.createdAt;
+    const time = parseDate(rawTime);
+    const timeStr = toIST(rawTime);
 
-    for (const m of members) {
+    if (members.length > 0) {
+      const perMemberPrice = Math.round(totalAmount / members.length);
+      for (const m of members) {
+        rows.push({
+          time,
+          timeStr,
+          status: req.status || "PENDING_VERIFICATION",
+          name: m.name || "",
+          gender: m.gender || "",
+          phone: m.phone || "",
+          days: numDays,
+          price: perMemberPrice,
+          aadhaar: m.aadhaarUrl || m.aadhaar || m.aadhar || m.aadhaarNo || "",
+          payment: req.screenshotUrl || req.screenshotId || "",
+          source: "Direct Booking",
+        });
+      }
+    } else {
+      // Fallback if bookedMembers array is missing on a doc
+      const userDoc = (req.uid && usersByUid[req.uid]) || {};
       rows.push({
-        time: parseDate(req.submittedAt),
-        timeStr: toIST(req.submittedAt),
+        time,
+        timeStr,
         status: req.status || "PENDING_VERIFICATION",
-        name: m.name || "",
-        gender: m.gender || "",
-        phone: m.phone || "",
+        name: req.name || userDoc.name || "",
+        gender: req.gender || userDoc.gender || "",
+        phone: req.phone || userDoc.phone || "",
         days: numDays,
-        price: perMemberPrice,
-        aadhaar: m.aadhaarUrl || "",
-        payment: req.screenshotId || "",
+        price: totalAmount,
+        aadhaar: req.aadhaarUrl || req.aadhaar || req.aadhar || req.aadhaarNo || "",
+        payment: req.screenshotUrl || req.screenshotId || "",
         source: "Direct Booking",
       });
     }
   }
 
-  // 3. Gateway multi-day passes (invoices with FEST_PASS2 or FEST_PASS3, status PAID)
-  for (const inv of invoices) {
-    if (inv.status !== "PAID") continue;
-    const passName = getPassName(inv.cart);
+  // 3. Gateway multi-day passes (FEST_PASS2 or FEST_PASS3 with status PAID)
+  for (const inv of paidGatewayRecords) {
+    const { passName, passItem } = findPassInInvoice(inv);
     if (!passName || !MULTI_DAY_PASSES.includes(passName)) continue;
+
     const days = PASS_DAYS[passName];
-    const payload = inv.payload || {};
-    // Try to get aadhaar from cart pass item's teamDetails
-    let aadhaar = payload.aadhaar || "";
-    const passItem = (inv.cart || []).find((i) => /FEST.?PASS/i.test(i.name || ""));
-    if (!aadhaar && passItem?.teamDetails?.members?.[0]?.aadhaar) {
-      aadhaar = passItem.teamDetails.members[0].aadhaar;
-    }
+    const attendee = extractInvoiceAttendee(inv, passItem, usersByUid, ordersByKey);
+    const price =
+      inv.total ??
+      passItem?.cost ??
+      inv.paymentDetails?.payDetails?.amount ??
+      0;
 
     rows.push({
-      time: parseDate(inv.createdAt),
-      timeStr: toIST(inv.createdAt),
-      status: inv.status,
-      name: payload.name || "",
-      gender: payload.gender || "",
-      phone: payload.phone || "",
+      time: parseDate(inv.createdAt || inv.submittedAt),
+      timeStr: toIST(inv.createdAt || inv.submittedAt),
+      status: inv.status || "PAID",
+      name: attendee.name,
+      gender: attendee.gender,
+      phone: attendee.phone,
       days,
-      price: inv.total || 0,
-      aadhaar,
+      price,
+      aadhaar: attendee.aadhaar,
       payment: "Gateway Payment",
       source: `Pass / ${passName}`,
     });
   }
 
-  // 4. QR combo multi-day passes
+  // 4. QR combo multi-day passes (FEST_PASS2 or FEST_PASS3)
   for (const order of comboOrders) {
-    const passName = getComboPassName(order.item);
+    const passName = getComboPassName(order);
     if (!passName || !MULTI_DAY_PASSES.includes(passName)) continue;
+
     const days = PASS_DAYS[passName];
     const attendee = order.attendee || {};
+    const userDoc = (order.uid && usersByUid[order.uid]) || {};
 
     rows.push({
-      time: parseDate(order.submittedAt),
-      timeStr: toIST(order.submittedAt),
+      time: parseDate(order.submittedAt || order.createdAt),
+      timeStr: toIST(order.submittedAt || order.createdAt),
       status: order.status || "PENDING_VERIFICATION",
-      name: attendee.name || "",
-      gender: attendee.gender || "",
-      phone: attendee.phone || "",
+      name: attendee.name || order.name || userDoc.name || "",
+      gender: attendee.gender || order.gender || userDoc.gender || "",
+      phone: attendee.phone || order.phone || userDoc.phone || "",
       days,
-      price: order.totalAmount || 0,
-      aadhaar: attendee.idDocumentUrl || "",
-      payment: order.screenshotUrl || "",
+      price: order.totalAmount ?? order.originalAmount ?? order.item?.cost ?? 0,
+      aadhaar:
+        attendee.idDocumentUrl ||
+        attendee.aadhaarUrl ||
+        attendee.aadhaar ||
+        attendee.aadhar ||
+        order.idDocumentUrl ||
+        "",
+      payment: order.screenshotUrl || order.screenshotId || "",
       source: `QR Pass / ${passName}`,
     });
   }
 
-  // Sort by time
+  // Sort chronologically
   rows.sort((a, b) => a.time - b.time);
 
   const csvRows = [];
   csvRows.push(
     makeCsvRow([
-      "Status", "Time (IST)", "Name", "Gender", "Phone",
-      "No. of Days", "Price Paid", "Aadhaar Screenshot",
-      "Payment Proof Screenshot", "Source",
+      "Status",
+      "Time (IST)",
+      "Name",
+      "Gender",
+      "Phone",
+      "No. of Days",
+      "Price Paid",
+      "Aadhaar Screenshot",
+      "Payment Proof Screenshot",
+      "Source",
     ]),
   );
 
   for (const r of rows) {
     csvRows.push(
       makeCsvRow([
-        r.status, r.timeStr, r.name, r.gender, csvText(r.phone),
-        r.days, r.price, r.aadhaar, r.payment, r.source,
+        r.status,
+        r.timeStr,
+        r.name,
+        r.gender,
+        csvText(r.phone),
+        r.days,
+        r.price,
+        r.aadhaar,
+        r.payment,
+        r.source,
       ]),
     );
   }
@@ -228,68 +536,86 @@ async function exportAccom() {
   return csvRows;
 }
 
-// ─── Export: pronite ────────────────────────────────────────────────────────
+// ─── 2. Export: pronite (Pronite Pass Sheet) ────────────────────────────────
 
 async function exportPronite() {
-  const [invoices, comboOrders] = await Promise.all([
+  const [invoices, comboOrders, orders, users] = await Promise.all([
     readCollection("invoices"),
     readCollection("combo_orders"),
+    readCollection("orders"),
+    readCollection("users"),
   ]);
+
+  const { usersByUid, ordersByKey } = buildLookupMaps(users, orders);
+  const paidGatewayRecords = getUnifiedPaidGatewayRecords(invoices, orders);
 
   const rows = [];
 
-  // 1. Gateway purchases — invoices with any FEST_PASS variant, status PAID
-  for (const inv of invoices) {
-    if (inv.status !== "PAID") continue;
-    const passName = getPassName(inv.cart);
+  // 1. Gateway purchases — invoices/orders with any FEST_PASS variant, status PAID
+  for (const inv of paidGatewayRecords) {
+    const { passName, passItem } = findPassInInvoice(inv);
     if (!passName) continue;
 
-    const payload = inv.payload || {};
-    let aadhaar = payload.aadhaar || "";
-    const passItem = (inv.cart || []).find((i) => /FEST.?PASS/i.test(i.name || ""));
-    if (!aadhaar && passItem?.teamDetails?.members?.[0]?.aadhaar) {
-      aadhaar = passItem.teamDetails.members[0].aadhaar;
-    }
+    const attendee = extractInvoiceAttendee(inv, passItem, usersByUid, ordersByKey);
+    const price =
+      inv.total ??
+      passItem?.cost ??
+      inv.paymentDetails?.payDetails?.amount ??
+      0;
+    const coupon =
+      inv.couponCode ||
+      inv.coupon ||
+      inv.payload?.couponCode ||
+      inv.payload?.coupon ||
+      "None";
 
     rows.push({
-      time: parseDate(inv.createdAt),
-      timeStr: toIST(inv.createdAt),
-      status: inv.status,
-      name: payload.name || "",
-      email: payload.email || "",
-      gender: payload.gender || "",
-      phone: payload.phone || "",
-      college: payload.college || "",
+      time: parseDate(inv.createdAt || inv.submittedAt),
+      timeStr: toIST(inv.createdAt || inv.submittedAt),
+      status: inv.status || "PAID",
+      name: attendee.name,
+      email: attendee.email,
+      gender: attendee.gender,
+      phone: attendee.phone,
+      college: attendee.college,
       pass: passName,
-      price: inv.total || 0,
-      coupon: inv.couponCode || "None",
+      price,
+      coupon,
       paymentMethod: "Gateway",
       payment: "Gateway Payment",
-      aadhaar,
+      aadhaar: attendee.aadhaar,
     });
   }
 
   // 2. QR combo purchases — all pass-type combo orders
   for (const order of comboOrders) {
-    const passName = getComboPassName(order.item);
+    const passName = getComboPassName(order);
     if (!passName) continue;
+
     const attendee = order.attendee || {};
+    const userDoc = (order.uid && usersByUid[order.uid]) || {};
 
     rows.push({
-      time: parseDate(order.submittedAt),
-      timeStr: toIST(order.submittedAt),
+      time: parseDate(order.submittedAt || order.createdAt),
+      timeStr: toIST(order.submittedAt || order.createdAt),
       status: order.status || "PENDING_VERIFICATION",
-      name: attendee.name || "",
-      email: attendee.email || "",
-      gender: attendee.gender || "",
-      phone: attendee.phone || "",
-      college: attendee.college || "",
+      name: attendee.name || order.name || userDoc.name || "",
+      email: attendee.email || order.email || userDoc.email || "",
+      gender: attendee.gender || order.gender || userDoc.gender || "",
+      phone: attendee.phone || order.phone || userDoc.phone || "",
+      college: attendee.college || order.college || userDoc.college || "",
       pass: passName,
-      price: order.totalAmount || 0,
+      price: order.totalAmount ?? order.originalAmount ?? order.item?.cost ?? 0,
       coupon: order.couponCode || "None",
       paymentMethod: "Done via QR",
-      payment: order.screenshotUrl || "",
-      aadhaar: attendee.idDocumentUrl || "",
+      payment: order.screenshotUrl || order.screenshotId || "",
+      aadhaar:
+        attendee.idDocumentUrl ||
+        attendee.aadhaarUrl ||
+        attendee.aadhaar ||
+        attendee.aadhar ||
+        order.idDocumentUrl ||
+        "",
     });
   }
 
@@ -298,18 +624,38 @@ async function exportPronite() {
   const csvRows = [];
   csvRows.push(
     makeCsvRow([
-      "Status", "Time (IST)", "Name", "Email", "Gender", "Phone",
-      "College", "Pass", "Price Paid", "Coupon", "Payment Method",
-      "Payment Proof Screenshot", "Aadhaar Screenshot",
+      "Status",
+      "Time (IST)",
+      "Name",
+      "Email",
+      "Gender",
+      "Phone",
+      "College",
+      "Pass",
+      "Price Paid",
+      "Coupon",
+      "Payment Method",
+      "Payment Proof Screenshot",
+      "Aadhaar Screenshot",
     ]),
   );
 
   for (const r of rows) {
     csvRows.push(
       makeCsvRow([
-        r.status, r.timeStr, r.name, r.email, r.gender, csvText(r.phone),
-        r.college, r.pass, r.price, r.coupon, r.paymentMethod,
-        r.payment, r.aadhaar,
+        r.status,
+        r.timeStr,
+        r.name,
+        r.email,
+        r.gender,
+        csvText(r.phone),
+        r.college,
+        r.pass,
+        r.price,
+        r.coupon,
+        r.paymentMethod,
+        r.payment,
+        r.aadhaar,
       ]),
     );
   }
@@ -317,7 +663,7 @@ async function exportPronite() {
   return csvRows;
 }
 
-// ─── Export: events ─────────────────────────────────────────────────────────
+// ─── 3. Export: events (Event Sheet) ────────────────────────────────────────
 
 async function exportEvents() {
   const [eventRegs, invoices] = await Promise.all([
@@ -325,21 +671,23 @@ async function exportEvents() {
     readCollection("invoices"),
   ]);
 
-  // Build invoiceId → total lookup
-  const invoiceTotals = {};
+  // Build invoiceId → { byId, byName, total } lookup (works even when cart item has no `type` field)
+  const invoiceLookup = {};
   for (const inv of invoices) {
-    if (inv.status === "PAID") {
-      // An invoice can have multiple event items; map each eventId to its cost
-      if (Array.isArray(inv.cart)) {
-        for (const item of inv.cart) {
-          if (item.type === "event" || String(item.id || "").startsWith("EVENT_")) {
-            // Store cost per invoiceId (best effort — one invoice may have multiple events)
-            invoiceTotals[inv.id] = invoiceTotals[inv.id] || {};
-            invoiceTotals[inv.id][item.id] = Number(item.cost) || 0;
-          }
-        }
+    const byId = {};
+    const byName = {};
+    if (Array.isArray(inv.cart)) {
+      for (const item of inv.cart) {
+        const cost = Number(item.cost ?? item.price ?? 0);
+        if (item.id) byId[item.id] = cost;
+        if (item.name) byName[item.name] = cost;
       }
     }
+    invoiceLookup[inv.id] = {
+      byId,
+      byName,
+      total: Number(inv.total ?? inv.paymentDetails?.payDetails?.amount ?? 0),
+    };
   }
 
   // Find the max team size across all registrations
@@ -354,14 +702,28 @@ async function exportEvents() {
 
   // Build header
   const headerBase = [
-    "Time (IST)", "Event", "Team Name", "College",
-    "Total Members", "Price Paid",
+    "Time (IST)",
+    "Event",
+    "Team Name",
+    "College",
+    "Total Members",
+    "Price Paid",
   ];
-  // Leader columns
-  const memberHeaders = ["Leader Name", "Leader Email", "Leader Phone", "Leader Gender", "Leader Aadhaar"];
-  // Additional member columns
+  const memberHeaders = [
+    "Leader Name",
+    "Leader Email",
+    "Leader Phone",
+    "Leader Gender",
+    "Leader Aadhaar",
+  ];
   for (let i = 2; i <= maxMembers; i++) {
-    memberHeaders.push(`Member ${i} Name`, `Member ${i} Email`, `Member ${i} Phone`, `Member ${i} Gender`, `Member ${i} Aadhaar`);
+    memberHeaders.push(
+      `Member ${i} Name`,
+      `Member ${i} Email`,
+      `Member ${i} Phone`,
+      `Member ${i} Gender`,
+      `Member ${i} Aadhaar`,
+    );
   }
 
   const csvRows = [];
@@ -370,11 +732,15 @@ async function exportEvents() {
   for (const reg of eventRegs) {
     const members = Array.isArray(reg.members) ? reg.members : [];
 
-    // Look up price from invoice
-    let pricePaid = "";
-    if (reg.invoiceId && invoiceTotals[reg.invoiceId]) {
-      const eventCosts = invoiceTotals[reg.invoiceId];
-      pricePaid = eventCosts[reg.eventId] ?? Object.values(eventCosts)[0] ?? "";
+    // Look up price from invoice by eventId, eventName, or invoice total
+    let pricePaid = reg.amountPaid ?? reg.price ?? "";
+    if (reg.invoiceId && invoiceLookup[reg.invoiceId]) {
+      const invInfo = invoiceLookup[reg.invoiceId];
+      pricePaid =
+        invInfo.byId[reg.eventId] ??
+        invInfo.byName[reg.eventName] ??
+        invInfo.total ??
+        pricePaid;
     }
 
     const baseRow = [
@@ -386,11 +752,17 @@ async function exportEvents() {
       pricePaid,
     ];
 
-    // Flatten members horizontally
+    // Flatten members horizontally (1 row per team)
     const memberCols = [];
     for (let i = 0; i < maxMembers; i++) {
       const m = members[i] || {};
-      memberCols.push(m.name || "", m.email || "", csvText(m.phone || ""), m.gender || "", m.aadhaar || "");
+      memberCols.push(
+        m.name || "",
+        m.email || "",
+        csvText(m.phone || ""),
+        m.gender || "",
+        m.aadhaar || m.aadhar || m.aadhaarUrl || "",
+      );
     }
 
     csvRows.push(makeCsvRow([...baseRow, ...memberCols]));
@@ -399,7 +771,7 @@ async function exportEvents() {
   return csvRows;
 }
 
-// ─── Export: reg (workshops) ────────────────────────────────────────────────
+// ─── 4. Export: reg (Workshop Sheet) ────────────────────────────────────────
 
 async function exportReg() {
   const snapshot = await adminFirestore.collection("workshop_registrations").get();
@@ -423,14 +795,28 @@ async function exportReg() {
     data.push(row);
   });
 
-  data.sort((a, b) => parseDate(a.registrationTime) - parseDate(b.registrationTime));
+  data.sort(
+    (a, b) =>
+      parseDate(a.submittedAt || a.registrationTime) -
+      parseDate(b.submittedAt || b.registrationTime),
+  );
 
   const csvRows = [];
   csvRows.push(
     makeCsvRow([
-      "ID", "Time", "Name", "Gender", "Email", "Phone",
-      "College", "Track", "Is IITP", "Roll Number",
-      "Reg Fee Paid", "Sender UPI ID", "Reg Txn ID",
+      "ID",
+      "Time",
+      "Name",
+      "Gender",
+      "Email",
+      "Phone",
+      "College",
+      "Track",
+      "Is IITP",
+      "Roll Number",
+      "Reg Fee Paid",
+      "Sender UPI ID",
+      "Reg Txn ID",
       "Payment Proof Screenshot",
     ]),
   );
@@ -438,8 +824,8 @@ async function exportReg() {
   for (const row of data) {
     csvRows.push(
       makeCsvRow([
-        row.id,
-        row.registrationTime || "",
+        row.registrationId || row.id,
+        row.registrationTime || toIST(row.submittedAt) || "",
         row.name || "",
         row.gender || "",
         row.email || "",
@@ -451,7 +837,7 @@ async function exportReg() {
         row.workshopFee,
         csvText(row.upiId),
         csvText(row.workshopTxnId),
-        row.workshopScreenshotUrl || "",
+        row.workshopScreenshotUrl || row.screenshotUrl || "",
       ]),
     );
   }
