@@ -1,9 +1,44 @@
 "use client";
 import { useState } from "react";
-import { Bed, Users, LayoutList } from "lucide-react";
+import { Bed, Ticket, Trophy, Wrench } from "lucide-react";
+
+const BUTTONS = [
+  {
+    type: "accom",
+    label: "🛏 Hostel Sheet",
+    desc: "Accommodation — all booking streams",
+    icon: Bed,
+    color: "amber",
+    cls: "bg-amber-500/10 text-amber-500 border-amber-500/30 hover:bg-amber-500/20",
+  },
+  {
+    type: "pronite",
+    label: "🎟 Pronite Pass Sheet",
+    desc: "Gate entry — gateway + QR passes",
+    icon: Ticket,
+    color: "purple",
+    cls: "bg-purple-500/10 text-purple-500 border-purple-500/30 hover:bg-purple-500/20",
+  },
+  {
+    type: "events",
+    label: "🏆 Event Sheet",
+    desc: "Teams & members — 1 row per team",
+    icon: Trophy,
+    color: "cyan",
+    cls: "bg-cyan-500/10 text-cyan-500 border-cyan-500/30 hover:bg-cyan-500/20",
+  },
+  {
+    type: "reg",
+    label: "🛠 Workshop Sheet",
+    desc: "Workshop registrations & payments",
+    icon: Wrench,
+    color: "emerald",
+    cls: "bg-emerald-500/10 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/20",
+  },
+];
 
 export default function AdminDashboard() {
-  const [exporting, setExporting] = useState(null); 
+  const [exporting, setExporting] = useState(null);
 
   const handleExport = async (type) => {
     setExporting(type);
@@ -39,37 +74,20 @@ export default function AdminDashboard() {
         </div>
         
         <div className="flex flex-col gap-4 w-full">
-          {/* Hostel Team Button */}
-          <button
-            onClick={() => handleExport("accom")}
-            disabled={exporting !== null}
-            className="w-full flex items-center justify-start gap-4 px-6 py-4 rounded-xl font-bold transition-all duration-300 shadow-lg bg-amber-500/10 text-amber-500 border border-amber-500/30 hover:bg-amber-500/20 disabled:opacity-50"
-          >
-            <Bed size={20} className={exporting === "accom" ? "animate-pulse" : ""} />
-            {exporting === "accom" ? "Generating..." : "Hostel Sheet (Accom Only)"}
-          </button>
-
-          {/* Event Team Button */}
-          <button
-            onClick={() => handleExport("reg")}
-            disabled={exporting !== null}
-            className="w-full flex items-center justify-start gap-4 px-6 py-4 rounded-xl font-bold transition-all duration-300 shadow-lg bg-cyan-500/10 text-cyan-500 border border-cyan-500/30 hover:bg-cyan-500/20 disabled:opacity-50"
-          >
-            <Users size={20} className={exporting === "reg" ? "animate-pulse" : ""} />
-            {exporting === "reg" ? "Generating..." : "Event Sheet (Reg Only)"}
-          </button>
-
-          <hr className="border-t border-slate-800 my-2" />
-
-          {/* Master Sheet Button */}
-          <button
-            onClick={() => handleExport("all")}
-            disabled={exporting !== null}
-            className="w-full flex items-center justify-start gap-4 px-6 py-4 rounded-xl font-bold transition-all duration-300 shadow-lg bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 hover:bg-emerald-500/20 disabled:opacity-50"
-          >
-            <LayoutList size={20} className={exporting === "all" ? "animate-pulse" : ""} />
-            {exporting === "all" ? "Generating..." : "Master Sheet (Combined)"}
-          </button>
+          {BUTTONS.map(({ type, label, desc, icon: Icon, cls }) => (
+            <button
+              key={type}
+              onClick={() => handleExport(type)}
+              disabled={exporting !== null}
+              className={`w-full flex items-center justify-start gap-4 px-6 py-4 rounded-xl font-bold transition-all duration-300 shadow-lg border disabled:opacity-50 ${cls}`}
+            >
+              <Icon size={20} className={exporting === type ? "animate-pulse" : ""} />
+              <div className="flex flex-col items-start">
+                <span>{exporting === type ? "Generating..." : label}</span>
+                <span className="text-xs font-normal opacity-60">{desc}</span>
+              </div>
+            </button>
+          ))}
         </div>
 
       </div>
