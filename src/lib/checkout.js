@@ -1,8 +1,9 @@
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export async function checkout(cart, authUser, payload) {
   if (!authUser) {
-    alert("Please log in before checkout.");
+    toast.error("Please log in before checkout.");
     return null;
   }
 
@@ -23,7 +24,7 @@ export async function checkout(cart, authUser, payload) {
     );
 
     if (orderResponse.status !== 201 || !orderResponse.data.success) {
-      throw new Error("Unable to create order.");
+      throw new Error(orderResponse.data?.message || "Unable to create order.");
     }
 
     const orderId = orderResponse.data.id;
@@ -44,10 +45,15 @@ export async function checkout(cart, authUser, payload) {
       return paymentResponse.data;
     }
 
-    throw new Error("Unable to initiate payment.");
+    throw new Error(paymentResponse.data?.error || "Unable to initiate payment.");
   } catch (error) {
     console.error("Checkout failed:", error);
-    alert("Checkout failed. Please try again.");
+    const message =
+      error?.response?.data?.error ||
+      error?.response?.data?.message ||
+      error?.message ||
+      "Checkout failed. Please try again.";
+    toast.error(message);
     return null;
   }
 }

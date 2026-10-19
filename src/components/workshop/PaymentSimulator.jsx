@@ -4,6 +4,7 @@ import Image from "next/image";
 import { uploadImage } from "@/lib/uploadImage";
 import { CheckCircle2, Upload, ArrowLeft, ArrowRight } from "lucide-react";
 import { useAuth } from "@/context/AuthUserContext";
+import toast from "react-hot-toast";
 import styles from "../../app/register/Register.module.css";
 
 export default function PaymentSimulator({
@@ -192,10 +193,10 @@ export default function PaymentSimulator({
 
       const result = await response.json();
       if (result.success) onPaymentSuccess(result.registrationId);
-      else alert(result.message || "Registration failed.");
+      else toast.error(result.message || "Registration failed.");
     } catch (error) {
       console.error("Workshop registration failed:", error);
-      alert(
+      toast.error(
         error.message || "A server error occurred. Please try again later.",
       );
     } finally {

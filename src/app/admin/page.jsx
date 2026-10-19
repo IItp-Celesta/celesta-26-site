@@ -1,35 +1,36 @@
 "use client";
 import { useState } from "react";
-import { Bed, Ticket, Trophy, Wrench } from "lucide-react";
+import { Bed, Ticket, Trophy, Wrench} from "lucide-react";
+import toast from "react-hot-toast";
 
 const BUTTONS = [
   {
     type: "accom",
-    label: "🛏 Hostel Sheet",
-    desc: "Accommodation — all booking streams",
+    label: "Hostel Sheet",
+    desc: "Accommodation",
     icon: Bed,
     color: "amber",
     cls: "bg-amber-500/10 text-amber-500 border-amber-500/30 hover:bg-amber-500/20",
   },
   {
     type: "pronite",
-    label: "🎟 Pronite Pass Sheet",
-    desc: "Gate entry — gateway + QR passes",
+    label: "Pronite Pass Sheet",
+    desc: "Gate entry",
     icon: Ticket,
     color: "purple",
     cls: "bg-purple-500/10 text-purple-500 border-purple-500/30 hover:bg-purple-500/20",
   },
   {
     type: "events",
-    label: "🏆 Event Sheet",
-    desc: "Teams & members — 1 row per team",
+    label: "Event Sheet",
+    desc: "Teams & members",
     icon: Trophy,
     color: "cyan",
     cls: "bg-cyan-500/10 text-cyan-500 border-cyan-500/30 hover:bg-cyan-500/20",
   },
   {
     type: "reg",
-    label: "🛠 Workshop Sheet",
+    label: "Workshop Sheet",
     desc: "Workshop registrations & payments",
     icon: Wrench,
     color: "emerald",
@@ -55,8 +56,9 @@ export default function AdminDashboard() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
+      toast.success("Export generated and downloaded successfully!");
     } catch (error) {
-      alert(error.message);
+      toast.error(error.message || "Failed to export data.");
     } finally {
       setExporting(null);
     }
@@ -64,13 +66,10 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 p-8 md:p-12 rounded-3xl shadow-2xl flex flex-col items-center gap-8 max-w-md w-full text-center">
+      <div className="bg-slate-900 border border-slate-800 p-8 md:p-12 rounded-3xl shadow-2xl flex flex-col items-center gap-6 max-w-md w-full text-center">
         
         <div>
-          <h1 className="text-3xl font-bold text-white mb-3 tracking-wide">Data Terminal</h1>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            Download isolated datasets for operational teams.
-          </p>
+          <h1 className="text-3xl font-bold text-white mb-2 tracking-wide">Data Terminal</h1>
         </div>
         
         <div className="flex flex-col gap-4 w-full">

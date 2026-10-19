@@ -66,7 +66,7 @@ export default function CartPage() {
 
   const initiateCheckout = async (payload, finalCart = cart) => {
     if (typeof window !== "undefined" && !window.AtomPaynetz) {
-      alert(
+      toast.error(
         "Payment gateway is initializing. Please try again in a few seconds.",
       );
       return;

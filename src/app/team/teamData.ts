@@ -28,7 +28,7 @@ export const teamData: TeamMember[] = [
     // Marketing & Sponsorship
     { id: "sponsorship", name: "Marketing & Sponsorship", title: "The Partnership Pioneers", parentId: "Committees" },
     { id: "avni", name: "Avni Shukla", title: "Coordinator", parentId: "sponsorship", image: "/team-images/avni.jpeg", linkedin: "https://www.linkedin.com/in/avni-shukla-8921b5324", x: "https://www.instagram.com/3vni.shukla" },
-    { id: "kartik", name: "Kartik Sen", title: "Coordinator", parentId: "sponsorship", image: "/team-images/kartik.jpg", linkedin: "https://www.linkedin.com/in/kars13105/", x: "https://www.instagram.com/kartik._014/" },
+    { id: "kartik", name: "Kartik Sen", title: "Coordinator", parentId: "sponsorship", image: "/team-images/kartik.JPG", linkedin: "https://www.linkedin.com/in/kars13105/", x: "https://www.instagram.com/kartik._014/" },
     { id: "aryan", name: "Aryan Jajodia", title: "Coordinator", parentId: "sponsorship", image: "/team-images/aryan.jpg", linkedin: "https://www.linkedin.com/in/aryan-jajodia-2b43b5328", x: "https://www.instagram.com/aryan.jajodia" },
     { id: "yahya", name: "Yahya Dawoodi", title: "Coordinator", parentId: "sponsorship", image: "/team-images/yahya.jpg", linkedin: "https://www.linkedin.com/in/yahyadawoodi", x: "https://www.instagram.com/_yahya_116" },
     

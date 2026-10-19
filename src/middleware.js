@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 
 export function middleware(req) {
+  const path = req.nextUrl.pathname;
+
   // Check if the user is trying to access the admin area
-  if (req.nextUrl.pathname.startsWith('/admin')) {
+  if (path.startsWith('/admin') || path.startsWith('/api/admin')) {
     const authHeader = req.headers.get('authorization');
     if (!authHeader) {
       return new NextResponse('Access Denied', {
