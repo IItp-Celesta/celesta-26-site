@@ -304,10 +304,10 @@ export default function Profile() {
           <p className="text-sm text-white/50 text-center mt-6 px-4">
             Made a payment and it's not showing up? Please contact us at{" "}
             <a
-              href="tel:+919588536927"
+              href="tel:++918619484639"
               className="text-sky-400 font-semibold hover:underline"
             >
-              +91 95885 36927
+              +91 86194 84639
             </a>{" "}
             with your payment proof.
           </p>
@@ -528,7 +528,7 @@ export default function Profile() {
                             ) : (
                               <span className="flex items-center gap-1.5 text-xs font-medium text-amber-400">
                                 <Clock size={14} />
-                                {reg.status?.replaceAll("_", " ") || "Pending"}
+                                {reg.status?.replaceAll("_", " ") || "Pending Approval"}
                               </span>
                             )}
                           </div>
