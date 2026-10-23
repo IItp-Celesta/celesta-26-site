@@ -14,12 +14,10 @@
   position: relative;
   width: 320px;
   height: 450px;
-  filter: drop-shadow(0 0 5px rgba(0, 224, 255, 0.4));
   transition: all 0.3s ease;
 }
 
 .eventCardWrapper:hover {
-  filter: drop-shadow(0 0 15px rgba(0, 224, 255, 0.8));
   transform: translateY(-5px);
 }
 
@@ -27,7 +25,7 @@
 .eventCardBorder {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #00e0ff 0%, #222 30%, #222 70%, #007bff 100%);
+  background: linear-gradient(135deg, #5bcdbb 0%, #0d1a16 30%, #0d1a16 70%, #005858 100%);
   clip-path: polygon(30px 0, 100% 0,
       100% calc(100% - 30px),
       calc(100% - 30px) 100%,
@@ -59,7 +57,7 @@
   left: 0;
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #00e0ff 0%, transparent 40%);
+  background: linear-gradient(135deg, #5bcdbb 0%, transparent 40%);
   z-index: 2;
   opacity: 0.9;
   pointer-events: none;
@@ -73,7 +71,7 @@
   right: 0;
   width: 100px;
   height: 80px;
-  background: linear-gradient(135deg, transparent 40%, #00e0ff 100%);
+  background: linear-gradient(135deg, transparent 40%, #5bcdbb 100%);
   z-index: 2;
   opacity: 0.9;
   pointer-events: none;
@@ -85,7 +83,7 @@
   height: 65%;
   position: relative;
   overflow: hidden;
-  background: #000;
+  background: var(--celesta-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -130,7 +128,7 @@
   text-transform: uppercase;
   color: #fff;
   line-height: 1;
-  text-shadow: 2px 2px 0px rgba(0, 224, 255, 0.5);
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.7);
   margin-bottom: 8px;
   letter-spacing: 1px;
 }
@@ -144,11 +142,11 @@
 }
 
 .registerButton {
-  background: rgba(0, 224, 255, 0.2);
-  border: 1px solid #00e0ff;
-  color: #fff;
+  background: rgba(91, 205, 187, 0.12);
+  border: 1px solid #5bcdbb;
+  color: #ebebeb;
   padding: 8px 16px;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'State Wide', sans-serif;
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 1px;
@@ -161,7 +159,7 @@
 }
 
 .registerButton:hover {
-  background: #00e0ff;
-  box-shadow: 0 0 15px rgba(0, 224, 255, 0.6);
-  transform: translateY(-2px);
+  background: #5bcdbb;
+  color: #032221;
+  transform: none;
 }

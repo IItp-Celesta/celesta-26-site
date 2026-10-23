@@ -10,10 +10,8 @@ import { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import data from "./events/events.json";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Navigation } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
+import SplitText from "@/components/theme/SplitText";
+import Reveal from "@/components/theme/Reveal";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -199,6 +197,31 @@ export default function Home() {
     });
   }, [performers]);
 
+  const THEME_COPY =
+    "Celesta 2026 embraces the theme “Anachronistic Syncretism,” a celebration of the seamless fusion of ideas, technologies, and aesthetics from the past, present, and future. It envisions a world where the boundaries of time dissolve, allowing ancient wisdom, forgotten innovations, modern scientific breakthroughs, and futuristic possibilities to converge and create something extraordinary. The theme explores how ideas from different eras can coexist, interact, and evolve, challenging conventional perceptions of time and progress. Through three acts- The Zenith, symbolising the pursuit of ultimate knowledge; The Cascade, representing the flow and transformation of ideas across eras; and The Convergence, where seemingly disconnected timelines and innovations unite to shape a new reality- Anachronistic Syncretism celebrates the limitless potential of human imagination. At its core, the theme reflects the spirit of Celesta: a space where science meets creativity, disciplines intersect, and innovation transcends the boundaries of time to shape the future.";
+
+  const THEME_ACTS = [
+    {
+      id: 1,
+      num: "01",
+      title: "The Zenith",
+      desc: "The pursuit of ultimate knowledge.",
+    },
+    {
+      id: 2,
+      num: "02",
+      title: "The Cascade",
+      desc: "The flow and transformation of ideas across eras.",
+    },
+    {
+      id: 3,
+      num: "03",
+      title: "The Convergence",
+      desc:
+        "Disconnected timelines and innovations unite to shape a new reality.",
+    },
+  ];
+
   return (
     <div className="overflow-x-hidden w-full">
       {/* Banner Section */}
@@ -207,66 +230,115 @@ export default function Home() {
       >
         <section className="flex h-[90vh] justify-center items-center w-full">
           <Image
-            className="translate-y-[30px]"
-            ref={fadeRef}
-            src="/images/banner-logo.svg"
-            alt="banner-logo"
-            width={1000}
-            height={500}
+            className="w-[min(72vw,560px)] h-auto mx-auto"
+            src="/images/typeface-navbar.svg"
+            alt="Celesta"
+            width={517}
+            height={131}
           />
+          <p className="mt-4 text-[#ebebeb]/90 tracking-[0.2em] text-sm md:text-base">
+            Celesta 2026
+          </p>
         </section>
-        <ArrowDown className="text-white animate-bounce" />
+        <ArrowDown className="text-[#5bcdbb] mb-8" />
       </div>
+
+      {/* Theme Section */}
+      <section className={styles.themeSection}>
+        <div className="max-w-6xl mx-auto px-6 py-20 md:py-28 text-center">
+          <p className="text-[#5bcdbb] uppercase tracking-[0.3em] text-xs md:text-sm mb-6">
+            The Theme
+          </p>
+          <h1 className="race text-4xl sm:text-5xl md:text-6xl font-bold uppercase mb-10 text-[#ebebeb]">
+            Anachronistic Syncretism
+          </h1>
+          <p className="text-[#ebebeb]/90 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-14">
+            {THEME_COPY}
+          </p>
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {THEME_ACTS.map((act) => (
+              <div key={act.id} className={styles.actCard}>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="race text-[#e7151e] text-3xl font-bold">
+                    {act.num}
+                  </span>
+                  <span className="race text-[#5bcdbb] text-xl font-bold uppercase tracking-tight">
+                    {act.title}
+                  </span>
+                </div>
+                <p className="text-[#ebebeb]/85 text-sm md:text-base leading-relaxed">
+                  {act.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Performers Section */}
-      <div className={`flex flex-col ${styles.background2} w-full`}>
-        <h1 className="text-white font-bold text-6xl sm:text-5xl text-center my-20 reveal-section state-wide">
-          Past Performers
-        </h1>
-        <div className="w-full">
-          {performers.map((performer, idx) => (
-            <div
-              key={idx}
-              className="relative w-full h-[500px] overflow-hidden reveal-section"
-            >
-              {/* Slideshow */}
-              <Image
-                id={`performer-${idx}-img-current`}
-                className="absolute inset-0 w-full h-full object-cover"
-                src={performer.images[0]}
-                alt={performer.name}
-                fill
-                style={{ zIndex: 2 }}
-              />
-              <Image
-                id={`performer-${idx}-img-next`}
-                className="absolute inset-0 w-full h-full object-cover"
-                src={performer.images[0]}
-                alt={performer.name}
-                fill
-                style={{ transform: "translateX(100%)", zIndex: 1 }}
-              />
+      <section className={styles.performersSection}>
+        <div className={styles.sectionInner}>
+          <div className={styles.sectionIndex}>
+            <span>02</span>
+            <span className={styles.indexRule} />
+            <span>Archive / past performers</span>
+          </div>
 
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-black/50 z-10" />
+          <SplitText
+            as="h2"
+            text="Echoes from previous editions"
+            className={styles.sectionTitle}
+            stagger={0.06}
+          />
 
-              {/* Artist Name */}
-              <div
-                className={`absolute inset-0 flex items-center z-20 px-4 sm:px-10 md:px-20 justify-${
-                  idx % 2 === 0 ? "start" : "end"
-                }`}
+          <div className={styles.performerList}>
+            {performers.map((performer, idx) => (
+              <Reveal
+                key={performer.name}
+                className={styles.performerRow}
+                y={54}
+                delay={0.03 * idx}
               >
-                <h2
-                  id={`performer-name-${idx}`}
-                  className="text-white font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-wider uppercase drop-shadow-2xl break-words state-wide"
-                >
-                  {performer.name}
-                </h2>
-              </div>
-            </div>
-          ))}
+                <span className={styles.performerIndex}>
+                  {String(idx + 1).padStart(2, "0")}
+                </span>
+
+                <div className={styles.performerMedia}>
+                  <img
+                    id={`performer-${idx}-img-current`}
+                    src={performer.images[0]}
+                    alt={performer.name}
+                    style={{ zIndex: 2 }}
+                  />
+                  <img
+                    id={`performer-${idx}-img-next`}
+                    src={performer.images[0]}
+                    alt=""
+                    aria-hidden="true"
+                    style={{ transform: "translateX(100%)", zIndex: 1 }}
+                  />
+                  <div className={styles.performerVeil} />
+                  <span className={styles.performerStamp}>
+                    Archive / Live
+                  </span>
+                </div>
+
+                <div className={styles.performerNameWrap}>
+                  <SplitText
+                    as="h3"
+                    text={performer.name}
+                    className={styles.performerName}
+                    stagger={0.05}
+                  />
+                  <span className={styles.performerMeta}>
+                    Past performer · Celesta
+                  </span>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
 
       <div className={`w-full ${styles.background2} py-16 px-4 md:px-20`}>
         {/* Theme Announcement Section */}
@@ -291,37 +363,15 @@ export default function Home() {
           <h2 className="text-white text-4xl uppercase text-center mb-8 state-wide">
             Events
           </h2>
-          <p className="text-gray-100 text-lg md:text-xl"> Incoming Soon....</p>
-           <Swiper
-            modules={[Autoplay, Navigation]}
-            spaceBetween={24}
-            slidesPerView={1}
-            autoplay={{
-              delay: 2500,
-              disableOnInteraction: false,
-            }}
-            navigation
-            breakpoints={{
-              640: { slidesPerView: 2 },
-              1024: { slidesPerView: 3 },
-            }}
-            className="px-4 events-swiper"
-            centeredSlides
-            loop
-            grabCursor
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-32 w-full place-items-center">
             {events.map((event, idx) => (
-              <SwiperSlide key={idx}>
-                <div className="flex justify-center">
-                  <EventCard
-                    event={event}
-                    onClick={() => setSelectedEvent(event)}
-                  />
-                </div>
-              </SwiperSlide>
+              <EventCard
+                key={`event-${idx}`}
+                event={event}
+                onClick={() => setSelectedEvent(event)}
+              />
             ))}
-          </Swiper> 
-
+          </div>
           {selectedEvent && (
             <EventModal
               event={selectedEvent}
