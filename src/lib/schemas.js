@@ -62,36 +62,65 @@ export const registrationSchema = z
     }
   });
 
-export const flagshipTeamSchema = z.object({
-  teamName: z.string().min(2, "Team name is required"),
-  college: z.string().min(2, "College is required"),
-  numMembers: z.string().or(z.number()),
-  numBots: z.string().or(z.number()).optional(),
-  members: z.array(
-    z.object({
-      name: z.string().min(2, "Full name is required"),
-      email: z.string().email("Invalid email format"),
-      phone: z.string().regex(/^\d{10}$/, "Must be exactly 10 digits"),
-      gender: z.enum(["Male", "Female", "Other"], {
-        errorMap: () => ({ message: "Please select a gender" }),
+export const flagshipTeamSchema = z
+  .object({
+    teamName: z.string().min(2, "Team name is required"),
+    college: z.string().min(2, "College is required"),
+    numMembers: z.string().or(z.number()),
+    numBots: z.string().or(z.number()).optional(),
+    members: z.array(
+      z.object({
+        name: z.string().min(2, "Full name is required"),
+        email: z.string().email("Invalid email format"),
+        phone: z.string().regex(/^\d{10}$/, "Must be exactly 10 digits"),
+        gender: z.enum(["Male", "Female", "Other"], {
+          errorMap: () => ({ message: "Please select a gender" }),
+        }),
+        aadhaar: z
+          .any()
+          .refine((files) => files && files.length > 0, {
+            message: "ID Document is required",
+          })
+          .refine(
+            (files) => {
+              if (!files || files.length === 0) return true;
+              const file = files[0];
+              const validTypes = ["image/jpeg", "image/jpg", "image/png"];
+              return validTypes.includes(file.type);
+            },
+            { message: "Only PNG, JPG, or JPEG images are allowed" },
+          ),
       }),
-      aadhaar: z
-        .any()
-        .refine((files) => files && files.length > 0, {
-          message: "ID Document is required",
-        })
-        .refine(
-          (files) => {
-            if (!files || files.length === 0) return true;
-            const file = files[0];
-            const validTypes = ["image/jpeg", "image/jpg", "image/png"];
-            return validTypes.includes(file.type);
-          },
-          { message: "Only PNG, JPG, or JPEG images are allowed" },
-        ),
-    }),
-  ),
-});
+    ),
+  })
+  .superRefine((data, ctx) => {
+    const emails = new Set();
+    const phones = new Set();
+
+    data.members.forEach((member, index) => {
+      const emailLower = member.email.toLowerCase().trim();
+      const phoneTrimmed = member.phone.trim();
+
+      if (emails.has(emailLower)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["members", index, "email"],
+          message: "Duplicate found. Each member must have a unique email.",
+        });
+      }
+      emails.add(emailLower);
+
+      if (phones.has(phoneTrimmed)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["members", index, "phone"],
+          message:
+            "Duplicate found. Each member must have a unique phone number.",
+        });
+      }
+      phones.add(phoneTrimmed);
+    });
+  });
 
 const teamMemberSchema = z.object({
   name: z.string().min(2),
