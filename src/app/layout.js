@@ -6,54 +6,46 @@ import FloatingNav from "@/components/floatnav";
 import FloatingCart from "@/components/floatcart";
 import { Toaster } from "react-hot-toast";
 import Footer from "@/components/footer";
-import Head from "next/head";
 import { Analytics } from "@vercel/analytics/next";
-import { Anton, Cinzel, Space_Mono } from "next/font/google";
 
-const anton = Anton({
-  subsets: ["latin"],
-  weight: "400",
-  display: "swap",
-  variable: "--font-anton",
-});
-
-const cinzel = Cinzel({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-cinzel",
-  display: "swap",
-});
-
-const spaceMono = Space_Mono({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-space-mono",
-  display: "swap",
-});
+export const metadata = {
+  metadataBase: new URL("https://celesta.iitp.ac.in"),
+  title: {
+    default: "Celesta ",
+    template: "%s | Celesta 2026",
+  },
+  description:
+    "Celesta 2026 celebrates the fusion of ideas, technologies, and aesthetics across past, present, and future. Explore events, performers, and the festival theme.",
+  keywords: ["Celesta", "Celesta 2026", "college fest", "tech fest", "events"],
+  openGraph: {
+    title: "Celesta 2026 | Anachronistic Syncretism",
+    description:
+      "Where science meets creativity and innovation transcends time.",
+    siteName: "Celesta",
+    images: [{ url: "/images/back.png", width: 1200, height: 630 }],
+    type: "website",
+  },
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <Head>
-        {/* ✅ Font Awesome for LinkedIn + Twitter(X) icons */}
+      <head>
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-          integrity="sha512-bxKjXx8ZGRo5nF2VhA3YyZsCeVQWkZk/UPJ1Gx3Q03YQmMx1jZqH5ZCsyuXr7p0v9zZIoN5Ue7Onx9V4Y41Iiw=="
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
         />
-      </Head>
+      </head>
 
-      <body
-        className={`${anton.variable} ${cinzel.variable} ${spaceMono.variable}`}
-      >
+      <body>
         <AuthUserProvider>
           <CartProvider>
-            <Navbar/>
+            <Navbar />
             <FloatingNav />
             <FloatingCart />
-            {children}
+            <main id="main-content">{children}</main>
             <Toaster position="top-right" reverseOrder={false} />
             <Footer />
           </CartProvider>

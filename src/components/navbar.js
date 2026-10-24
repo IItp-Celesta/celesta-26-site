@@ -36,7 +36,7 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-6xl">
-      <nav className="mx-4 flex items-center justify-between rounded-full bg-[#002f2f]/80 p-3 text-white backdrop-blur-md border-[#5bcdbb]/20 shadow-lg transition-all hover:bg-[#002f2f]/90">
+      <nav className="mx-4 flex items-center justify-between rounded-full bg-black/30 p-3 text-white backdrop-blur-md border border-white/10 shadow-lg transition-all hover:bg-black/40">
         <Link href="/" className="flex items-center gap-3" onClick={closeMenu}>
           <Image
             src="/images/celesta-icon.svg"
@@ -104,7 +104,7 @@ export default function Navbar() {
               </Link>
               <Link
                 href="/profile"
-                className="rounded-full bg-[#5bcdbb] px-5 py-2 text-black hover:bg-[#63d4c2] transition"
+                className="rounded-full bg-teal-500 px-5 py-2 text-black hover:bg-teal-400 transition"
               >
                 Profile
               </Link>
@@ -113,13 +113,13 @@ export default function Navbar() {
             <>
               <Link
                 href="/login"
-                className="rounded-full border-2 border-[#5bcdbb] px-5 py-2 opacity-80 hover:opacity-100 hover:bg-[#5bcdbb] hover:text-black transition"
+                className="rounded-full border-2 border-teal-500 px-5 py-2 opacity-80 hover:opacity-100 hover:bg-teal-500 hover:text-black transition"
               >
                 Login
               </Link>
               <Link
                 href="/register"
-                className="rounded-full bg-[#5bcdbb] px-5 py-2 text-black hover:bg-[#63d4c2] transition"
+                className="rounded-full bg-teal-500 px-5 py-2 text-black hover:bg-teal-400 transition"
               >
                 Register
               </Link>
@@ -132,11 +132,11 @@ export default function Navbar() {
           {/* Mobile Cart Button */}
           <button
             onClick={toggleCart}
-            className="relative p-2 text-white hover:text-[#5bcdbb] transition"
+            className="relative p-2 text-white hover:text-teal-400 transition"
           >
             <ShoppingCart size={24} />
             {cart.length > 0 && (
-              <span className="absolute top-0 right-0 w-4 h-4 bg-[#5bcdbb] text-black text-[10px] font-bold rounded-full flex items-center justify-center">
+              <span className="absolute top-0 right-0 w-4 h-4 bg-teal-500 text-black text-[10px] font-bold rounded-full flex items-center justify-center">
                 {cart.length}
               </span>
             )}
@@ -167,7 +167,7 @@ export default function Navbar() {
 
           {/* Cart Dropdown - Repositioned */}
           {isCartOpen && (
-            <div className="absolute top-full right-0 mt-4 w-72 rounded-2xl bg-[#002f2f]/95 backdrop-blur-xl border-[#5bcdbb]/20 shadow-lg text-white p-6 z-50">
+            <div className="absolute top-full right-0 mt-4 w-72 rounded-2xl bg-black/90 backdrop-blur-xl border border-white/10 shadow-lg animate-in slide-in-from-top-2 duration-300 text-white p-6 z-50">
               <h3 className="text-xl font-bold mb-4 uppercase text-center">
                 Store
               </h3>
@@ -221,7 +221,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="lg:hidden absolute top-full left-4 right-4 mt-2 rounded-2xl bg-[#002f2f]/95 backdrop-blur-lg border-[#5bcdbb]/20 shadow-lg text-white font-bold max-h-[80vh] overflow-y-auto">
+        <div className="lg:hidden absolute top-full left-4 right-4 mt-2 rounded-2xl bg-black/60 backdrop-blur-lg border border-white/10 shadow-lg animate-in slide-in-from-top-2 duration-300 text-white font-bold max-h-[80vh] overflow-y-auto">
           <div className="p-6 space-y-4 state-wide text-xs uppercase text-center">
             <Link
               href="/"
@@ -309,14 +309,14 @@ export default function Navbar() {
               <div className="pt-4 space-y-3">
                 <Link
                   href="/login"
-                  className="block text-center rounded-full border-2 border-[#5bcdbb] px-5 py-2 opacity-80 hover:opacity-100 hover:bg-[#5bcdbb] hover:text-black transition"
+                  className="block text-center rounded-full border-2 border-teal-500 px-5 py-2 opacity-80 hover:opacity-100 hover:bg-teal-500 hover:text-black transition"
                   onClick={closeMenu}
                 >
                   Login
                 </Link>
                 <Link
                   href="/register"
-                  className="block text-center rounded-full bg-[#5bcdbb] px-5 py-2 text-black hover:bg-[#63d4c2] transition"
+                  className="block text-center rounded-full bg-teal-500 px-5 py-2 text-black hover:bg-teal-400 transition"
                   onClick={closeMenu}
                 >
                   Register
