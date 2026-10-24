@@ -1,7 +1,9 @@
 .background {
     width: 100%;
     min-height: 100vh;
-    background-image: url("/images/theme-poster.webp");
+    background-image:
+        linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+        url("/images/theme-poster.webp");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -10,49 +12,8 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    overflow: hidden;
-}
+    overflow: clip;
 
-.background2 {
-    min-height: 100vh;
-    background-image: url("/images/home-backdrop2.webp");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    /* Parallax effect */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-}
-
-/* Add an overlay to ensure text readability */
-.background2::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    /* Dark overlay */
-    z-index: 0;
-}
-
-.background::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        to bottom,
-        rgba(0, 38, 38, 0.45),
-        rgba(0, 38, 38, 0.15) 40%,
-        rgba(0, 38, 38, 0.6)
-    );
-    z-index: 0;
-}
-
-/* Ensure content sits above overlay */
-.background>*,
-.background2>* {
-    z-index: 1;
 }
 
 .glimpseFrame {
@@ -113,10 +74,10 @@
 
 .themeSection {
     width: 100%;
-    background: var(--celesta-bg-deep);
+    background: transparent;
     border-top: 1px solid rgba(91, 205, 187, 0.15);
     border-bottom: 1px solid rgba(91, 205, 187, 0.15);
-    padding: 80px 0;
+    padding:0;
 }
 
 .actCard {
@@ -135,14 +96,14 @@
    ============================================================ */
 
 .performersSection {
-    --gold: #c9a227;
-    --gold-bright: #e8c766;
+    --accent: #5bcdbb;
     --bone: #e8e2d4;
     --ash: #8c8a84;
+    --border: rgba(91, 205, 187, 0.18);
     position: relative;
-    padding: clamp(4.5rem, 9vw, 8rem) 1.5rem;
-    background: #070708;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding: clamp(4.5rem, 9vw, 8rem) 1.5rem clamp(1.5rem, 3vw, 2.5rem);
+    background: transparent;
+    border-top: 1px solid rgba(91, 205, 187, 0.15);
 }
 
 .sectionInner {
@@ -156,31 +117,32 @@
     align-items: center;
     gap: 1rem;
     margin-bottom: clamp(1.6rem, 4vw, 2.6rem);
-    font-family: var(--font-space-mono), ui-monospace, monospace;
-    font-size: 0.58rem;
+    font-family: ui-monospace, monospace;
+    font-size: 0.65rem;
     letter-spacing: 0.28em;
     text-transform: uppercase;
     color: var(--ash);
 }
 
 .sectionIndex span:first-child {
-    color: var(--gold-bright);
+    color: var(--red);
+    font-weight: 700;
 }
 
 .indexRule {
     display: block;
     width: clamp(2rem, 8vw, 5rem);
     height: 1px;
-    background: var(--gold);
-    opacity: 0.45;
+    background: var(--accent);
+    opacity: 0.5;
 }
 
 .sectionTitle {
     margin: 0;
-    font-family: var(--font-cinzel), Georgia, serif;
-    font-size: clamp(2.3rem, 6vw, 5rem);
-    line-height: 0.98;
-    letter-spacing: 0.03em;
+    font-family: "State Wide", sans-serif;
+    font-size: clamp(2rem, 5.2vw, 4.4rem);
+    line-height: 1.05;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--bone);
 }
@@ -189,7 +151,7 @@
     width: 100%;
     max-width: 82rem;
     margin: clamp(2.5rem, 5vw, 4rem) auto 0;
-    border-top: 1px solid rgba(201, 162, 39, 0.16);
+    border-top: 1px solid var(--border);
 }
 
 .performerRow {
@@ -198,17 +160,18 @@
     grid-template-areas:
         "index name"
         "media media";
-    gap: 1.1rem;
-    padding: clamp(1.6rem, 3.5vw, 2.6rem) 0;
-    border-bottom: 1px solid rgba(201, 162, 39, 0.12);
+    gap: 1.2rem;
+    padding: clamp(1.8rem, 3.8vw, 2.8rem) 0;
+    border-bottom: 1px solid var(--border);
 }
 
 .performerIndex {
     grid-area: index;
-    font-family: var(--font-space-mono), ui-monospace, monospace;
-    font-size: 0.64rem;
+    font-family: ui-monospace, monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
     letter-spacing: 0.2em;
-    color: var(--gold);
+    color: var(--accent);
     padding-top: 0.35rem;
 }
 
@@ -225,7 +188,7 @@
     width: 100%;
     height: clamp(13rem, 48vw, 26rem);
     overflow: hidden;
-    border: 1px solid rgba(201, 162, 39, 0.18);
+    border: 1px solid var(--border);
     background: #050505;
 }
 
@@ -258,37 +221,37 @@
     top: 0.85rem;
     right: 0.9rem;
     z-index: 4;
-    font-family: var(--font-space-mono), ui-monospace, monospace;
-    font-size: 0.5rem;
-    letter-spacing: 0.22em;
+    font-family: ui-monospace, monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(232, 226, 212, 0.72);
-    background: rgba(7, 7, 8, 0.6);
-    border: 1px solid rgba(201, 162, 39, 0.22);
-    padding: 0.3rem 0.5rem;
-    backdrop-filter: blur(6px);
+    color: var(--accent);
+    background: rgba(0, 38, 38, 0.75);
+    border: 1px solid rgba(91, 205, 187, 0.3);
+    padding: 0.35rem 0.65rem;
+    backdrop-filter: blur(8px);
 }
 
 .performerName {
     margin: 0;
-    font-family: var(--font-cinzel), Georgia, serif;
-    font-size: clamp(1.55rem, 4.6vw, 3.9rem);
-    line-height: 1;
+    font-family: "State Wide", sans-serif;
+    font-size: clamp(1.4rem, 4vw, 3.2rem);
+    line-height: 1.1;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--bone);
-    transition: color 0.35s ease;
+    transition: color 0.3s ease;
 }
 
 .performerRow:hover .performerName {
-    color: var(--gold-bright);
+    color: var(--accent);
 }
 
 .performerMeta {
     margin-top: 0.55rem;
-    font-family: var(--font-space-mono), ui-monospace, monospace;
-    font-size: 0.52rem;
-    letter-spacing: 0.24em;
+    font-family: "Poppins", sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--ash);
 }
@@ -298,7 +261,7 @@
         grid-template-columns: 4rem 1.15fr 0.85fr;
         grid-template-areas: "index media name";
         align-items: center;
-        gap: 2rem;
+        gap: 2.5rem;
     }
 
     .performerMedia {
