@@ -1,7 +1,7 @@
 .background {
     width: 100%;
     min-height: 100vh;
-    background-image: url("/images/hero-background.webp");
+    background-image: url("/images/theme-poster.webp");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -27,13 +27,25 @@
 }
 
 /* Add an overlay to ensure text readability */
-.background::before,
 .background2::before {
     content: "";
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.4);
     /* Dark overlay */
+    z-index: 0;
+}
+
+.background::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 38, 38, 0.45),
+        rgba(0, 38, 38, 0.15) 40%,
+        rgba(0, 38, 38, 0.6)
+    );
     z-index: 0;
 }
 
@@ -97,4 +109,203 @@
     border-bottom-right-radius: 12px;
     opacity: 0.8;
     pointer-events: none;
+}
+
+.themeSection {
+    width: 100%;
+    background: var(--celesta-bg-deep);
+    border-top: 1px solid rgba(91, 205, 187, 0.15);
+    border-bottom: 1px solid rgba(91, 205, 187, 0.15);
+    padding: 80px 0;
+}
+
+.actCard {
+    border: 1px solid rgba(91, 205, 187, 0.22);
+    background: rgba(91, 205, 187, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.actCard p {
+    margin: 0;
+}
+
+/* ============================================================
+   Performers — archive section
+   ============================================================ */
+
+.performersSection {
+    --gold: #c9a227;
+    --gold-bright: #e8c766;
+    --bone: #e8e2d4;
+    --ash: #8c8a84;
+    position: relative;
+    padding: clamp(4.5rem, 9vw, 8rem) 1.5rem;
+    background: #070708;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sectionInner {
+    width: 100%;
+    max-width: 82rem;
+    margin: 0 auto;
+}
+
+.sectionIndex {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: clamp(1.6rem, 4vw, 2.6rem);
+    font-family: var(--font-space-mono), ui-monospace, monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ash);
+}
+
+.sectionIndex span:first-child {
+    color: var(--gold-bright);
+}
+
+.indexRule {
+    display: block;
+    width: clamp(2rem, 8vw, 5rem);
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.45;
+}
+
+.sectionTitle {
+    margin: 0;
+    font-family: var(--font-cinzel), Georgia, serif;
+    font-size: clamp(2.3rem, 6vw, 5rem);
+    line-height: 0.98;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--bone);
+}
+
+.performerList {
+    width: 100%;
+    max-width: 82rem;
+    margin: clamp(2.5rem, 5vw, 4rem) auto 0;
+    border-top: 1px solid rgba(201, 162, 39, 0.16);
+}
+
+.performerRow {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+        "index name"
+        "media media";
+    gap: 1.1rem;
+    padding: clamp(1.6rem, 3.5vw, 2.6rem) 0;
+    border-bottom: 1px solid rgba(201, 162, 39, 0.12);
+}
+
+.performerIndex {
+    grid-area: index;
+    font-family: var(--font-space-mono), ui-monospace, monospace;
+    font-size: 0.64rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    padding-top: 0.35rem;
+}
+
+.performerNameWrap {
+    grid-area: name;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.performerMedia {
+    grid-area: media;
+    position: relative;
+    width: 100%;
+    height: clamp(13rem, 48vw, 26rem);
+    overflow: hidden;
+    border: 1px solid rgba(201, 162, 39, 0.18);
+    background: #050505;
+}
+
+.performerMedia img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(0.45) sepia(0.1) brightness(0.72);
+    transition: filter 0.8s ease;
+}
+
+.performerRow:hover .performerMedia img {
+    filter: grayscale(0.08) sepia(0.04) brightness(0.9);
+}
+
+.performerVeil {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background:
+        linear-gradient(to bottom, transparent 46%, rgba(7, 7, 8, 0.86) 100%),
+        linear-gradient(110deg, rgba(63, 184, 166, 0.08), transparent 48%);
+    pointer-events: none;
+}
+
+.performerStamp {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.9rem;
+    z-index: 4;
+    font-family: var(--font-space-mono), ui-monospace, monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(232, 226, 212, 0.72);
+    background: rgba(7, 7, 8, 0.6);
+    border: 1px solid rgba(201, 162, 39, 0.22);
+    padding: 0.3rem 0.5rem;
+    backdrop-filter: blur(6px);
+}
+
+.performerName {
+    margin: 0;
+    font-family: var(--font-cinzel), Georgia, serif;
+    font-size: clamp(1.55rem, 4.6vw, 3.9rem);
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--bone);
+    transition: color 0.35s ease;
+}
+
+.performerRow:hover .performerName {
+    color: var(--gold-bright);
+}
+
+.performerMeta {
+    margin-top: 0.55rem;
+    font-family: var(--font-space-mono), ui-monospace, monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--ash);
+}
+
+@media (min-width: 860px) {
+    .performerRow {
+        grid-template-columns: 4rem 1.15fr 0.85fr;
+        grid-template-areas: "index media name";
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .performerMedia {
+        height: clamp(15rem, 26vw, 24rem);
+    }
+
+    .performerNameWrap {
+        padding-left: 0.5rem;
+    }
 }

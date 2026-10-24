@@ -8,6 +8,28 @@ import { Toaster } from "react-hot-toast";
 import Footer from "@/components/footer";
 import Head from "next/head";
 import { Analytics } from "@vercel/analytics/next";
+import { Anton, Cinzel, Space_Mono } from "next/font/google";
+
+const anton = Anton({
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  variable: "--font-anton",
+});
+
+const cinzel = Cinzel({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-cinzel",
+  display: "swap",
+});
+
+const spaceMono = Space_Mono({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-space-mono",
+  display: "swap",
+});
 
 export default function RootLayout({ children }) {
   return (
@@ -23,7 +45,9 @@ export default function RootLayout({ children }) {
         />
       </Head>
 
-      <body>
+      <body
+        className={`${anton.variable} ${cinzel.variable} ${spaceMono.variable}`}
+      >
         <AuthUserProvider>
           <CartProvider>
             <Navbar/>
