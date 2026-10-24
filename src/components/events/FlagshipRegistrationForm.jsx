@@ -127,6 +127,20 @@ export default function FlagshipRegistrationForm({
                 ))}
               </select>
             </div>
+            <div className="flex flex-col gap-2 text-base md:text-lg">
+              <label className="text-white">Estimated Time of Arrival *</label>
+              <input
+                type="text"
+                {...register("eta", { required: "ETA is required" })}
+                placeholder="e.g., 30th Oct, 10:00 AM"
+                className={getInputClass(errors.eta)}
+              />
+              {errors.eta && (
+                <span className="text-red-400 text-sm">
+                  {errors.eta.message}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

@@ -103,6 +103,7 @@ export async function POST(request) {
         aadhaarUrl,
         registrationTime: cleanTime,
         submittedAt: FieldValue.serverTimestamp(),
+        eta: String(body.eta || "").trim(),
       });
 
     return NextResponse.json({ success: true, registrationId });

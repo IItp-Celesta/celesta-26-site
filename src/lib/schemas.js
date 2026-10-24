@@ -41,6 +41,7 @@ export const registrationSchema = z
     aadhaarScreenshot: z.any().optional(),
 
     registrationTime: z.string().optional(),
+    eta: z.string().min(1, "Estimated Time of Arrival is required"),
   })
   .superRefine((data, ctx) => {
     if (data.isIITP === "yes") {
@@ -68,6 +69,7 @@ export const flagshipTeamSchema = z
     college: z.string().min(2, "College is required"),
     numMembers: z.string().or(z.number()),
     numBots: z.string().or(z.number()).optional(),
+    eta: z.string().min(1, "Estimated Time of Arrival is required"),
     members: z.array(
       z.object({
         name: z.string().min(2, "Full name is required"),
@@ -140,6 +142,7 @@ const teamDetailsSchema = z.object({
   eventName: z.string().optional(),
   registrationTime: z.string().optional(),
   numBots: z.string().or(z.number()).optional(),
+  eta: z.string().optional(),
 });
 
 const cartItemSchema = z.object({
@@ -159,6 +162,7 @@ const checkoutPayloadSchema = z.object({
   email: z.string().email().optional(),
   aadhaar: z.string().optional(),
   couponCode: z.string().trim().max(50).optional(),
+  eta: z.string().min(1, "Estimated Time of Arrival is required"),
 });
 
 export const orderRequestSchema = z

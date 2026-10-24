@@ -28,6 +28,7 @@ export default function CheckoutModal({
   const [couponCode, setCouponCode] = useState("");
   const [couponPrice, setCouponPrice] = useState(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [eta, setEta] = useState("");
 
   const payable = couponPrice !== null ? couponPrice : totalPrice;
 
@@ -42,6 +43,7 @@ export default function CheckoutModal({
       setCouponCode("");
       setCouponPrice(null);
       setIsUploading(false);
+      setEta("");
     }
   }, [isOpen]);
 
@@ -76,7 +78,7 @@ export default function CheckoutModal({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!aadhaarFile || !gender || !name || !email) {
+    if (!aadhaarFile || !gender || !name || !email || !eta.trim()) {
       toast.error("Please fill all required fields and attach your ID.");
       return;
     }
@@ -130,6 +132,7 @@ export default function CheckoutModal({
         college: college || "Not Provided",
         phone,
         aadhaar: aadhaarUrl,
+        eta,
         ...(couponPrice !== null && {
           couponCode: couponCode.trim().toUpperCase(),
         }),
@@ -252,6 +255,19 @@ export default function CheckoutModal({
                 onChange={(e) => setCollege(e.target.value)}
                 className="text-white w-full px-3 py-2 bg-slate-800 border border-white/10 rounded-md focus:outline-none focus:border-sky-500 text-sm"
                 placeholder="Your Institute"
+                required
+              />
+            </div>
+            <div className="pt-2">
+              <label className="block text-xs font-medium text-white/60 mb-1">
+                Estimated Time of Arrival *
+              </label>
+              <input
+                type="text"
+                value={eta}
+                onChange={(e) => setEta(e.target.value)}
+                className="text-white w-full px-3 py-2 bg-slate-800 border border-white/10 rounded-md focus:outline-none focus:border-sky-500 text-sm"
+                placeholder="e.g., 30th Oct, 10:00 AM"
                 required
               />
             </div>
