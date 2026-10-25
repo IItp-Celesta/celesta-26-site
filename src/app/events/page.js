@@ -8,7 +8,7 @@ import data from "./events.json";
 
 export default function Events() {
   const allEvents = data.events;
-  const flagshipEvents = allEvents.slice(0, 9);
+  const flagshipEvents = allEvents.slice(0, 10);
   const otherEvents = allEvents.slice(9);
   const [selectedEvent, setSelectedEvent] = useState(null);
 

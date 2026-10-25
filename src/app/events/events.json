@@ -128,6 +128,24 @@
       "max": 4
     },
     {
+      "name": "AquaSoccer",
+      "img_src": "/images/flagship/aquas.png",
+      "start_date": "31st Oct",
+      "end_date": "1st Nov",
+      "description": "Get ready for Aquasoccer 2026, where robotics meets the game of soccer on water! Design your bot, take control, and score goals as you compete against other teams. Put your engineering skills and strategy to the test and lead your bot to victory!",
+      "rulebook_link": "https://drive.google.com/file/d/19nVCyuqpybfxW6V1Tc8RBoON866wWGq7/view",
+      "poc": [
+        "Piyush Balhara: 97280 98702",
+        "Komal Prasad: 6264740245"
+      ],
+      "prize_pool": "Total: ₹25,000",
+      "mode": "Offline",
+      "fee": 800,
+      "fee1":1000,
+      "arena_model_link": null,
+      "max": 3
+    },
+    {
       "name": "Micromouse",
       "img_src": "/images/flagship/mouse.png",
       "start_date": "30th Oct",
