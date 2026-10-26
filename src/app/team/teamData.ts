@@ -85,7 +85,7 @@ export const teamData: TeamMember[] = [
     { id: "parnava", name: "Parnava Maitra", title: "Coordinator", parentId: "rsp", image: "/team-images/parnava.png", linkedin: "https://www.linkedin.com/in/parnava-maitra-84778b357", x: "https://www.instagram.com/parnava_12_maitra" },
     { id: "vidhi", name: "Vidhi Patel", title: "Coordinator", parentId: "rsp", image: "/team-images/vidhi.jpg", linkedin: "https://www.linkedin.com/in/vidhi-patel-5a1893310", x: "https://www.instagram.com/vidhi__patel__2756" },
     { id: "sushreeth", name: "G Sushreeth", title: "Coordinator", parentId: "rsp", image: "/team-images/sushreeth.jpg", linkedin: "https://in.linkedin.com/in/guruduwaru-sushreeth-b18a93326", x: "https://www.instagram.com/sushreeth_4533" },
-    { id: "abdul", name: "Abdul Hadi", title: "Coordinator", parentId: "rsp", image: "#", linkedin: "https://www.linkedin.com/in/abdul-hadi-519338361/", x:"#" },
+    { id: "abdul", name: "Abdul Hadi", title: "Coordinator", parentId: "rsp", image: "/team-images/test.png", linkedin: "https://www.linkedin.com/in/abdul-hadi-519338361/", x:"#" },
 
     // Events
     { id: "events", name: "Events", title: "The Experience Engineers", parentId: "Committees" },

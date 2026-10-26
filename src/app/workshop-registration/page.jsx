@@ -81,7 +81,7 @@ export default function WorkshopRegistrationPage() {
 
       setAppliedCoupon({ code: null, price: null });
       return { valid: false, message: data.message || "Invalid coupon code." };
-    } catch (error) {
+    } catch {
       setAppliedCoupon({ code: null, price: null });
       return {
         valid: false,

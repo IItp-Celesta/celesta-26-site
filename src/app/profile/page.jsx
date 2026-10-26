@@ -302,7 +302,7 @@ export default function Profile() {
           </div>
 
           <p className="text-sm text-white/50 text-center mt-6 px-4">
-            Made a payment and it's not showing up? Please contact us at{" "}
+            Made a payment and it&apos;s not showing up? Please contact us at{" "}
             <a
               href="tel:++918619484639"
               className="text-sky-400 font-semibold hover:underline"

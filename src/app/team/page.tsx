@@ -1,5 +1,6 @@
 "use client";
-import React, { useMemo, useState, } from "react";
+import React, { useMemo } from "react";
+import Image from "next/image";
 import { teamData, TeamMember } from "./teamData";
 import "./teams.css";
 import DevelopersPanel from "./Developers";
@@ -47,12 +48,14 @@ const MemberCard = ({ member }: { member: TeamNode }) => {
 
         <div className="node-image-container">
           {member.image && member.image !== "#" ? (
-            <img className="node-image" src={member.image} alt={member.name} />
+            <Image className="node-image" src={member.image} alt={member.name} fill sizes="300px" />
           ) : (
-            <img
+            <Image
               className="node-image"
               src={`https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=000&color=fff&size=512&font-size=0.35&length=2&bold=true`}
               alt={member.name}
+              fill
+              sizes="300px"
             />
           )}
           {/* Overlay for readability at bottom of image area */}
@@ -67,12 +70,12 @@ const MemberCard = ({ member }: { member: TeamNode }) => {
         <div className="node-social-links">
           {member.linkedin && member.linkedin !== "#" && (
             <a href={member.linkedin} target="_blank" rel="noopener noreferrer">
-              <img src="/images/linkedin.svg" alt="LinkedIn" className="social-icon" />
+              <Image src="/images/linkedin.svg" alt="LinkedIn" width={24} height={24} className="social-icon" />
             </a>
           )}
           {member.x && member.x !== "#" && (
             <a href={member.x} target="_blank" rel="noopener noreferrer">
-              <img src="/images/instagram.svg" alt="X" className="social-icon" />
+              <Image src="/images/instagram.svg" alt="X" width={24} height={24} className="social-icon" />
             </a>
           )}
         </div>
@@ -167,9 +170,11 @@ export default function TeamsPage() {
   return (
     <main className="teams-page relative min-h-screen">
       <div className="fixed inset-0 z-0 text-white">
-        <img
-          src="/images/backdrop.png"
+        <Image
+          src="/images/backdrop.webp"
           alt="Background"
+          fill
+          priority
           className="w-full h-full object-cover opacity-90"
         />
         <div className="absolute inset-0 bg-black/60"></div> {/* Dark Overlay */}

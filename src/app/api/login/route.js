@@ -22,7 +22,7 @@ export async function POST(request) {
     }
 
     return NextResponse.json({ success: false, message: 'UID not registered' });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -17,7 +17,7 @@ export async function POST(request) {
       const token = authHeader.split(" ")[1];
       const decodedToken = await adminAuth.verifyIdToken(token);
       uid = decodedToken.uid;
-    } catch (err) {
+    } catch {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
         { status: 401 },

@@ -133,7 +133,7 @@ export default function FlagshipRegistrationPage({ params }) {
 
 
   return (
-    <div className="px-4 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 bg-[url('/images/backdrop.png')] bg-cover bg-center bg-no-repeat text-white min-h-svh flex flex-col items-center justify-start overflow-x-hidden">
+    <div className="px-4 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 bg-[url('/images/backdrop.webp')] bg-cover bg-center bg-no-repeat text-white min-h-svh flex flex-col items-center justify-start overflow-x-hidden">
       <motion.div
         initial={{ opacity: 0, x: -140 }}
         animate={{ opacity: 1, x: 0 }}

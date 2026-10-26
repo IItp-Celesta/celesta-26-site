@@ -18,10 +18,8 @@ export async function POST(req) {
     }
 
     const token = authHeader.split(" ")[1];
-    let uid;
     try {
-      const decodedToken = await adminAuth.verifyIdToken(token);
-      uid = decodedToken.uid;
+      await adminAuth.verifyIdToken(token);
     } catch {
       return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
     }
@@ -29,7 +27,7 @@ export async function POST(req) {
     let reqBody = {};
     try {
       reqBody = await req.json();
-    } catch (_) {}
+    } catch {}
 
     const allowedFolders = ["celesta_secure_ids", "workshop_receipts"];
     const folder = allowedFolders.includes(reqBody?.folder) ? reqBody.folder : "celesta_secure_ids";

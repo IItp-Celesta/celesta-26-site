@@ -230,18 +230,20 @@ export default function Home() {
               className="relative w-full h-[500px] overflow-hidden reveal-section"
             >
               {/* Slideshow */}
-              <img
+              <Image
                 id={`performer-${idx}-img-current`}
                 className="absolute inset-0 w-full h-full object-cover"
                 src={performer.images[0]}
                 alt={performer.name}
+                fill
                 style={{ zIndex: 2 }}
               />
-              <img
+              <Image
                 id={`performer-${idx}-img-next`}
                 className="absolute inset-0 w-full h-full object-cover"
                 src={performer.images[0]}
                 alt={performer.name}
+                fill
                 style={{ transform: "translateX(100%)", zIndex: 1 }}
               />
 

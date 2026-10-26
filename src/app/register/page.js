@@ -97,7 +97,7 @@ export default function Register() {
            if (loginCheck.data.role === "admin") router.push("/admin");
            return;
         }
-      } catch (err) {
+      } catch {
         // Ignored, proceed to register
       }
 
@@ -278,7 +278,7 @@ export default function Register() {
       >
         {otpSent && (
           <div className="mb-4 px-4 py-2 rounded-lg bg-red-500/20 border border-red-400 text-red-300 text-sm md:text-base">
-            📩 If you haven't received the OTP, please check your
+            📩 If you haven&apos;t received the OTP, please check your
             <b> Spam / Junk</b> folder.
           </div>
         )}

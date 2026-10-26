@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useAuth } from "@/context/AuthUserContext";
 import { useCart } from "@/context/CartContext";
 import { ShoppingCart } from 'lucide-react';
 import Script from 'next/script';
@@ -15,8 +14,6 @@ export default function FloatingCart() {
     return calculateCartTotal(cart);
   };
   const [isOpen, setIsOpen] = useState(false);
-  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
-  const { authUser, loading, signOutUser } = useAuth();
   const menuRef = useRef(null);
 
   // Script URL based on environment
@@ -42,11 +39,9 @@ export default function FloatingCart() {
         strategy="lazyOnload"
         onLoad={() => {
           console.log("AtomPaynetz script loaded successfully");
-          setIsScriptLoaded(true);
         }}
         onError={() => {
           console.error("Failed to load AtomPaynetz script");
-          setIsScriptLoaded(false);
         }}
       />
 

@@ -302,7 +302,7 @@ export default function SoFarPage() {
               whileInView={{ opacity: 1 }}
               className="text-center mt-32 text-teal-300 text-sm md:text-lg font-bold tracking-[0.2em] uppercase drop-shadow-[0_0_10px_rgba(45,212,191,0.6)]"
             >
-              // More memories in the making...
+              {"// More memories in the making..."}
             </motion.div>
           </>
         ) : (
@@ -312,7 +312,7 @@ export default function SoFarPage() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-center py-24 text-teal-300 text-lg md:text-2xl font-bold tracking-[0.2em] uppercase drop-shadow-[0_0_10px_rgba(45,212,191,0.6)]"
           >
-            // Memories in the making...
+            {"// Memories in the making..."}
           </motion.div>
         )}
       </div>

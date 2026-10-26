@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 export default function FloatingNav() {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
-  const { authUser, loading, signOutUser } = useAuth();
+  const { authUser, signOutUser } = useAuth();
   const menuRef = useRef(null);
   useEffect(() => {
     function handleClickOutside(event) {

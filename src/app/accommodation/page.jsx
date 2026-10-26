@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthUserContext";
 import { useRouter } from "next/navigation";
@@ -387,7 +388,7 @@ export default function AccommodationPage() {
                   Scan to Pay
                 </h3>
                 <div className="bg-white p-3 rounded-2xl shadow-[0_0_20px_rgba(146,235,255,0.25)] mb-4 inline-block">
-                  <img src="/payment/qr2.jpeg" alt="UPI QR Code" className="w-[180px] h-[180px] object-cover rounded-xl" />
+                  <Image src="/payment/qr2.jpeg" alt="UPI QR Code" width={180} height={180} className="w-[180px] h-[180px] object-cover rounded-xl" />
                 </div>
               </div>
 

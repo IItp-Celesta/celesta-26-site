@@ -6,7 +6,6 @@ import axios from "axios";
 import styles from "../register/Register.module.css";
 import { Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
-import { getAuth } from "firebase/auth";
 import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 
@@ -109,7 +108,6 @@ export default function LogIn() {
     }
 
     try {
-      const auth = getAuth();
       const userCredential = await signInWithEmail(
         formData.email,
         formData.password,
@@ -237,7 +235,7 @@ export default function LogIn() {
             onClick={() => router.push("/register")}
             className="text-md text-white hover:text-white/90 hover:underline transition-colors mt-2"
           >
-            Don't have an account? 
+            Don&apos;t have an account? 
             <p className="text-blue-400 inline ml-1">
               Register
             </p>

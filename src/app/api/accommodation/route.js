@@ -12,7 +12,7 @@ export async function POST(req) {
     let decodedToken;
     try {
       decodedToken = await adminAuth.verifyIdToken(token);
-    } catch (authError) {
+    } catch {
       return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
     }
 
