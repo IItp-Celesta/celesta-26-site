@@ -33,7 +33,7 @@ export async function POST(request) {
     const accommodationDays = Number(body.accommodationDays || 0);
     const couponCode = (body.couponCode || "").trim().toUpperCase();
 
-    let expectedWorkshopFee = isExternal ? 1199 : 599;
+    let expectedWorkshopFee = isExternal ? 999 : 599;
 
     if (isExternal && couponCode) {
       const couponSnap = await adminFirestore

@@ -60,7 +60,7 @@ export default function WorkshopRegistrationPage() {
     }
 
     try {
-      const baseAmount = isIITPStudent ? 599 : 1199;
+      const baseAmount = isIITPStudent ? 599 : 999;
       const res = await fetch("/api/combo/validate-coupon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -90,7 +90,7 @@ export default function WorkshopRegistrationPage() {
     }
   };
 
-  let workshopFee = isIITPStudent ? 599 : 1199;
+  let workshopFee = isIITPStudent ? 599 : 999;
   if (
     !isIITPStudent &&
     appliedCoupon.price &&
