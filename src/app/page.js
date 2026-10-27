@@ -29,30 +29,6 @@ const performers = [
     },
     {
       images: [
-        "/images/artists/bassi_1.jpg",
-        "/images/artists/bassi_2.webp",
-        "/images/artists/bassi_3.webp",
-      ],
-      name: "Anubhav Singh Bassi",
-    },
-    {
-      images: [
-        "/images/artists/pranav_1.webp",
-        "/images/artists/pranav_2.webp",
-        "/images/artists/pranav_3.webp",
-      ],
-      name: "Pranav Sharma",
-    },
-    {
-      images: [
-        "/images/artists/aaditya-1.webp",
-        "/images/artists/aaditya-2.webp",
-        "/images/artists/aaditya-3.webp",
-      ],
-      name: "Aaditya Kulshreshth",
-    },
-    {
-      images: [
         "/images/artists/antara_1.webp",
         "/images/artists/antara_2.webp",
         "/images/artists/antara_3.webp",
@@ -66,6 +42,30 @@ const performers = [
         "/images/artists/navjot_3.webp",
       ],
       name: "Navjot Ahuja",
+    },
+    {
+      images: [
+        "/images/artists/pranav_1.webp",
+        "/images/artists/pranav_2.webp",
+        "/images/artists/pranav_3.webp",
+      ],
+      name: "Pranav Sharma",
+    },
+    {
+      images: [
+        "/images/artists/bassi_1.jpg",
+        "/images/artists/bassi_2.webp",
+        "/images/artists/bassi_3.webp",
+      ],
+      name: "Anubhav Singh Bassi",
+    },
+    {
+      images: [
+        "/images/artists/aaditya-1.webp",
+        "/images/artists/aaditya-2.webp",
+        "/images/artists/aaditya-3.webp",
+      ],
+      name: "Aaditya Kulshreshth",
     },
   ];
 
@@ -142,26 +142,26 @@ export default function Home() {
 
   return (
     <div className="overflow-x-clip w-full relative">
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <Image
-          src="/images/back.png"
-          alt=""
-          fill
-          className="object-cover object-center hidden md:block"
-        />
-        <Image
-          src="/images/mobile.png"
-          alt=""
-          fill
-          className="object-cover object-center md:hidden"
-        />
-        <div className="absolute inset-0 bg-black/45" />
-      </div>
-
       {/* 2. HERO SECTION */}
-      <div
-        className={`flex flex-col justify-center items-center ${styles.background} w-full relative z-10`}
-      >
+      <div className="flex flex-col justify-center items-center w-full min-h-screen relative z-10 overflow-hidden">
+        <div className="absolute inset-0 z-[-1] pointer-events-none">
+          <Image
+            src="/images/theme-poster.webp"
+            alt="Celesta Theme"
+            fill
+            priority
+            className="object-cover object-center hidden md:block"
+          />
+          <Image
+            src="/images/mobilehero.png"
+            alt="Celesta Theme Mobile"
+            fill
+            priority
+            className="object-cover object-center md:hidden"
+          />
+          <div className="absolute inset-0 bg-black/45" />
+        </div>
+
         <section className="flex h-[90vh] justify-center items-center w-full px-4">
           <h1>
             <Image
@@ -368,7 +368,7 @@ export default function Home() {
           <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] mx-auto mb-8 bg-black">
             <iframe
               className="absolute top-0 left-0 w-full h-full"
-              src="https://www.youtube.com/embed/5HM98tMfYdo?autoplay=1&mute=1&loop=1&playlist=5HM98tMfYdo"
+              src="https://www.youtube-nocookie.com/embed/5HM98tMfYdo?autoplay=1&mute=1&loop=1&playlist=5HM98tMfYdo"
               title="CELESTA Glimpse YouTube video"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

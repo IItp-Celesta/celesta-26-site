@@ -140,7 +140,7 @@ export default function CartPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-6 pt-32">
+    <div className="min-h-screen text-white p-6 pt-32">
       <Script
         src={`https://${
           process.env.NEXT_PUBLIC_ATOM_ENV === "prod" ? "psa" : "pgtest"

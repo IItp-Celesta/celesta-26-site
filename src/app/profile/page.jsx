@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useAuth } from "@/context/AuthUserContext";
@@ -33,12 +33,12 @@ import {
   CardFooter,
 } from "@/components/ui/ProfileCard";
 import { Button } from "@/components/ui/button";
-import styles from "./Profile.module.css";
 import Loading from "@/components/Loading";
 
 export default function Profile() {
   const router = useRouter();
-  const { authUser, userData, loading, signOutUser, fetchUserProfile } = useAuth();
+  const { authUser, userData, loading, signOutUser, fetchUserProfile } =
+    useAuth();
   const qrRef = useRef(null);
   const redirectingRef = useRef(false);
   const [qrValue, setQrValue] = useState("");
@@ -162,19 +162,18 @@ export default function Profile() {
   };
 
   if (loading || !authUser || !userData) {
-    return ( <Loading message="Loading.."/>);
+    return <Loading message="Loading.." />;
   }
 
   return (
-    <div className={styles.background}>
+    <div className="min-h-screen flex justify-center px-4 pt-28 pb-16">
       <Card
         className="
           w-full max-w-5xl
           bg-white/10 backdrop-blur-2xl
           border border-white/20
           text-white
-          overflow-hidden
-        "
+          overflow-hidden"
       >
         <CardHeader className="border-b border-white/10">
           <CardTitle className="text-xl font-semibold tracking-wide">
@@ -302,7 +301,7 @@ export default function Profile() {
           </div>
 
           <p className="text-sm text-white/50 text-center mt-6 px-4">
-            Made a payment and it&apos;s not showing up? Please contact us at{" "}
+            Made a payment and it's not showing up? Please contact us at{""}
             <a
               href="tel:++918619484639"
               className="text-sky-400 font-semibold hover:underline"
@@ -620,8 +619,7 @@ function Info({ icon, label, value, highlight }) {
       className="
         flex gap-4 p-4 rounded-xl
         bg-white/10 border border-white/10
-        backdrop-blur-md
-      "
+        backdrop-blur-md"
     >
       <div
         className={`p-2 rounded-lg ${
