@@ -35,7 +35,7 @@ const ContactSection = () => {
       } else {
         toast.error(result.message || "Something went wrong. Please try again.");
       }
-    } catch (error) {
+    } catch {
       toast.error("Server error. Please try again later.");
     } finally {
       setIsSubmitting(false);

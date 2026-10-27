@@ -12,7 +12,7 @@ export async function POST(req) {
     let decodedToken;
     try {
       decodedToken = await adminAuth.verifyIdToken(token);
-    } catch (authError) {
+    } catch {
       return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
     }
 
@@ -20,7 +20,7 @@ export async function POST(req) {
     const email = decodedToken.email;
 
     const body = await req.json();
-    const { txnId, selectedDates, bookedMembers, screenshotId } = body;
+    const { txnId, selectedDates, bookedMembers, screenshotId, eta } = body;
 
     const safeTxnId = txnId ? String(txnId).trim() : "";
     if (safeTxnId === "") {
@@ -67,6 +67,7 @@ export async function POST(req) {
       numMembers,
       bookedMembers: validatedMembers,
       submittedAt: new Date(), 
+      eta: String(eta || "").trim(),
     };
 
     await accommodationRef.add(newDoc);

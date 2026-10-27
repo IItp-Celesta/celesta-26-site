@@ -15,7 +15,7 @@ export function middleware(req) {
 
     // Decode the basic auth header
     const authValue = authHeader.split(' ')[1];
-    const [user, pwd] = atob(authValue).split(':');
+    const [, pwd] = atob(authValue).split(':');
 
     const secretKey = process.env.ADMIN_PASSWORD 
 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
     motion,
     useScroll,
@@ -59,21 +59,17 @@ const HeroParallax = ({ products }: { products: Product[] }) => {
         setSelectedProductIndex(index);
     };
 
-    const closeModal = () => {
+    const closeModal = useCallback(() => {
         setSelectedProductIndex(null);
-    };
+    }, []);
 
-    const goToNext = () => {
-        if (selectedProductIndex !== null) {
-            setSelectedProductIndex((prevIndex) => (prevIndex! + 1) % products.length);
-        }
-    };
+    const goToNext = useCallback(() => {
+        setSelectedProductIndex((prevIndex) => prevIndex !== null ? (prevIndex + 1) % products.length : null);
+    }, [products.length]);
 
-    const goToPrev = () => {
-        if (selectedProductIndex !== null) {
-            setSelectedProductIndex((prevIndex) => (prevIndex! - 1 + products.length) % products.length);
-        }
-    };
+    const goToPrev = useCallback(() => {
+        setSelectedProductIndex((prevIndex) => prevIndex !== null ? (prevIndex - 1 + products.length) % products.length : null);
+    }, [products.length]);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -91,11 +87,11 @@ const HeroParallax = ({ products }: { products: Product[] }) => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [selectedProductIndex]);
+    }, [selectedProductIndex, goToNext, goToPrev, closeModal]);
     return (
         <>
             <div className="fixed inset-0 z-0">
-                <img src="/images/backdrop.png" alt="Background" className="w-full h-full object-cover opacity-75" />
+                <Image src="/images/backdrop.webp" alt="Background" fill priority className="w-full h-full object-cover opacity-75" />
             </div>
             <div
                 ref={ref}
@@ -234,9 +230,9 @@ const HeroParallax = ({ products }: { products: Product[] }) => {
                             className="relative max-w-4xl max-h-[90vh] w-full"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <img
-                                width={100}
-                                height={100}
+                            <Image
+                                width={1200}
+                                height={800}
                                 src={products[selectedProductIndex].thumbnail}
                                 alt={products[selectedProductIndex].title}
                                 className="object-contain w-full h-full rounded-lg shadow-2xl"
@@ -271,7 +267,7 @@ const Header = () => {
     return (
         <div className="max-w-7xl relative mx-auto pt-32 pb-10 md:pt-48 md:pb-20 px-4 w-full left-0 top-0">
             <h1 className="text-2xl md:text-7xl font-bold text-white race">
-                The Ultimate <br /> Celesta's Gallery
+                The Ultimate <br /> Celesta&apos;s Gallery
             </h1>
             <p className="max-w-2xl text-base md:text-xl mt-8 text-neutral-200">
                 Immortalizing the Euphoria: A Visual Odyssey of Celesta.

@@ -17,13 +17,13 @@ export async function POST(req) {
     try {
       const formData = await req.formData();
       encData = formData.get("encData");
-    } catch (e) {}
+    } catch {}
 
     if (!encData) {
       try {
         const json = await req.json();
         encData = json.encData;
-      } catch (e) {}
+      } catch {}
     }
 
     if (!encData) {

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import EventCard from "./events/event-card";
 import EventModal from "./events/event-modal";

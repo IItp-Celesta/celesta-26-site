@@ -1,9 +1,6 @@
 "use client";
 import ProductCard from "./product-card";
 import styles from "./Store.module.css";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthUserContext";
-import { useEffect, useState } from "react";
 import { useProducts } from "@/hooks/useProducts";
 import Loading from "@/components/Loading";
 

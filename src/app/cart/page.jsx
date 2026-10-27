@@ -128,6 +128,7 @@ export default function CartPage() {
           college: eventItem?.teamDetails?.college || "Not Provided",
           phone: leader?.phone || "",
           email: authUser?.email || leader?.email || "no-reply@celesta.org.in",
+          eta: eventItem?.teamDetails?.eta || ""
         },
         cart,
       );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { HiCodeBracket } from "react-icons/hi2";
 import { developersData, TeamMember } from "./teamData";
 
@@ -17,12 +18,14 @@ const MemberCard = ({ member }: { member: TeamNode }) => {
 
         <div className="node-image-container">
           {member.image && member.image !== "#" ? (
-            <img className="node-image" src={member.image} alt={member.name} />
+            <Image className="node-image" src={member.image} alt={member.name} fill sizes="300px" />
           ) : (
-            <img
+            <Image
               className="node-image"
               src={`https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=000&color=fff&size=512&font-size=0.35&length=2&bold=true`}
               alt={member.name}
+              fill
+              sizes="300px"
             />
           )}
           {/* Overlay for readability at bottom of image area */}
@@ -37,12 +40,12 @@ const MemberCard = ({ member }: { member: TeamNode }) => {
         <div className="node-social-links">
           {member.linkedin && member.linkedin !== "#" && (
             <a href={member.linkedin} target="_blank" rel="noopener noreferrer">
-              <img src="/images/linkedin.svg" alt="LinkedIn" className="social-icon" />
+              <Image src="/images/linkedin.svg" alt="LinkedIn" width={24} height={24} className="social-icon" />
             </a>
           )}
           {member.x && member.x !== "#" && (
             <a href={member.x} target="_blank" rel="noopener noreferrer">
-              <img src="/images/instagram.svg" alt="X" className="social-icon" />
+              <Image src="/images/instagram.svg" alt="X" width={24} height={24} className="social-icon" />
             </a>
           )}
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { twMerge } from 'tailwind-merge';
 import { clsx, type ClassValue } from 'clsx';
@@ -82,9 +83,11 @@ const SponsorCard = ({ sponsor }: { sponsor: { name: string, logoUrl: string, we
                     "w-full h-full rounded-lg flex items-center justify-center p-0 md:p-2",
                     sponsor.needsWhiteBg && "bg-white"
                 )}>
-                    <img
+                    <Image
                         src={sponsor.logoUrl}
                         alt={`${sponsor.name} logo`}
+                        width={250}
+                        height={150}
                         className="max-h-full w-auto object-contain transition-transform duration-300"
                         onError={(e) => {
                             (e.target as HTMLImageElement).src = `https://placehold.co/250x150/111827/FFFFFF?text=${sponsor.name.replace(' ', '+')}`;
@@ -229,7 +232,7 @@ export default function SponsorsPage() {
             className="min-h-screen bg-black text-white relative overflow-hidden font-sans"
         >
             <div className="fixed inset-0 z-0">
-                <img src="/images/backdrop.png" alt="Background" className="w-full h-full object-cover opacity-75" />
+                <Image src="/images/backdrop.webp" alt="Background" fill priority className="w-full h-full object-cover opacity-75" />
             </div>
 
             <div className="absolute inset-0 z-0 opacity-50 [mask-image:radial-gradient(ellipse_at_center,transparent_65%,white_100%)]">
@@ -327,7 +330,7 @@ export default function SponsorsPage() {
                 <div className="mt-8 flex justify-center">
                     <button onClick={handleLogoClick} className="relative w-16 h-16 flex items-center justify-center">
                         <div className={cn("absolute inset-0 rounded-full bg-cyan-500/20", isAnimating && !isPaused && "animate-ping-slow")}></div>
-                        <img src="/images/celesta-icon.svg" alt="Celesta Icon" className="w-10 h-10" />
+                        <Image src="/images/celesta-icon.svg" alt="Celesta Icon" width={40} height={40} className="w-10 h-10" />
                     </button>
                 </div>
                 <motion.p

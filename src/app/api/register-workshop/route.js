@@ -17,7 +17,7 @@ export async function POST(request) {
       const token = authHeader.split(" ")[1];
       const decodedToken = await adminAuth.verifyIdToken(token);
       uid = decodedToken.uid;
-    } catch (err) {
+    } catch {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
         { status: 401 },
@@ -33,7 +33,7 @@ export async function POST(request) {
     const accommodationDays = Number(body.accommodationDays || 0);
     const couponCode = (body.couponCode || "").trim().toUpperCase();
 
-    let expectedWorkshopFee = isExternal ? 1199 : 599;
+    let expectedWorkshopFee = isExternal ? 999 : 599;
 
     if (isExternal && couponCode) {
       const couponSnap = await adminFirestore
@@ -103,6 +103,7 @@ export async function POST(request) {
         aadhaarUrl,
         registrationTime: cleanTime,
         submittedAt: FieldValue.serverTimestamp(),
+        eta: String(body.eta || "").trim(),
       });
 
     return NextResponse.json({ success: true, registrationId });

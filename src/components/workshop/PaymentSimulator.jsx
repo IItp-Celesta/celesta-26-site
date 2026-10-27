@@ -312,10 +312,12 @@ export default function PaymentSimulator({
                 <p className="text-red-400 text-xs">{errors.regFile}</p>
               )}
               {previews.reg && (
-                <img
+                <Image
                   src={previews.reg}
                   alt="Preview"
-                  className="h-24 mt-2 rounded-lg object-contain border border-white/20 self-start"
+                  width={200}
+                  height={96}
+                  className="h-24 w-auto mt-2 rounded-lg object-contain border border-white/20 self-start"
                 />
               )}
             </div>
@@ -384,10 +386,12 @@ export default function PaymentSimulator({
                 <p className="text-red-400 text-xs">{errors.accomFile}</p>
               )}
               {previews.accom && (
-                <img
+                <Image
                   src={previews.accom}
                   alt="Preview"
-                  className="h-24 mt-2 rounded-lg object-contain border border-white/20 self-start"
+                  width={200}
+                  height={96}
+                  className="h-24 w-auto mt-2 rounded-lg object-contain border border-white/20 self-start"
                 />
               )}
             </div>
@@ -434,10 +438,12 @@ export default function PaymentSimulator({
               </p>
             )}
             {previews.aadhaar && (
-              <img
+              <Image
                 src={previews.aadhaar}
                 alt="Preview"
-                className="h-32 md:h-48 mx-auto mt-4 rounded-lg object-contain border border-white/20 shadow-lg"
+                width={300}
+                height={192}
+                className="h-32 md:h-48 w-auto mx-auto mt-4 rounded-lg object-contain border border-white/20 shadow-lg"
               />
             )}
           </div>

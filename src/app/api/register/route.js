@@ -4,7 +4,7 @@ import { Timestamp } from "firebase-admin/firestore";
 
 export async function POST(request) {
   try {
-    const { name, email, dob } = await request.json();
+    const { name, dob } = await request.json();
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

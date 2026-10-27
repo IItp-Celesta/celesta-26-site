@@ -2,17 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import styles from "./EventModal.module.css";
 import { useCart } from "@/context/CartContext";
 import toast from "react-hot-toast";
 import Loading from "@/components/Loading";
 
 export default function EventModal({ event, onClose }) {
-  const [showForm, setShowForm] = useState(false);
+  const [showForm] = useState(false);
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  const sameDate = event.start_date === event.end_date;
   // const hasExternalRegister = event.register_link && event.register_link !== "#";
   const hasExternalRegister = false; // Force using the internal flagship registration template
   const hasRulebook = event.rulebook_link && event.rulebook_link !== "#";
@@ -50,11 +50,12 @@ export default function EventModal({ event, onClose }) {
             <div className="flex gap-6 items-start md:flex-row flex-col">
               <div className="relative flex-shrink-0 w-full md:w-[320px] h-[400px]  rounded-xl overflow-hidden bg-white">
                 {/* IMAGE */}
-                <img
+                <Image
                   src={event.img_src}
                   alt={event.name}
+                  fill
                   draggable={false}
-                  className="absolute inset-0 w-full h-full object-contain object-center pointer-events-none select-none"
+                  className="object-contain object-center pointer-events-none select-none"
                 />
 
                 {/* DARK OVERLAY */}
@@ -195,7 +196,7 @@ function RegisterForm({ event, onClose }) {
   const [collegeId, setCollegeId] = useState("");
   const [aadhaar, setaadhaar] = useState("");
   const [teamName, setTeamName] = useState("");
-  const { cart, addToCart, removeFromCart } = useCart();
+  const { addToCart } = useCart();
   const handleKeyDown = (e) => {
     if (e.key === "Enter") e.preventDefault();
   };

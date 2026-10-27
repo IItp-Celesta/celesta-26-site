@@ -33,7 +33,7 @@ export default function RegistrationForm({
     }`;
 
   return (
-   <div className="w-full flex flex-col gap-6 p-6 md:p-8 rounded-2xl  backdrop-blur-md border border-white/20 shadow-2xl">
+    <div className="w-full flex flex-col gap-6 p-6 md:p-8 rounded-2xl  backdrop-blur-md border border-white/20 shadow-2xl">
       <h2 className="text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
         1. Personal &amp; Academic Details
       </h2>
@@ -186,17 +186,27 @@ export default function RegistrationForm({
             >
               Ethical Hacking
             </option>
-            <option
-              value="Robotics"
-              className="bg-neutral-900 text-white"
-            >
+            {/* <option value="Robotics" className="bg-neutral-900 text-white">
               Robotics
-            </option>
+            </option> */}
           </select>
           {errors.workshop && (
             <span className="text-red-400 text-sm">
               {errors.workshop.message}
             </span>
+          )}
+        </div>
+        {/* ESTIMATED TIME OF ARRIVAL */}
+        <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+          <label className="text-white">Estimated Time of Arrival *</label>
+          <input
+            type="text"
+            {...register("eta")}
+            placeholder="e.g., 30th Oct, 10:00 AM"
+            className={getInputClass(errors.eta)}
+          />
+          {errors.eta && (
+            <span className="text-red-400 text-sm">{errors.eta.message}</span>
           )}
         </div>
 

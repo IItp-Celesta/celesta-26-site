@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { uploadImage } from "@/lib/uploadImage";
 import toast from "react-hot-toast";
 import { db } from "@/lib/firebase";
@@ -23,6 +24,7 @@ export default function ComboCheckoutModal({
   const [txnId, setTxnId] = useState("");
   const [file, setFile] = useState(null);
   const [idFile, setIdFile] = useState(null);
+  const [eta, setEta] = useState("");
 
   const [couponCode, setCouponCode] = useState("");
   const [couponPrice, setCouponPrice] = useState(null);
@@ -43,6 +45,7 @@ export default function ComboCheckoutModal({
       setCouponCode("");
       setCouponPrice(null);
       setIsSubmitting(false);
+      setEta("");
     }
   }, [isOpen]);
 
@@ -93,7 +96,7 @@ export default function ComboCheckoutModal({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!txnId || !file || !name || !email || !phone || !gender || !idFile) {
+    if (!txnId || !file || !name || !email || !phone || !gender || !idFile || !eta.trim()) {
       toast.error(
         "Please fill all required fields, upload your ID and payment screenshot.",
       );
@@ -139,10 +142,12 @@ export default function ComboCheckoutModal({
           gender,
           college: college || "Not Provided",
           idDocumentUrl,
+          eta,
         },
         txnId,
         screenshotUrl,
-        couponCode: couponPrice !== null ? couponCode.trim().toUpperCase() : null,
+        couponCode:
+          couponPrice !== null ? couponCode.trim().toUpperCase() : null,
         originalAmount: baseAmount,
         totalAmount,
         status: "PENDING_VERIFICATION",
@@ -232,9 +237,11 @@ export default function ComboCheckoutModal({
 
         {/* QR */}
         <div className="bg-white rounded-xl p-3 w-fit mx-auto mb-3 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
-          <img
+          <Image
             src="/payment/qr.jpeg"
             alt="UPI QR Code"
+            width={160}
+            height={160}
             className="w-40 h-40 object-contain"
           />
         </div>
@@ -317,6 +324,19 @@ export default function ComboCheckoutModal({
               value={college}
               onChange={(e) => setCollege(e.target.value)}
               placeholder="College Name"
+              className="w-full px-3 py-2 bg-slate-800 border border-white/10 rounded-md text-sm text-white focus:outline-none focus:border-sky-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-white/60 mb-1">
+              Estimated Time of Arrival *
+            </label>
+            <input
+              type="text"
+              value={eta}
+              required
+              onChange={(e) => setEta(e.target.value)}
+              placeholder="e.g., 30th Oct, 10:00 AM"
               className="w-full px-3 py-2 bg-slate-800 border border-white/10 rounded-md text-sm text-white focus:outline-none focus:border-sky-500"
             />
           </div>

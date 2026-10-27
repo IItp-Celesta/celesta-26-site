@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthUserContext";
 import { useRouter } from "next/navigation";
@@ -21,6 +22,7 @@ export default function AccommodationPage() {
   const [txnId, setTxnId] = useState("");
   const [paymentFile, setPaymentFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [eta, setEta] = useState("");
 
   const [selectedDates, setSelectedDates] = useState([]);
   const [numMembers, setNumMembers] = useState(1);
@@ -98,6 +100,7 @@ export default function AccommodationPage() {
     e.preventDefault();
 
     if (selectedDates.length < 2) return toast.error("Please select at least TWO dates.");
+    if (!eta) return toast.error("Please select your Estimated Time of Arrival.");
     if (!txnId.trim()) return toast.error("Please enter a valid Transaction ID.");
     if (!paymentFile) return toast.error("Please provide Payment Screenshot.");
 
@@ -164,6 +167,7 @@ export default function AccommodationPage() {
           selectedDates,
           bookedMembers: finalMembers,
           screenshotId: paymentUrl,
+          eta,
         }),
       });
 
@@ -239,6 +243,17 @@ export default function AccommodationPage() {
                     +
                   </button>
                 </div>
+              </div>
+              <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
+                <label className="text-white">Estimated Time of Arrival *</label>
+                <input
+                  type="text"
+                  value={eta}
+                  required
+                  onChange={(e) => setEta(e.target.value)}
+                  placeholder="e.g., 30th Oct, 10:00 AM"
+                  className="p-2.5 border-2 border-white/80 rounded-lg text-white bg-transparent w-full focus:outline-none focus:ring-0 focus:border-teal-600 transition-colors"
+                />
               </div>
 
               <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
@@ -373,7 +388,7 @@ export default function AccommodationPage() {
                   Scan to Pay
                 </h3>
                 <div className="bg-white p-3 rounded-2xl shadow-[0_0_20px_rgba(146,235,255,0.25)] mb-4 inline-block">
-                  <img src="/payment/qr2.jpeg" alt="UPI QR Code" className="w-[180px] h-[180px] object-cover rounded-xl" />
+                  <Image src="/payment/qr2.jpeg" alt="UPI QR Code" width={180} height={180} className="w-[180px] h-[180px] object-cover rounded-xl" />
                 </div>
               </div>
 

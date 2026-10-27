@@ -10,8 +10,8 @@ import { useRouter } from "next/navigation";
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { authUser, loading, signOutUser } = useAuth();
-  const { cart, emptyCart } = useCart();
+  const { authUser, signOutUser } = useAuth();
+  const { cart } = useCart();
   const router = useRouter();
 
   // Calculate total cost
