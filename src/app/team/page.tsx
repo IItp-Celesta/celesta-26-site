@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useMemo } from "react";
 import Image from "next/image";
 import { teamData, TeamMember } from "./teamData";
@@ -169,15 +169,7 @@ export default function TeamsPage() {
 
   return (
     <main className="teams-page relative min-h-screen">
-      <div className="fixed inset-0 z-0 text-white">
-        <Image
-          src="/images/backdrop.webp"
-          alt="Background"
-          fill
-          priority
-          className="w-full h-full object-cover opacity-90"
-        />
-        <div className="absolute inset-0 bg-black/60"></div> {/* Dark Overlay */}
+      <div className="fixed inset-0 z-0 pointer-events-none text-white">
         <div className="absolute inset-0 z-10 opacity-50 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,white_100%)]">
           <svg className="absolute inset-0 h-full w-full text-white" aria-hidden="true">
             <defs>

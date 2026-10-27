@@ -1,15 +1,16 @@
-"use client";
+﻿"use client";
 
 import EventCard from "./events/event-card";
 import EventModal from "./events/event-modal";
-
 import Image from "next/image";
 import styles from "./Home.module.css";
-import { ArrowDown, Link } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import data from "./events/events.json";
+import SplitText from "@/components/theme/SplitText";
+import Reveal from "@/components/theme/Reveal";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
 import "swiper/css";
@@ -17,23 +18,7 @@ import "swiper/css/navigation";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function Home() {
-  const [selectedEvent, setSelectedEvent] = useState(null);
-
-  const events = data["events"];
-  const fadeRef = useRef(null);
-  const [isMuted, setIsMuted] = useState(true);
-  const videoRef = useRef(null);
-
-  const toggleAudio = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
-  };
-
-  // Performers data
-  const performers = [
+const performers = [
     {
       images: [
         "/images/artists/irfan_1.JPG",
@@ -41,30 +26,6 @@ export default function Home() {
         "/images/artists/irfan_3.JPG",
       ],
       name: "Mohammed Irfan",
-    },
-    {
-      images: [
-        "/images/artists/bassi_1.jpg",
-        "/images/artists/bassi_2.webp",
-        "/images/artists/bassi_3.webp",
-      ],
-      name: "Anubhav Singh Bassi",
-    },
-    {
-      images: [
-        "/images/artists/pranav_1.webp",
-        "/images/artists/pranav_2.webp",
-        "/images/artists/pranav_3.webp",
-      ],
-      name: "Pranav Sharma",
-    },
-    {
-      images: [
-        "/images/artists/aaditya-1.webp",
-        "/images/artists/aaditya-2.webp",
-        "/images/artists/aaditya-3.webp",
-      ],
-      name: "Aaditya Kulshreshth",
     },
     {
       images: [
@@ -82,217 +43,246 @@ export default function Home() {
       ],
       name: "Navjot Ahuja",
     },
+    {
+      images: [
+        "/images/artists/pranav_1.webp",
+        "/images/artists/pranav_2.webp",
+        "/images/artists/pranav_3.webp",
+      ],
+      name: "Pranav Sharma",
+    },
+    {
+      images: [
+        "/images/artists/bassi_1.jpg",
+        "/images/artists/bassi_2.webp",
+        "/images/artists/bassi_3.webp",
+      ],
+      name: "Anubhav Singh Bassi",
+    },
+    {
+      images: [
+        "/images/artists/aaditya-1.webp",
+        "/images/artists/aaditya-2.webp",
+        "/images/artists/aaditya-3.webp",
+      ],
+      name: "Aaditya Kulshreshth",
+    },
   ];
 
-  // Fade-in sections on scroll
-  useEffect(() => {
-    gsap.utils.toArray(".reveal-section").forEach((section) => {
-      gsap.fromTo(
-        section,
-        { autoAlpha: 0, y: 100 },
-        {
-          duration: 1,
-          autoAlpha: 1,
-          y: 0,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: section,
-            start: "top 90%",
-            toggleActions: "play none none none",
-          },
-        },
-      );
-    });
-  }, []);
+export default function Home() {
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const events = data["events"];
+  const fadeRef = useRef(null);
 
-  // Banner animation
   useEffect(() => {
-    if (fadeRef.current) {
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray(".reveal-section").forEach((section) => {
+        gsap.fromTo(
+          section,
+          { autoAlpha: 0, y: 100 },
+          {
+            duration: 1,
+            autoAlpha: 1,
+            y: 0,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: section,
+              start: "top 90%",
+              toggleActions: "play none none none",
+            },
+          },
+        );
+      });
+
       gsap.fromTo(
         fadeRef.current,
         { y: 30, autoAlpha: 0 },
         { y: 0, autoAlpha: 1, duration: 1.5, ease: "power2.out" },
       );
-    }
+    });
+
+    return () => ctx.revert();
   }, []);
 
   // Image slideshow
+  const [indexes, setIndexes] = useState(performers.map(() => 0));
+
   useEffect(() => {
-    const intervals = performers.map((performer, idx) => {
-      let currentIndex = 0;
-      let isAnimating = false;
-
-      return setInterval(() => {
-        if (isAnimating) return;
-
-        const currentImg = document.querySelector(
-          `#performer-${idx}-img-current`,
-        );
-        const nextImg = document.querySelector(`#performer-${idx}-img-next`);
-
-        if (currentImg && nextImg) {
-          isAnimating = true;
-          const nextIndex = (currentIndex + 1) % performer.images.length;
-          const direction = idx % 2 === 0 ? "right" : "left";
-
-          // Set next image offscreen
-          nextImg.src = performer.images[nextIndex];
-          nextImg.style.transition = "none";
-          nextImg.style.transform =
-            direction === "right" ? "translateX(-100%)" : "translateX(100%)";
-          nextImg.style.zIndex = "2";
-
-          // Force reflow
-          nextImg.offsetHeight;
-
-          // Animate transition
-          requestAnimationFrame(() => {
-            currentImg.style.transition = "transform 1s ease-in-out";
-            nextImg.style.transition = "transform 1s ease-in-out";
-
-            currentImg.style.transform =
-              direction === "right" ? "translateX(100%)" : "translateX(-100%)";
-            nextImg.style.transform = "translateX(0)";
-            currentImg.style.zIndex = "1";
-          });
-
-          setTimeout(() => {
-            currentImg.src = performer.images[nextIndex];
-            currentImg.style.transition = "none";
-            currentImg.style.transform = "translateX(0)";
-            currentImg.style.zIndex = "2";
-            nextImg.style.zIndex = "1";
-
-            currentIndex = nextIndex;
-            isAnimating = false;
-          }, 1050);
-        }
-      }, 3000);
-    });
-
-    return () => intervals.forEach((interval) => clearInterval(interval));
-  }, [performers]);
-
-  // Animate performer names sliding from left/right
-  useEffect(() => {
-    performers.forEach((performer, idx) => {
-      const el = document.querySelector(`#performer-name-${idx}`);
-      if (!el) return;
-
-      const xOffset = idx % 2 === 0 ? -window.innerWidth : window.innerWidth;
-
-      gsap.fromTo(
-        el,
-        { x: xOffset, autoAlpha: 0 },
-        {
-          x: 0,
-          autoAlpha: 1,
-          duration: 1.2,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: el,
-            start: "top 80%",
-            toggleActions: "play none none none",
-          },
-        },
+    const id = setInterval(() => {
+      setIndexes((prev) =>
+        prev.map((i, idx) => (i + 1) % performers[idx].images.length),
       );
-    });
-  }, [performers]);
+    }, 3000);
+    return () => clearInterval(id);
+  }, []);
+
+  const THEME_COPY =
+    "Celesta 2026 embraces the theme “Anachronistic Syncretism,” a celebration of the seamless fusion of ideas, technologies, and aesthetics from the past, present, and future. It envisions a world where the boundaries of time dissolve, allowing ancient wisdom, forgotten innovations, modern scientific breakthroughs, and futuristic possibilities to converge and create something extraordinary. The theme explores how ideas from different eras can coexist, interact, and evolve, challenging conventional perceptions of time and progress. Through three acts, Anachronistic Syncretism celebrates the limitless potential of human imagination. At its core, the theme reflects the spirit of Celesta: a space where science meets creativity, disciplines intersect, and innovation transcends the boundaries of time to shape the future.";
+
+  const THEME_ACTS = [
+    {
+      id: 1,
+      num: "01",
+      title: "The Zenith",
+      desc: "Symbolising the pursuit of ultimate knowledge",
+    },
+    {
+      id: 2,
+      num: "02",
+      title: "The Cascade",
+      desc: "Representing the flow and transformation of ideas across eras",
+    },
+    {
+      id: 3,
+      num: "03",
+      title: "Convergence",
+      desc: "Where seemingly disconnected timelines and innovations unite to shape a new reality.",
+    },
+  ];
 
   return (
-    <div className="overflow-x-hidden w-full">
-      {/* Banner Section */}
-      <div
-        className={`flex flex-col justify-center items-center ${styles.background}`}
-      >
-        <section className="flex h-[90vh] justify-center items-center w-full">
+    <div className="overflow-x-clip w-full relative">
+      {/* 2. HERO SECTION */}
+      <div className="flex flex-col justify-center items-center w-full min-h-screen relative z-10 overflow-hidden">
+        <div className="absolute inset-0 z-[-1] pointer-events-none">
           <Image
-            className="translate-y-[30px]"
-            ref={fadeRef}
-            src="/images/banner-logo.svg"
-            alt="banner-logo"
-            width={1000}
-            height={500}
+            src="/images/theme-poster.webp"
+            alt="Celesta Theme"
+            fill
+            priority
+            className="object-cover object-center hidden md:block"
           />
-        </section>
-        <ArrowDown className="text-white animate-bounce" />
-      </div>
-
-      {/* Performers Section */}
-      <div className={`flex flex-col ${styles.background2} w-full`}>
-        <h1 className="text-white font-bold text-6xl sm:text-5xl text-center my-20 reveal-section state-wide">
-          Past Performers
-        </h1>
-        <div className="w-full">
-          {performers.map((performer, idx) => (
-            <div
-              key={idx}
-              className="relative w-full h-[500px] overflow-hidden reveal-section"
-            >
-              {/* Slideshow */}
-              <Image
-                id={`performer-${idx}-img-current`}
-                className="absolute inset-0 w-full h-full object-cover"
-                src={performer.images[0]}
-                alt={performer.name}
-                fill
-                style={{ zIndex: 2 }}
-              />
-              <Image
-                id={`performer-${idx}-img-next`}
-                className="absolute inset-0 w-full h-full object-cover"
-                src={performer.images[0]}
-                alt={performer.name}
-                fill
-                style={{ transform: "translateX(100%)", zIndex: 1 }}
-              />
-
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-black/50 z-10" />
-
-              {/* Artist Name */}
-              <div
-                className={`absolute inset-0 flex items-center z-20 px-4 sm:px-10 md:px-20 justify-${
-                  idx % 2 === 0 ? "start" : "end"
-                }`}
-              >
-                <h2
-                  id={`performer-name-${idx}`}
-                  className="text-white font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-wider uppercase drop-shadow-2xl break-words state-wide"
-                >
-                  {performer.name}
-                </h2>
-              </div>
-            </div>
-          ))}
+          <Image
+            src="/images/mobilehero.png"
+            alt="Celesta Theme Mobile"
+            fill
+            priority
+            className="object-cover object-center md:hidden"
+          />
+          <div className="absolute inset-0 bg-black/45" />
         </div>
+
+        <section className="flex h-[90vh] justify-center items-center w-full px-4">
+          <h1>
+            <Image
+              className="translate-y-[30px] max-w-full h-auto"
+              ref={fadeRef}
+              src="/images/typeface.svg"
+              alt="Celesta"
+              width={1000}
+              height={500}
+              priority
+            />
+          </h1>
+        </section>
+        <ArrowDown className="text-[#5bcdbb] mb-8 animate-bounce" />
       </div>
 
-      <div className={`w-full ${styles.background2} py-16 px-4 md:px-20`}>
-        {/* Theme Announcement Section */}
+      <div className="relative z-10 w-full">
+        {/* Performers Section */}
+        <section className={styles.performersSection}>
+          <div className={styles.sectionInner}>
+            <SplitText
+              as="h2"
+              text="Echoes from Previous Editions"
+              className={styles.sectionTitle}
+              stagger={0.06}
+            />
 
-        {/*<section className="max-w-5xl mx-auto text-center mb-16 reveal-section">
-          {" "}
-          <h3 className="text-white text-4xl uppercase text-center mb-8 state-wide">
-            {" "}
-            Theme{" "}
-          </h3>
-          <h2 className="text-white text-4xl md:text-6xl font-extrabold uppercase mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400">
-            {" "}
-            ANACHRONISTIC SYNCRETISM{" "}
-          </h2>
-          <div className="w-24 h-[2px] mx-auto mb-6 bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
-          <p className="text-gray-300 text-lg md:text-xl">
-            {" "}
-            Something exciting is coming. Stay tuned for the reveal.{" "}
-          </p>{" "}
-        </section>*/}
-        <section className="max-w-7xl mx-auto mb-16 reveal-section">
+            <div className={styles.performerList}>
+              {performers.map((performer, idx) => (
+                <Reveal
+                  key={performer.name}
+                  className={styles.performerRow}
+                  y={54}
+                  delay={0.03 * idx}
+                >
+                  <span className={styles.performerIndex}>
+                    {String(idx + 1).padStart(2, "0")}
+                  </span>
+
+                  <div className={styles.performerMedia}>
+                    {performer.images.map((src, i) => {
+                      const len = performer.images.length;
+                      const cur = indexes[idx];
+                      const prev = (cur - 1 + len) % len;
+                      const dir = idx % 2 === 0 ? 1 : -1;
+                      const x =
+                        i === cur ? 0 : i === prev ? 100 * dir : -100 * dir;
+
+                      return (
+                        <Image
+                          key={src}
+                          src={src}
+                          alt={i === cur ? performer.name : ""}
+                          fill
+                          sizes="(min-width: 860px) 55vw, 100vw"
+                          style={{
+                            transform: `translateX(${x}%)`,
+                            transition:
+                              i === cur || i === prev
+                                ? "transform 1s ease-in-out, filter 0.8s ease"
+                                : "none",
+                          }}
+                        />
+                      );
+                    })}
+                    <div className={styles.performerVeil} />
+                  </div>
+
+                  <div className={styles.performerNameWrap}>
+                    <SplitText
+                      as="h3"
+                      text={performer.name}
+                      className={styles.performerName}
+                      stagger={0.05}
+                    />
+                    <span className={styles.performerMeta}>
+                      Past Performer • Celesta
+                    </span>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Theme Section */}
+        <section className={styles.themeSection}>
+          <div className="max-w-6xl mx-auto px-6 py-12 md:py-20 text-center">
+            <p className="text-[#5bcdbb] uppercase tracking-[0.3em] text-xs md:text-lg mb-6">
+              The Theme
+            </p>
+            <h2 className="race text-4xl sm:text-5xl md:text-6xl font-bold uppercase mb-10 text-[#ebebeb]">
+              Anachronistic Syncretism
+            </h2>
+            <p className="text-[#ebebeb]/90 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-14 text-justify hyphens-auto">
+              {THEME_COPY}
+            </p>
+            <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              {THEME_ACTS.map((act) => (
+                <div key={act.id} className={styles.actCard}>
+                  <div className="flex items-baseline gap-2 mb-4">
+                    <span className="race text-[#e7151e] text-3xl font-bold">
+                      {act.num}
+                    </span>
+                    <span className="race text-[#5bcdbb] text-xl font-bold uppercase tracking-tight">
+                      {act.title}
+                    </span>
+                  </div>
+                  <p className="text-[#ebebeb]/85 text-sm md:text-base leading-relaxed">
+                    {act.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+        <section className="max-w-7xl mx-auto mt-16 mb-16 px-4 md:px-20 reveal-section">
           <h2 className="text-white text-4xl uppercase text-center mb-8 state-wide">
             Events
           </h2>
-          <p className="text-gray-100 text-lg md:text-xl"> Incoming Soon....</p>
-           <Swiper
+          <Swiper
             modules={[Autoplay, Navigation]}
             spaceBetween={24}
             slidesPerView={1}
@@ -320,7 +310,7 @@ export default function Home() {
                 </div>
               </SwiperSlide>
             ))}
-          </Swiper> 
+          </Swiper>
 
           {selectedEvent && (
             <EventModal
@@ -330,16 +320,16 @@ export default function Home() {
           )}
         </section>
 
-        <section className="max-w-7xl mx-auto mb-16 reveal-section text-center">
-          <h2 className="text-white text-4xl uppercase mb-8 state-wide">
-            Official Merchandise
-          </h2>
-          <p className="text-gray-100 text-lg md:text-xl max-w-2xl leading-relaxed">
-            {" "}
-            Something special is in the making. <br /> Stay tuned for the
-            official CELESTA merchandise reveal.{" "}
-          </p>
-          {/* <div className="flex justify-center items-center gap-6">
+        {/*<section className="max-w-7xl mx-auto mb-16 reveal-section text-center">
+            <h2 className="text-white text-4xl uppercase mb-8 state-wide">
+              Official Merchandise
+            </h2>
+            <p className="text-gray-100 text-lg md:text-xl max-w-2xl leading-relaxed">
+              {" "}
+              Something special is in the making. <br /> Stay tuned for the
+              official CELESTA merchandise reveal.{" "}
+            </p>
+           <div className="flex justify-center items-center gap-6">
             <Image
               src="/images/merch4.png"
               alt="merch-front"
@@ -368,18 +358,17 @@ export default function Home() {
               height={350}
               className="inline-block hover:scale-110 transition-transform duration-300"
             />
-          </div> */}
-        </section>
+          </div> 
+          </section>*/}
 
-        <section className="w-full max-w-[900px] mx-auto mb-16 reveal-section">
+        <section className="w-full max-w-[900px] mx-auto mb-16 px-4 reveal-section">
           <h2 className="text-white text-4xl uppercase mb-6 text-center state-wide">
             CELESTA: Glimpse
           </h2>
-
           <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] mx-auto mb-8 bg-black">
             <iframe
               className="absolute top-0 left-0 w-full h-full"
-              src="https://www.youtube.com/embed/5HM98tMfYdo?autoplay=1&mute=1&loop=1&playlist=5HM98tMfYdo"
+              src="https://www.youtube-nocookie.com/embed/5HM98tMfYdo?autoplay=1&mute=1&loop=1&playlist=5HM98tMfYdo"
               title="CELESTA Glimpse YouTube video"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

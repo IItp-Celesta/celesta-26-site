@@ -1,4 +1,4 @@
-import { AuthUserProvider } from "@/context/AuthUserContext";
+﻿import { AuthUserProvider } from "@/context/AuthUserContext";
 import { CartProvider } from "@/context/CartContext";
 import "./globals.css";
 import Navbar from "@/components/navbar";
@@ -6,30 +6,65 @@ import FloatingNav from "@/components/floatnav";
 import FloatingCart from "@/components/floatcart";
 import { Toaster } from "react-hot-toast";
 import Footer from "@/components/footer";
-import Head from "next/head";
 import { Analytics } from "@vercel/analytics/next";
+import Image from "next/image";
+
+export const metadata = {
+  metadataBase: new URL("https://celesta.iitp.ac.in"),
+  title: {
+    default: "Celesta 2026 ",
+    template: "%s | Celesta 2026",
+  },
+  description:
+    "Celesta 2026 celebrates the fusion of ideas, technologies, and aesthetics across past, present, and future. Explore events, performers, and the festival theme.",
+  keywords: ["Celesta", "Celesta 2026", "college fest", "tech fest", "events", "iit patna"],
+  openGraph: {
+    title: "Celesta 2026 | Anachronistic Syncretism",
+    description:
+      "Where science meets creativity and innovation transcends time.",
+    siteName: "Celesta",
+    images: [{ url: "/images/back.png", width: 1200, height: 630 }],
+    type: "website",
+  },
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <Head>
-        {/* ✅ Font Awesome for LinkedIn + Twitter(X) icons */}
+      <head>
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-          integrity="sha512-bxKjXx8ZGRo5nF2VhA3YyZsCeVQWkZk/UPJ1Gx3Q03YQmMx1jZqH5ZCsyuXr7p0v9zZIoN5Ue7Onx9V4Y41Iiw=="
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
         />
-      </Head>
-
+      </head>
       <body>
+        {/* Global background — desktop: back.png, mobile: mobile.png */}
+        <div className="fixed inset-0 z-[-1] pointer-events-none">
+          <Image
+            src="/images/back.png"
+            alt=""
+            fill
+            priority
+            className="object-cover object-center hidden md:block"
+          />
+          <Image
+            src="/images/mobile.png"
+            alt=""
+            fill
+            priority
+            className="object-cover object-center md:hidden"
+          />
+          <div className="absolute inset-0 bg-black/55" />
+        </div>
+
         <AuthUserProvider>
           <CartProvider>
-            <Navbar/>
+            <Navbar />
             <FloatingNav />
             <FloatingCart />
-            {children}
+            <main id="main-content">{children}</main>
             <Toaster position="top-right" reverseOrder={false} />
             <Footer />
           </CartProvider>
