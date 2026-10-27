@@ -219,11 +219,53 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    background-color: var(--celesta-bg-deep);
+  }
+
   body {
     @apply bg-background text-foreground;
-    background-color: var(--celesta-bg-deep);
+    background-color: transparent;
     font-family: var(--font-anton), 'Poppins', sans-serif;
+    position: relative;
+    min-height: 100vh;
+    isolation: isolate;
   }
+}
+
+/* ==========================================================================
+   Global Responsive Background & Subtle Dark Overlay (Celesta Redesign)
+   ========================================================================== */
+.global-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -20;
+  pointer-events: none;
+  background-image: url('/images/mobile.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .global-bg {
+    background-image: url('/images/back.png');
+  }
+}
+
+.global-overlay,
+.global-bg:empty::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -10;
+  pointer-events: none;
+  background-color: rgba(0, 0, 0, 0.45);
 }
 
 /* === SWIPER OVERRIDES === */

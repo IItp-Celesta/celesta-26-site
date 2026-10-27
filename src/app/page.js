@@ -142,22 +142,6 @@ export default function Home() {
 
   return (
     <div className="overflow-x-clip w-full relative">
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <Image
-          src="/images/back.png"
-          alt=""
-          fill
-          className="object-cover object-center hidden md:block"
-        />
-        <Image
-          src="/images/mobile.png"
-          alt=""
-          fill
-          className="object-cover object-center md:hidden"
-        />
-        <div className="absolute inset-0 bg-black/45" />
-      </div>
-
       {/* 2. HERO SECTION */}
       <div
         className={`flex flex-col justify-center items-center ${styles.background} w-full relative z-10`}

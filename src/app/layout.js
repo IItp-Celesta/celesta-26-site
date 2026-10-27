@@ -40,6 +40,10 @@ export default function RootLayout({ children }) {
       </head>
 
       <body>
+        {/* Global responsive background & subtle dark overlay */}
+        <div id="global-bg" className="global-bg" aria-hidden="true" />
+        <div id="global-overlay" className="global-overlay" aria-hidden="true" />
+
         <AuthUserProvider>
           <CartProvider>
             <Navbar />
