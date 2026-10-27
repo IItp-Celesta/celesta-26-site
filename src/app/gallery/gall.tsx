@@ -90,9 +90,7 @@ const HeroParallax = ({ products }: { products: Product[] }) => {
     }, [selectedProductIndex, goToNext, goToPrev, closeModal]);
     return (
         <>
-            <div className="fixed inset-0 z-0">
-                <Image src="/images/backdrop.webp" alt="Background" fill priority className="w-full h-full object-cover opacity-75" />
-            </div>
+            
             <div
                 ref={ref}
                 className="h-auto md:h-[350vh] overflow-visible md:overflow-hidden antialiased relative flex flex-col self-auto md:[perspective:1000px] md:[transform-style:preserve-3d]"

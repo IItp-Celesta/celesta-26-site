@@ -229,11 +229,9 @@ export default function SponsorsPage() {
 
     return (
         <div
-            className="min-h-screen bg-black text-white relative overflow-hidden font-sans"
+            className="min-h-screen text-white relative overflow-hidden font-sans"
         >
-            <div className="fixed inset-0 z-0">
-                <Image src="/images/backdrop.webp" alt="Background" fill priority className="w-full h-full object-cover opacity-75" />
-            </div>
+            
 
             <div className="absolute inset-0 z-0 opacity-50 [mask-image:radial-gradient(ellipse_at_center,transparent_65%,white_100%)]">
                 <svg className="absolute inset-0 h-full w-full" aria-hidden="true">
@@ -243,7 +241,7 @@ export default function SponsorsPage() {
                     <rect width="100%" height="100%" fill="url(#grid)"></rect>
                 </svg>
             </div>
-            <div className="container mx-auto px-4 py-24 relative z-10 flex flex-col items-center">
+            <div className="container mx-auto px-4 py-24 relative z-10 flex flex-col items-center pt-32">
                 <motion.h1
                     className="text-5xl md:text-7xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 race uppercase"
                     initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
@@ -251,7 +249,7 @@ export default function SponsorsPage() {
                     SPONSORS
                 </motion.h1>
                 <motion.p
-                    className="text-lg text-center text-gray-400 mb-12 max-w-2xl"
+                    className="text-lg text-center text-gray-400 mb-4 max-w-2xl"
                     initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
                 >
                     Fueling innovation and making our events possible.

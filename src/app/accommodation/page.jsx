@@ -192,7 +192,7 @@ export default function AccommodationPage() {
     return (<Loading/>)}
 
   return (
-    <div className={`px-4 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 bg-muted ${styles.background} text-white min-h-svh flex flex-col items-center justify-start overflow-x-hidden`}>
+    <div className={`px-4 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 text-white min-h-svh flex flex-col items-center justify-start overflow-x-hidden`}>
       <motion.div
         initial={{ opacity: 0, x: -140 }}
         animate={{ opacity: 1, x: 0 }}

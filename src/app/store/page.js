@@ -1,6 +1,5 @@
-"use client";
+﻿"use client";
 import ProductCard from "./product-card";
-import styles from "./Store.module.css";
 import { useProducts } from "@/hooks/useProducts";
 import Loading from "@/components/Loading";
 
@@ -10,9 +9,7 @@ export default function Store() {
   if (loading) return <Loading message="Loading Store" />;
   return (
     <>
-      <div
-        className={`bg-muted flex flex-col min-h-svh gap-8 items-left justify-center p-2 md:p-10 ${styles.background} text-white`}
-      >
+      <div className="flex flex-col min-h-svh gap-8 items-center text-center w-full justify-center p-2 md:p-10 text-white">
         <h1 className="race font-bold text-5xl text-grad mt-[15vh]">Store</h1>
 
         {/* Offers Banner */}

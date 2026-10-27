@@ -1,13 +1,4 @@
-.background {
-  min-height: 100vh;
-  background-image: url('/images/backdrop.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-
-/* === CYBER CARD DESIGN (Adapted for Events) === */
+﻿/* === CYBER CARD DESIGN (Adapted for Events) === */
 
 /* Wrapper for the card structure */
 .eventCardWrapper {
