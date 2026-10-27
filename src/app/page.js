@@ -37,11 +37,11 @@ const performers = [
     },
     {
       images: [
-        "/images/artists/kapoor_1.png",
-        "/images/artists/kapoor_2.png",
-        "/images/artists/kapoor_3.jpg",
+        "/images/artists/pranav_1.webp",
+        "/images/artists/pranav_2.webp",
+        "/images/artists/pranav_3.webp",
       ],
-      name: "Gaurav Kapoor",
+      name: "Pranav Sharma",
     },
     {
       images: [
@@ -53,19 +53,19 @@ const performers = [
     },
     {
       images: [
-        "/images/artists/ravator_1.jpg",
-        "/images/artists/ravator_2.jpg",
-        "/images/artists/ravator_3.jpg",
+        "/images/artists/antara_1.webp",
+        "/images/artists/antara_2.webp",
+        "/images/artists/antara_3.webp",
       ],
-      name: "Ravator",
+      name: "Antara Mitra",
     },
     {
       images: [
-        "/images/artists/sartek_1.jpeg",
-        "/images/artists/sartek_2.webp",
-        "/images/artists/sartek_3.jpg",
+        "/images/artists/navjot_1.webp",
+        "/images/artists/navjot_2.webp",
+        "/images/artists/navjot_3.webp",
       ],
-      name: "Sartek",
+      name: "Navjot Ahuja",
     },
   ];
 
