@@ -247,12 +247,9 @@ const TimelineItem = ({
 
 export default function SoFarPage() {
   return (
-    <main className="min-h-screen bg-[#050505] text-white overflow-hidden relative selection:bg-teal-500/30 state-wide">
+    <main className="min-h-screen text-white overflow-hidden relative selection:bg-teal-500/30 state-wide">
       {/* Updated Background */}
-      <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('/images/hero-background.webp')] bg-cover bg-center bg-fixed opacity-60" />
-        <div className="absolute inset-0 bg-black/70 mix-blend-multiply" />{" "}
-        {/* Darker overlay */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] opacity-20" />
       </div>
 

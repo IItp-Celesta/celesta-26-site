@@ -83,7 +83,7 @@ export default function EventModal({ event, onClose }) {
                     <a
                       href={event.arena_model_link}
                       target="_blank"
-                      className="w-full text-center px-4 py-2 border border-cyan-400/30 rounded-xl transition-colors text-cyan-400 hover:bg-cyan-400/10 font-semibold"
+                      className="w-full text-center px-4 py-2 border border-[#5bcdbb]/30 rounded-xl transition-colors text-[#5bcdbb] hover:bg-[#5bcdbb]/10 font-semibold"
                     >
                       Arena Model 3D
                     </a>

@@ -138,7 +138,7 @@ export default function LogIn() {
 
   return (
     <div
-      className={`p-4 md:p-10 bg-muted ${styles.background} text-white min-h-svh flex flex-col items-center justify-center overflow-x-hidden`}
+      className={`p-4 md:p-10 text-white min-h-svh flex flex-col items-center justify-center overflow-x-hidden`}
     >
       <motion.div
         initial={{ opacity: 0, x: -140 }}
@@ -146,7 +146,7 @@ export default function LogIn() {
         transition={{ duration: 0.6 }}
         className="w-full max-w-full"
       >
-        <h1 className="font-bold text-5xl md:text-6xl text-grad race mt-16 p-2 text-center md:text-left">
+        <h1 className="font-bold text-5xl md:text-6xl text-grad race mt-16 p-2 mb-4 text-center">
           LOGIN
         </h1>
       </motion.div>
