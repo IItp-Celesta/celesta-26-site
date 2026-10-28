@@ -245,13 +245,13 @@ export default function AccommodationPage() {
                 </div>
               </div>
               <div className="flex flex-col gap-2 text-[16px] md:text-[18px] w-full">
-                <label className="text-white">Estimated Time of Arrival *</label>
+                <label className="text-white">Estimated Time of Arrival & Purpose *</label>
                 <input
                   type="text"
                   value={eta}
                   required
                   onChange={(e) => setEta(e.target.value)}
-                  placeholder="e.g., 30th Oct, 10:00 AM"
+                  placeholder="e.g., 30th Oct, 10:00 AM (Participating in XYZ event)"
                   className="p-2.5 border-2 border-white/80 rounded-lg text-white bg-transparent w-full focus:outline-none focus:ring-0 focus:border-teal-600 transition-colors"
                 />
               </div>
