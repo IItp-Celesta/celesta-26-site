@@ -180,12 +180,12 @@ export default function RegistrationForm({
             >
               Artificial Intelligence
             </option>
-            <option
+            {/* <option
               value="Ethical Hacking"
               className="bg-neutral-900 text-white"
             >
               Ethical Hacking
-            </option>
+            </option> */}
             {/* <option value="Robotics" className="bg-neutral-900 text-white">
               Robotics
             </option> */}
