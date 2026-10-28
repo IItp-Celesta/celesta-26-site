@@ -84,7 +84,7 @@ const ContactSection = () => {
           <textarea
             rows="5"
             name="message"
-            placeholder="Enter your message"
+            placeholder="Enter your message (and your phone no. too)"
             value={data.message}
             onChange={(e) => setData({ ...data, message: e.target.value })}
             className="p-3 rounded-lg bg-white/20 text-white border border-white/30 focus:border-teal-500 focus:outline-none placeholder-white/70 resize-none"
