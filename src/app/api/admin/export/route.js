@@ -818,6 +818,8 @@ async function exportReg() {
       "Sender UPI ID",
       "Reg Txn ID",
       "Payment Proof Screenshot",
+      "Aadhaar URL",
+      "Accommodation Screenshot URL",
     ]),
   );
 
@@ -838,6 +840,8 @@ async function exportReg() {
         csvText(row.upiId),
         csvText(row.workshopTxnId),
         row.workshopScreenshotUrl || row.screenshotUrl || "",
+        row.aadhaarUrl || "",
+        row.accommodationScreenshotUrl || "",
       ]),
     );
   }
