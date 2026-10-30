@@ -61,9 +61,47 @@ const sponsorData = [
 
 const logosNeedingWhiteBg = [5, 6, 7, 20, 26, 27, 30, 35];
 
-const sponsors = sponsorData.map((sponsor, i) => ({
-    name: `Sponsor ${i + 1}`,
-    logoUrl: `/spons_logos/${sponsor.logo}`,
+const currentSponsorData = [
+    { name: "Bingo! Mad Angles", logo: "4bingo.png", url: "https://www.bingosnacks.com/" },
+    { name: "Avaya", logo: "Avaya_Logo_Hi_Res_JPEG_File_White.jpg", url: "https://www.avaya.com/" },
+    { name: "Bihar State Co-operative Bank", logo: "BCBank_Logo.jpg", url: "https://biharscb.bank.in/" },
+    { name: "BMSICL", logo: "BMSICL.png", url: "https://www.bmsicl.gov.in/" },
+    { name: "BSBCCL", logo: "Copy of LOGO-BSBCCL.jpg", url: "https://bsbccl.bihar.gov.in/" },
+    { name: "Department of Information Technology, Bihar", logo: "DIT logo.png", url: "https://state.bihar.gov.in/dit/CitizenHome.html" },
+    { name: "Drishti", logo: "drishti.jpeg", url: "https://drishti.org.in/" },
+    { name: "EaseMyTrip", logo: "EaseMyTrip Logo.png", url: "https://www.easemytrip.com/" },
+    { name: "IndianOil", logo: "IOCL(1).jpg", url: "https://www.iocl.com/" },
+    { name: "NIELIT", logo: "logo1.png", url: "https://www.nielit.gov.in/" },
+    { name: "Elista", logo: "Elista---Built-For-U---Logo--in-gif (1).gif", url: "https://www.elistahome.com/" },
+    { name: "Bihar Excise Department", logo: "excise_logo_logo.png", url: "https://state.bihar.gov.in/excise/" },
+    { name: "Innovation Center, IIT Patna", logo: "IC.jpg", url: "https://iciitp.com/" },
+    { name: "India Post", logo: "India Post Dak Sewa Jan Sewa New Logo Final.webp", url: "https://www.indiapost.gov.in/" },
+    { name: "JioSaavn", logo: "JioSaavn Logo - White.png", url: "https://www.jiosaavn.com/" },
+    { name: "Life Insurance Corporation of India", logo: "LIC LOGO-HAR PAL .jpg", url: "https://licindia.in/" },
+    { name: "NBCC (India) Limited", logo: "Screenshot 2026-10-29 185503.png", url: "https://www.nbccindia.com/" },
+    { name: "Nutridrop", logo: "Nutridrop_Logo.PNG", url: "" },
+    { name: "Pepero", logo: "PEPERO Logo.jpeg", url: "https://www.lotteindia.com/" },
+    { name: "Pocket FM", logo: "Primary .png", url: "https://www.pocketfm.com/" },
+    { name: "Raj Milk & Milk Products", logo: "Rajfresh -full logo.png", url: "https://www.anujdairy.com" },
+    { name: "REC Limited", logo: "REC Maharatna logo (1)_page-0001.jpg", url: "https://recindia.nic.in/" },
+    { name: "Utho", logo: "Utho White (1).png", url: "https://utho.com/" },
+    { name: "Bihar State Mining Corporation", logo: "WhatsApp Image 2026-10-27 at 17.38.01.jpeg", url: "https://bsmcl.bihar.gov.in/" },
+    { name: "BMW Motorrad", logo: "WhatsApp Image 2026-10-28 at 10.21.01 (1).jpeg", url: "https://www.bmw-motorrad.in/" },
+    { name: "Canara Bank", logo: "WhatsApp Image 2026-10-30 at 3.56.34 PM.jpeg", url: "https://www.canarabank.bank.in/" },
+    { name: "vivo", logo: "vivo logo black.png", url: "https://www.vivo.com/in/" },
+    { name: "Wild Stone", logo: "wildstone.jpg", url: "https://www.wildstone.in/" },
+];
+
+const currentSponsors = currentSponsorData.map((sponsor) => ({
+    name: sponsor.name,
+    logoUrl: `/spons_logos/current/${encodeURIComponent(sponsor.logo)}`,
+    websiteUrl: sponsor.url,
+    needsWhiteBg: false,
+}));
+
+const previousSponsors = sponsorData.map((sponsor, i) => ({
+    name: `Previous Sponsor ${i + 1}`,
+    logoUrl: `/spons_logos/${encodeURIComponent(sponsor.logo)}`,
     websiteUrl: sponsor.url,
     needsWhiteBg: logosNeedingWhiteBg.includes(i + 1),
 }));
@@ -71,10 +109,11 @@ const sponsors = sponsorData.map((sponsor, i) => ({
 const SponsorCard = ({ sponsor }: { sponsor: { name: string, logoUrl: string, websiteUrl: string, needsWhiteBg: boolean } }) => {
     return (
         <motion.a
-            href={sponsor.websiteUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group block relative w-full h-full"
+            href={sponsor.websiteUrl || undefined}
+            target={sponsor.websiteUrl ? "_blank" : undefined}
+            rel={sponsor.websiteUrl ? "noopener noreferrer" : undefined}
+            aria-label={sponsor.websiteUrl ? `Visit ${sponsor.name} website` : `${sponsor.name} logo`}
+            className={`group block relative w-full h-full ${sponsor.websiteUrl ? "" : "cursor-default"}`}
             whileHover={{ scale: 1.1, zIndex: 10 }}
             transition={{ type: "spring", stiffness: 400, damping: 10 }}
         >
@@ -153,7 +192,9 @@ export default function SponsorsPage() {
 
 
     const sponsorsPerPage = cols * maxRows;
-    const pageCount = Math.ceil(sponsors.length / sponsorsPerPage);
+    const currentPageCount = Math.ceil(currentSponsors.length / sponsorsPerPage);
+    const previousPageCount = Math.ceil(previousSponsors.length / sponsorsPerPage);
+    const pageCount = currentPageCount + previousPageCount;
     const gap = 16;
     const containerWidth = windowWidth * 0.8;
     const cardWidth = (containerWidth - gap * (cols - 1)) / cols;
@@ -195,7 +236,11 @@ export default function SponsorsPage() {
     }, []);
 
     const pageIndex = ((page % pageCount) + pageCount) % pageCount;
-    const visibleSponsors = sponsors.slice(pageIndex * sponsorsPerPage, (pageIndex + 1) * sponsorsPerPage);
+    const showingPrevious = pageIndex >= currentPageCount;
+    const currentPage = showingPrevious ? pageIndex - currentPageCount : pageIndex;
+    const visibleSponsors = showingPrevious
+        ? previousSponsors.slice(currentPage * sponsorsPerPage, (currentPage + 1) * sponsorsPerPage)
+        : currentSponsors.slice(pageIndex * sponsorsPerPage, (pageIndex + 1) * sponsorsPerPage);
 
     const carouselVariants = {
         enter: (direction: number) => ({ x: direction > 0 ? '100%' : '-100%', opacity: 0 }),
@@ -246,7 +291,7 @@ export default function SponsorsPage() {
                     className="text-5xl md:text-7xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 race uppercase"
                     initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
                 >
-                    SPONSORS
+                   {showingPrevious ? "Previous Sponsors" : "Our Sponsors"}
                 </motion.h1>
                 <motion.p
                     className="text-lg text-center text-gray-400 mb-4 max-w-2xl"
@@ -319,11 +364,12 @@ export default function SponsorsPage() {
 
                 {/* Mobile View: Vertical Stack */}
                 <div className="md:hidden w-full flex flex-col gap-6 px-4">
-                    {sponsors.map((sponsor) => (
-                        <div key={sponsor.name} className="w-full aspect-[16/9]">
-                            <SponsorCard sponsor={sponsor} />
-                        </div>
-                    ))}
+                    <h2 className="text-3xl font-bold text-center">Our Sponsors</h2>
+                    {currentSponsors.map((sponsor) => <div key={sponsor.name} className="w-full aspect-[16/9]"><SponsorCard sponsor={sponsor} /></div>)}
+                    <div className="my-6 text-center">
+                        <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 race uppercase">Previous Sponsors</h2>
+                    </div>
+                    {previousSponsors.map((sponsor) => <div key={sponsor.name} className="w-full aspect-[16/9]"><SponsorCard sponsor={sponsor} /></div>)}
                 </div>
                 <div className="mt-8 flex justify-center">
                     <button onClick={handleLogoClick} className="relative w-16 h-16 flex items-center justify-center">
