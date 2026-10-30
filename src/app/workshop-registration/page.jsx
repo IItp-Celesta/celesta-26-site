@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -45,7 +45,7 @@ export default function WorkshopRegistrationPage() {
     defaultValues: {
       requireAccommodation: "no",
       isIITP: "no",
-      accommodationDays: "2",
+      accommodationDays: "0",
     },
   });
 

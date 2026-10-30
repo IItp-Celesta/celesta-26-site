@@ -1,5 +1,24 @@
 "use client";
 
+export default function FlagshipRegistrationPage() {
+  return (
+    <div className="px-4 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 text-white min-h-svh flex flex-col items-center justify-center overflow-x-hidden">
+      <div className="text-center flex flex-col items-center gap-6 max-w-xl">
+        <div className="text-6xl"></div>
+        <h1 className="font-bold text-3xl sm:text-4xl md:text-5xl text-grad race uppercase tracking-wide py-2">
+          Registrations Closed
+        </h1>
+        <p className="text-white/70 text-base md:text-lg tracking-wide">
+          Event registrations for Celesta 2026 are closed. Stay tuned for further updates.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/*
+"use client";
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -173,3 +192,4 @@ export default function FlagshipRegistrationPage({ params }) {
     </div>
   );
 }
+*/

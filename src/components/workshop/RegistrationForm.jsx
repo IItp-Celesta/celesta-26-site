@@ -297,8 +297,8 @@ export default function RegistrationForm({
         </div>
 
         {/* ACCOMMODATION */}
-        <div className="flex flex-col gap-3">
-          <label className="text-[16px] md:text-[18px] font-semibold text-white">
+         <div className="flex flex-col gap-3">
+        {/*  <label className="text-[16px] md:text-[18px] font-semibold text-white">
             Accommodation
           </label>
 
@@ -369,7 +369,7 @@ export default function RegistrationForm({
             <div className="p-3 rounded-lg bg-teal-600/20 border border-teal-500/40 text-teal-300 text-sm md:text-base font-medium">
               Not Required
             </div>
-          )}
+          )} */}
         </div>
 
         {/* COUPON CODE */}

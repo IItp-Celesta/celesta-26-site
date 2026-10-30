@@ -1,4 +1,22 @@
-"use client";
+﻿"use client";
+
+export default function AccommodationPage() {
+  return (
+    <div className="px-4 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 text-white min-h-svh flex flex-col items-center justify-center overflow-x-hidden">
+      <div className="text-center flex flex-col items-center gap-6 max-w-xl">
+        <div className="text-6xl"></div>
+        <h1 className="font-bold text-3xl sm:text-4xl md:text-5xl text-grad race uppercase tracking-wide py-2">
+          Accommodation Full
+        </h1>
+        <p className="text-white/70 text-base md:text-lg tracking-wide">
+          We&apos;re sorry, all accommodation slots for Celesta 2026 are fully booked. No more bookings are being accepted at this time.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+{/*"use client";
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
@@ -215,7 +233,6 @@ export default function AccommodationPage() {
       >
         <form onSubmit={handleUploadAndSubmit} className="flex flex-col gap-6 md:gap-8 w-full">
           
-          {/* ─── SECTION 1: BOOKING DETAILS ──────────────────────────── */}
           <div className="w-full flex flex-col gap-6 p-6 md:p-8 rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl">
             <h2 className="m-0 text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
               1. Booking Details
@@ -283,7 +300,6 @@ export default function AccommodationPage() {
             </div>
           </div>
 
-          {/* ─── SECTION 2: MEMBER DETAILS ──────────────────────────── */}
           <div className="w-full flex flex-col gap-6 p-6 md:p-8 rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl">
             <h2 className="m-0 text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
               2. Member Details
@@ -375,14 +391,12 @@ export default function AccommodationPage() {
             </div>
           </div>
 
-          {/* ─── SECTION 3: CHECKOUT SUMMARY ──────────────────────────── */}
           <div className="border border-teal-500/30 p-6 md:p-8 rounded-2xl backdrop-blur-md shadow-2xl flex flex-col gap-6">
             <h3 className="m-0 text-lg md:text-xl font-bold text-white uppercase tracking-wider border-b border-white/20 pb-3 state-wide">
               3. Payment & Summary
             </h3>
 
             <div className="flex flex-col md:flex-row gap-8">
-              {/* QR Code Side */}
               <div className="flex-1 flex flex-col items-center justify-center text-center md:border-r border-white/20 md:pr-8">
                 <h3 className="text-[16px] md:text-[18px] font-bold mb-4 text-white uppercase tracking-wider state-wide">
                   Scan to Pay
@@ -454,3 +468,5 @@ export default function AccommodationPage() {
     </div>
   );
 }
+
+*/}

@@ -16,8 +16,8 @@ export default function PaymentSimulator({
   const { authUser } = useAuth();
   const isExternal = formData.isIITP === "no";
   const requireAccommodation = formData.requireAccommodation === "yes";
-  const showAccomPayment =
-    requireAccommodation && feeSummary.accommodationFee > 0;
+  // Accommodation payment step is currently disabled
+  const showAccomPayment = false;
 
   const [step, setStep] = useState(1);
 
