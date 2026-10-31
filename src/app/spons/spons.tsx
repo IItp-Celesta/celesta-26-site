@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { twMerge } from 'tailwind-merge';
@@ -138,6 +138,32 @@ const SponsorCard = ({ sponsor }: { sponsor: { name: string, logoUrl: string, we
     );
 };
 
+const SponsorMarquee = ({
+    sponsors,
+    duration = 60,
+}: {
+    sponsors: typeof currentSponsors;
+    duration?: number;
+}) => (
+    <div className="hide-scrollbar w-full overflow-hidden" aria-label="Sponsor logos">
+        <div className="sponsor-marquee-track" style={{ animationDuration: `${duration}s` }}>
+            {[0, 1].map((copy) => (
+                <div
+                    key={copy}
+                    className="sponsor-marquee-group flex shrink-0 items-center gap-4 pr-4"
+                    aria-hidden={copy === 1}
+                >
+                    {sponsors.map((sponsor) => (
+                        <div key={sponsor.name} className="w-[200px] md:w-[240px] aspect-[16/9] shrink-0">
+                            <SponsorCard sponsor={sponsor} />
+                        </div>
+                    ))}
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
 const CodingBitsCelebration = () => {
     const bits = ['</>', '{}', '=>', '01', '()', '[]', '&&', '||', '!', '++'];
     const particles = Array.from({ length: 100 }).map((_, i) => {
@@ -165,90 +191,7 @@ const CodingBitsCelebration = () => {
 export default function SponsorsPage() {
     const [showGame, setShowGame] = useState(false);
     const [showCelebration, setShowCelebration] = useState(false);
-
-    const [isPaused, setIsPaused] = useState(false);
     const [logoTaps, setLogoTaps] = useState(0);
-
-    const [[page, direction], setPage] = useState([0, 0]);
-
-
-
-    // Sponsors per page is chosen dynamically
-    const maxRows = 3;
-    const [windowWidth, setWindowWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
-    );
-
-    useEffect(() => {
-        const handleResize = () => setWindowWidth(window.innerWidth);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    let cols = 4;
-    if (windowWidth < 500) cols = 1;
-    else if (windowWidth < 768) cols = 2;
-    else if (windowWidth < 1024) cols = 3;
-
-
-    const sponsorsPerPage = cols * maxRows;
-    const currentPageCount = Math.ceil(currentSponsors.length / sponsorsPerPage);
-    const previousPageCount = Math.ceil(previousSponsors.length / sponsorsPerPage);
-    const pageCount = currentPageCount + previousPageCount;
-    const gap = 16;
-    const containerWidth = windowWidth * 0.8;
-    const cardWidth = (containerWidth - gap * (cols - 1)) / cols;
-    const rowHeight = cardWidth * 9 / 16;
-
-    const paginate = (newDirection: number) => {
-        setPage(prev => [prev[0] + newDirection, newDirection]);
-    };
-
-    const [isAnimating, setIsAnimating] = useState(false);
-
-    useEffect(() => {
-        if (isPaused) return;
-        setIsAnimating(true);
-        const interval = setInterval(() => paginate(1), 1500);
-        setTimeout(() => setIsAnimating(false), 100);
-        setTimeout(() => setIsAnimating(true), 150);
-        return () => clearInterval(interval);
-    }, [page, isPaused]);
-
-    const carouselRef = useRef<HTMLDivElement>(null);
-    const isWheeling = useRef(false);
-
-    useEffect(() => {
-        const carousel = carouselRef.current;
-        if (!carousel) return;
-        const handleWheel = (event: WheelEvent) => {
-            if (isWheeling.current) return;
-            event.preventDefault();
-            if (Math.abs(event.deltaY) > 1) {
-                isWheeling.current = true;
-                if (event.deltaY > 0) paginate(1);
-                else paginate(-1);
-                setTimeout(() => { isWheeling.current = false; }, 800);
-            }
-        };
-        carousel.addEventListener('wheel', handleWheel, { passive: false });
-        return () => carousel.removeEventListener('wheel', handleWheel);
-    }, []);
-
-    const pageIndex = ((page % pageCount) + pageCount) % pageCount;
-    const showingPrevious = pageIndex >= currentPageCount;
-    const currentPage = showingPrevious ? pageIndex - currentPageCount : pageIndex;
-    const visibleSponsors = showingPrevious
-        ? previousSponsors.slice(currentPage * sponsorsPerPage, (currentPage + 1) * sponsorsPerPage)
-        : currentSponsors.slice(pageIndex * sponsorsPerPage, (pageIndex + 1) * sponsorsPerPage);
-
-    const carouselVariants = {
-        enter: (direction: number) => ({ x: direction > 0 ? '100%' : '-100%', opacity: 0 }),
-        center: { x: 0, opacity: 1 },
-        exit: (direction: number) => ({ x: direction < 0 ? '100%' : '-100%', opacity: 0 }),
-    };
-
-
 
     useEffect(() => {
         if (logoTaps > 0) {
@@ -267,8 +210,6 @@ export default function SponsorsPage() {
                 setShowGame(true);
             }, 3000);
             setLogoTaps(0);
-        } else {
-            paginate(1);
         }
     };
 
@@ -291,7 +232,7 @@ export default function SponsorsPage() {
                     className="text-5xl md:text-7xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 race uppercase"
                     initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
                 >
-                   {showingPrevious ? "Previous Sponsors" : "Our Sponsors"}
+                   Our Sponsors
                 </motion.h1>
                 <motion.p
                     className="text-lg text-center text-gray-400 mb-4 max-w-2xl"
@@ -299,81 +240,23 @@ export default function SponsorsPage() {
                 >
                     Fueling innovation and making our events possible.
                 </motion.p>
-                <div className="hidden md:flex relative w-full max-w-8xl items-center justify-center"
-                    ref={carouselRef}
-                    onMouseEnter={() => setIsPaused(true)}
-                    onMouseLeave={() => setIsPaused(false)}
-                >
+                <section aria-labelledby="current-sponsors-heading" className="w-full max-w-7xl mt-8">
+                    <h2 id="current-sponsors-heading" className="sr-only">Our Sponsors</h2>
+                    <SponsorMarquee sponsors={currentSponsors} duration={72} />
+                </section>
 
-                    {/* Left Arrow */}
-                    <button
-                        onClick={() => paginate(-1)}
-                        className="absolute left-2 md:left-4 z-20 p-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-colors"
-                        style={{ top: "50%", transform: "translateY(-50%)" }}
-                    >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                        >
-                            <path d="m15 18-6-6 6-6" />
-                        </svg>
-                    </button>
-
-
-                    <div className="relative w-[90vw] overflow-hidden h-[700px] sm:h-[550px] md:h-[500px] lg:h-[600px]">
-                        <AnimatePresence initial={false} custom={direction}>
-                            <motion.div
-                                key={page}
-                                custom={direction}
-                                variants={carouselVariants}
-                                initial="enter"
-                                animate="center"
-                                exit="exit"
-                                transition={{ x: { type: 'spring', stiffness: 300, damping: 30 }, opacity: { duration: 0.2 } }}
-                                className="absolute inset-0 grid gap-4 p-4 md:p-6 lg:px-8"
-                                style={{
-                                    gridTemplateColumns: `repeat(${cols}, 1fr)`,
-                                    gridAutoRows: `${rowHeight}px`,
-                                    height: '100%',
-
-                                }}
-                            >
-                                {visibleSponsors.map((sponsor) => (
-                                    <div
-                                        key={sponsor.name}
-                                        className="w-full h-full flex items-center justify-center"
-                                    >
-                                        <SponsorCard sponsor={sponsor} />
-                                    </div>
-                                ))}
-                            </motion.div>
-                        </AnimatePresence>
+                <section aria-labelledby="previous-sponsors-heading" className="w-full max-w-7xl mt-12">
+                    <h2 id="previous-sponsors-heading" className="text-4xl md:text-5xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 race uppercase">
+                        Previous Sponsors
+                    </h2>
+                    <div className="flex flex-col gap-4">
+                        <SponsorMarquee sponsors={previousSponsors.slice(0, Math.ceil(previousSponsors.length / 2))} duration={64} />
+                        <SponsorMarquee sponsors={previousSponsors.slice(Math.ceil(previousSponsors.length / 2))} duration={58} />
                     </div>
-
-                    {/* Right Arrow */}
-                    <button
-                        onClick={() => paginate(1)}
-                        className="absolute right-2 md:right-4 z-20 p-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-colors"
-                        style={{ top: "50%", transform: "translateY(-50%)" }}
-                    >
-                        <svg
-                            width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                        >
-                            <path d="m9 18 6-6-6-6" />
-                        </svg>
-                    </button>
-                </div>
-
-                {/* Mobile View: Vertical Stack */}
-                <div className="md:hidden w-full flex flex-col gap-6 px-4">
-                    <h2 className="text-3xl font-bold text-center">Our Sponsors</h2>
-                    {currentSponsors.map((sponsor) => <div key={sponsor.name} className="w-full aspect-[16/9]"><SponsorCard sponsor={sponsor} /></div>)}
-                    <div className="my-6 text-center">
-                        <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 race uppercase">Previous Sponsors</h2>
-                    </div>
-                    {previousSponsors.map((sponsor) => <div key={sponsor.name} className="w-full aspect-[16/9]"><SponsorCard sponsor={sponsor} /></div>)}
-                </div>
+                </section>
                 <div className="mt-8 flex justify-center">
                     <button onClick={handleLogoClick} className="relative w-16 h-16 flex items-center justify-center">
-                        <div className={cn("absolute inset-0 rounded-full bg-cyan-500/20", isAnimating && !isPaused && "animate-ping-slow")}></div>
+                        <div className="absolute inset-0 rounded-full bg-cyan-500/20 animate-ping-slow"></div>
                         <Image src="/images/celesta-icon.svg" alt="Celesta Icon" width={40} height={40} className="w-10 h-10" />
                     </button>
                 </div>
@@ -402,7 +285,40 @@ export default function SponsorsPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
-            <style jsx>{`
+            <style jsx global>{`
+                .hide-scrollbar {
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                }
+                .hide-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+                .sponsor-marquee-track {
+                    display: flex;
+                    width: max-content;
+                    animation: sponsor-marquee linear infinite;
+                }
+                .sponsor-marquee-track:hover {
+                    animation-play-state: paused;
+                }
+                @keyframes sponsor-marquee {
+                    from { transform: translateX(0); }
+                    to { transform: translateX(-50%); }
+                }
+                @media (prefers-reduced-motion: reduce) {
+                    .sponsor-marquee-track {
+                        animation: none;
+                    }
+                    .sponsor-marquee-group[aria-hidden="true"] {
+                        display: none;
+                    }
+                    .hide-scrollbar:has(.sponsor-marquee-track) {
+                        overflow: visible;
+                    }
+                    .sponsor-marquee-group[aria-hidden="false"] {
+                        flex-wrap: wrap;
+                    }
+                }
                 @keyframes ping-slow {
                     0% { transform: scale(1); opacity: 0.75; }
                     75%, 100% { transform: scale(2); opacity: 0; }
