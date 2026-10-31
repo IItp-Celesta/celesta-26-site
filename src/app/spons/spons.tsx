@@ -13,7 +13,7 @@ const sponsorData = [
     { logo: "1amalfi.jpg", url: "https://amalfiindia.com/" },
     { logo: "2beardo.png", url: "https://www.beardo.in/" },
     { logo: "3bihartourism.png", url: "https://tourism.bihar.gov.in/" },
-    { logo: "4bingo.png", url: "https://www.itcportal.com/brands-microsite/bingo.aspx" },
+    //{ logo: "4bingo.png", url: "https://www.itcportal.com/brands-microsite/bingo.aspx" },
     { logo: "5brpnnl.png", url: "https://bihar.nic.in/" },
     { logo: "6bsacs.png", url: "https://x.com/bsacsofficial?lang=en" },
     { logo: "7coding ninjas.png", url: "https://www.codingninjas.com/" },
@@ -27,7 +27,7 @@ const sponsorData = [
     { logo: "15hackerearth.png", url: "https://www.hackerearth.com/" },
     { logo: "16hero.png", url: "https://www.heromotocorp.com/" },
     { logo: "17himalayan yeti.png", url: "https://www.thehimalayanyeti.co.in/" },
-    { logo: "18hp.png", url: "https://www.hindustanpetroleum.com/" },
+    // { logo: "18hp.png", url: "https://www.hindustanpetroleum.com/" },
     { logo: "19icetl.png", url: "#" },
     { logo: "20jetbrains.png", url: "https://www.jetbrains.com/" },
     { logo: "21jktyre.png", url: "https://www.jktyre.com/" },
@@ -54,7 +54,7 @@ const sponsorData = [
     { logo: "42townscript.png", url: "https://www.townscript.com/" },
     { logo: "43udyogvibhag.jpg", url: "https://udyami.bihar.gov.in/" },
     { logo: "44ultratech.png", url: "https://www.ultratechcement.com/" },
-    { logo: "45unstop.jpg", url: "https://unstop.com/" },
+    //{ logo: "45unstop.jpg", url: "https://unstop.com/" },
     { logo: "46youtuh incorporated.png", url: "https://youthincmag.com/" },
     { logo: "47zebronics.png", url: "https://zebronics.com/" }
 ];
@@ -69,7 +69,7 @@ const currentSponsorData = [
     { name: "BSBCCL", logo: "Copy of LOGO-BSBCCL.jpg", url: "https://bsbccl.bihar.gov.in/" },
     { name: "Department of Information Technology, Bihar", logo: "DIT logo.png", url: "https://state.bihar.gov.in/dit/CitizenHome.html" },
     { name: "Drishti", logo: "drishti.jpeg", url: "https://drishti.org.in/" },
-    { name: "EaseMyTrip", logo: "EaseMyTrip Logo.png", url: "https://www.easemytrip.com/" },
+    { name: "EaseMyTrip", logo: "emt.png", url: "https://www.easemytrip.com/" },
     { name: "IndianOil", logo: "IOCL(1).jpg", url: "https://www.iocl.com/" },
     { name: "NIELIT", logo: "logo1.png", url: "https://www.nielit.gov.in/" },
     { name: "Elista", logo: "Elista---Built-For-U---Logo--in-gif (1).gif", url: "https://www.elistahome.com/" },
@@ -80,7 +80,9 @@ const currentSponsorData = [
     { name: "Life Insurance Corporation of India", logo: "LIC LOGO-HAR PAL .jpg", url: "https://licindia.in/" },
     { name: "NBCC (India) Limited", logo: "Screenshot 2026-10-29 185503.png", url: "https://www.nbccindia.com/" },
     { name: "Nutridrop", logo: "Nutridrop_Logo.PNG", url: "" },
-    { name: "Pepero", logo: "PEPERO Logo.jpeg", url: "https://www.lotteindia.com/" },
+    { name: "Pepero", logo: "PEPERO Logo.jpeg", url: "https://www.lotteindia.com/pepero.html#" },
+    { name: "Pepero", logo: "Lotte India Logo (1).png", url: "https://www.lotteindia.com/" },
+    { name: "Rite Max", logo: "ritemax.png", url: "https://maxprotein.in/" },
     { name: "Pocket FM", logo: "Primary .png", url: "https://www.pocketfm.com/" },
     { name: "Raj Milk & Milk Products", logo: "Rajfresh -full logo.png", url: "https://www.anujdairy.com" },
     { name: "REC Limited", logo: "REC Maharatna logo (1)_page-0001.jpg", url: "https://recindia.nic.in/" },
@@ -90,6 +92,7 @@ const currentSponsorData = [
     { name: "Canara Bank", logo: "WhatsApp Image 2026-10-30 at 3.56.34 PM.jpeg", url: "https://www.canarabank.bank.in/" },
     { name: "vivo", logo: "vivo logo black.png", url: "https://www.vivo.com/in/" },
     { name: "Wild Stone", logo: "wildstone.jpg", url: "https://www.wildstone.in/" },
+    { name:"Unstop", logo: "45unstop.jpg", url: "https://unstop.com/" },
 ];
 
 const currentSponsors = currentSponsorData.map((sponsor) => ({
@@ -217,7 +220,7 @@ export default function SponsorsPage() {
         <div
             className="min-h-screen text-white relative overflow-hidden font-sans"
         >
-            
+
 
             <div className="absolute inset-0 z-0 opacity-50 [mask-image:radial-gradient(ellipse_at_center,transparent_65%,white_100%)]">
                 <svg className="absolute inset-0 h-full w-full" aria-hidden="true">
