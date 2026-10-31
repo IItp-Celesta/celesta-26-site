@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { twMerge } from 'tailwind-merge';
@@ -61,9 +61,47 @@ const sponsorData = [
 
 const logosNeedingWhiteBg = [5, 6, 7, 20, 26, 27, 30, 35];
 
-const sponsors = sponsorData.map((sponsor, i) => ({
-    name: `Sponsor ${i + 1}`,
-    logoUrl: `/spons_logos/${sponsor.logo}`,
+const currentSponsorData = [
+    { name: "Bingo! Mad Angles", logo: "4bingo.png", url: "https://www.bingosnacks.com/" },
+    { name: "Avaya", logo: "Avaya_Logo_Hi_Res_JPEG_File_White.jpg", url: "https://www.avaya.com/" },
+    { name: "Bihar State Co-operative Bank", logo: "BCBank_Logo.jpg", url: "https://biharscb.bank.in/" },
+    { name: "BMSICL", logo: "BMSICL.png", url: "https://www.bmsicl.gov.in/" },
+    { name: "BSBCCL", logo: "Copy of LOGO-BSBCCL.jpg", url: "https://bsbccl.bihar.gov.in/" },
+    { name: "Department of Information Technology, Bihar", logo: "DIT logo.png", url: "https://state.bihar.gov.in/dit/CitizenHome.html" },
+    { name: "Drishti", logo: "drishti.jpeg", url: "https://drishti.org.in/" },
+    { name: "EaseMyTrip", logo: "EaseMyTrip Logo.png", url: "https://www.easemytrip.com/" },
+    { name: "IndianOil", logo: "IOCL(1).jpg", url: "https://www.iocl.com/" },
+    { name: "NIELIT", logo: "logo1.png", url: "https://www.nielit.gov.in/" },
+    { name: "Elista", logo: "Elista---Built-For-U---Logo--in-gif (1).gif", url: "https://www.elistahome.com/" },
+    { name: "Bihar Excise Department", logo: "excise_logo_logo.png", url: "https://state.bihar.gov.in/excise/" },
+    { name: "Innovation Center, IIT Patna", logo: "IC.jpg", url: "https://iciitp.com/" },
+    { name: "India Post", logo: "India Post Dak Sewa Jan Sewa New Logo Final.webp", url: "https://www.indiapost.gov.in/" },
+    { name: "JioSaavn", logo: "JioSaavn Logo - White.png", url: "https://www.jiosaavn.com/" },
+    { name: "Life Insurance Corporation of India", logo: "LIC LOGO-HAR PAL .jpg", url: "https://licindia.in/" },
+    { name: "NBCC (India) Limited", logo: "Screenshot 2026-10-29 185503.png", url: "https://www.nbccindia.com/" },
+    { name: "Nutridrop", logo: "Nutridrop_Logo.PNG", url: "" },
+    { name: "Pepero", logo: "PEPERO Logo.jpeg", url: "https://www.lotteindia.com/" },
+    { name: "Pocket FM", logo: "Primary .png", url: "https://www.pocketfm.com/" },
+    { name: "Raj Milk & Milk Products", logo: "Rajfresh -full logo.png", url: "https://www.anujdairy.com" },
+    { name: "REC Limited", logo: "REC Maharatna logo (1)_page-0001.jpg", url: "https://recindia.nic.in/" },
+    { name: "Utho", logo: "Utho White (1).png", url: "https://utho.com/" },
+    { name: "Bihar State Mining Corporation", logo: "WhatsApp Image 2026-10-27 at 17.38.01.jpeg", url: "https://bsmcl.bihar.gov.in/" },
+    { name: "BMW Motorrad", logo: "WhatsApp Image 2026-10-28 at 10.21.01 (1).jpeg", url: "https://www.bmw-motorrad.in/" },
+    { name: "Canara Bank", logo: "WhatsApp Image 2026-10-30 at 3.56.34 PM.jpeg", url: "https://www.canarabank.bank.in/" },
+    { name: "vivo", logo: "vivo logo black.png", url: "https://www.vivo.com/in/" },
+    { name: "Wild Stone", logo: "wildstone.jpg", url: "https://www.wildstone.in/" },
+];
+
+const currentSponsors = currentSponsorData.map((sponsor) => ({
+    name: sponsor.name,
+    logoUrl: `/spons_logos/current/${encodeURIComponent(sponsor.logo)}`,
+    websiteUrl: sponsor.url,
+    needsWhiteBg: false,
+}));
+
+const previousSponsors = sponsorData.map((sponsor, i) => ({
+    name: `Previous Sponsor ${i + 1}`,
+    logoUrl: `/spons_logos/${encodeURIComponent(sponsor.logo)}`,
     websiteUrl: sponsor.url,
     needsWhiteBg: logosNeedingWhiteBg.includes(i + 1),
 }));
@@ -71,10 +109,11 @@ const sponsors = sponsorData.map((sponsor, i) => ({
 const SponsorCard = ({ sponsor }: { sponsor: { name: string, logoUrl: string, websiteUrl: string, needsWhiteBg: boolean } }) => {
     return (
         <motion.a
-            href={sponsor.websiteUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group block relative w-full h-full"
+            href={sponsor.websiteUrl || undefined}
+            target={sponsor.websiteUrl ? "_blank" : undefined}
+            rel={sponsor.websiteUrl ? "noopener noreferrer" : undefined}
+            aria-label={sponsor.websiteUrl ? `Visit ${sponsor.name} website` : `${sponsor.name} logo`}
+            className={`group block relative w-full h-full ${sponsor.websiteUrl ? "" : "cursor-default"}`}
             whileHover={{ scale: 1.1, zIndex: 10 }}
             transition={{ type: "spring", stiffness: 400, damping: 10 }}
         >
@@ -98,6 +137,32 @@ const SponsorCard = ({ sponsor }: { sponsor: { name: string, logoUrl: string, we
         </motion.a>
     );
 };
+
+const SponsorMarquee = ({
+    sponsors,
+    duration = 60,
+}: {
+    sponsors: typeof currentSponsors;
+    duration?: number;
+}) => (
+    <div className="hide-scrollbar w-full overflow-hidden" aria-label="Sponsor logos">
+        <div className="sponsor-marquee-track" style={{ animationDuration: `${duration}s` }}>
+            {[0, 1].map((copy) => (
+                <div
+                    key={copy}
+                    className="sponsor-marquee-group flex shrink-0 items-center gap-4 pr-4"
+                    aria-hidden={copy === 1}
+                >
+                    {sponsors.map((sponsor) => (
+                        <div key={sponsor.name} className="w-[200px] md:w-[240px] aspect-[16/9] shrink-0">
+                            <SponsorCard sponsor={sponsor} />
+                        </div>
+                    ))}
+                </div>
+            ))}
+        </div>
+    </div>
+);
 
 const CodingBitsCelebration = () => {
     const bits = ['</>', '{}', '=>', '01', '()', '[]', '&&', '||', '!', '++'];
@@ -126,84 +191,7 @@ const CodingBitsCelebration = () => {
 export default function SponsorsPage() {
     const [showGame, setShowGame] = useState(false);
     const [showCelebration, setShowCelebration] = useState(false);
-
-    const [isPaused, setIsPaused] = useState(false);
     const [logoTaps, setLogoTaps] = useState(0);
-
-    const [[page, direction], setPage] = useState([0, 0]);
-
-
-
-    // Sponsors per page is chosen dynamically
-    const maxRows = 3;
-    const [windowWidth, setWindowWidth] = useState(
-        typeof window !== 'undefined' ? window.innerWidth : 1200
-    );
-
-    useEffect(() => {
-        const handleResize = () => setWindowWidth(window.innerWidth);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    let cols = 4;
-    if (windowWidth < 500) cols = 1;
-    else if (windowWidth < 768) cols = 2;
-    else if (windowWidth < 1024) cols = 3;
-
-
-    const sponsorsPerPage = cols * maxRows;
-    const pageCount = Math.ceil(sponsors.length / sponsorsPerPage);
-    const gap = 16;
-    const containerWidth = windowWidth * 0.8;
-    const cardWidth = (containerWidth - gap * (cols - 1)) / cols;
-    const rowHeight = cardWidth * 9 / 16;
-
-    const paginate = (newDirection: number) => {
-        setPage(prev => [prev[0] + newDirection, newDirection]);
-    };
-
-    const [isAnimating, setIsAnimating] = useState(false);
-
-    useEffect(() => {
-        if (isPaused) return;
-        setIsAnimating(true);
-        const interval = setInterval(() => paginate(1), 1500);
-        setTimeout(() => setIsAnimating(false), 100);
-        setTimeout(() => setIsAnimating(true), 150);
-        return () => clearInterval(interval);
-    }, [page, isPaused]);
-
-    const carouselRef = useRef<HTMLDivElement>(null);
-    const isWheeling = useRef(false);
-
-    useEffect(() => {
-        const carousel = carouselRef.current;
-        if (!carousel) return;
-        const handleWheel = (event: WheelEvent) => {
-            if (isWheeling.current) return;
-            event.preventDefault();
-            if (Math.abs(event.deltaY) > 1) {
-                isWheeling.current = true;
-                if (event.deltaY > 0) paginate(1);
-                else paginate(-1);
-                setTimeout(() => { isWheeling.current = false; }, 800);
-            }
-        };
-        carousel.addEventListener('wheel', handleWheel, { passive: false });
-        return () => carousel.removeEventListener('wheel', handleWheel);
-    }, []);
-
-    const pageIndex = ((page % pageCount) + pageCount) % pageCount;
-    const visibleSponsors = sponsors.slice(pageIndex * sponsorsPerPage, (pageIndex + 1) * sponsorsPerPage);
-
-    const carouselVariants = {
-        enter: (direction: number) => ({ x: direction > 0 ? '100%' : '-100%', opacity: 0 }),
-        center: { x: 0, opacity: 1 },
-        exit: (direction: number) => ({ x: direction < 0 ? '100%' : '-100%', opacity: 0 }),
-    };
-
-
 
     useEffect(() => {
         if (logoTaps > 0) {
@@ -222,8 +210,6 @@ export default function SponsorsPage() {
                 setShowGame(true);
             }, 3000);
             setLogoTaps(0);
-        } else {
-            paginate(1);
         }
     };
 
@@ -246,7 +232,7 @@ export default function SponsorsPage() {
                     className="text-5xl md:text-7xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 race uppercase"
                     initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
                 >
-                    SPONSORS
+                   Our Sponsors
                 </motion.h1>
                 <motion.p
                     className="text-lg text-center text-gray-400 mb-4 max-w-2xl"
@@ -254,80 +240,23 @@ export default function SponsorsPage() {
                 >
                     Fueling innovation and making our events possible.
                 </motion.p>
-                <div className="hidden md:flex relative w-full max-w-8xl items-center justify-center"
-                    ref={carouselRef}
-                    onMouseEnter={() => setIsPaused(true)}
-                    onMouseLeave={() => setIsPaused(false)}
-                >
+                <section aria-labelledby="current-sponsors-heading" className="w-full max-w-7xl mt-8">
+                    <h2 id="current-sponsors-heading" className="sr-only">Our Sponsors</h2>
+                    <SponsorMarquee sponsors={currentSponsors} duration={72} />
+                </section>
 
-                    {/* Left Arrow */}
-                    <button
-                        onClick={() => paginate(-1)}
-                        className="absolute left-2 md:left-4 z-20 p-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-colors"
-                        style={{ top: "50%", transform: "translateY(-50%)" }}
-                    >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                        >
-                            <path d="m15 18-6-6 6-6" />
-                        </svg>
-                    </button>
-
-
-                    <div className="relative w-[90vw] overflow-hidden h-[700px] sm:h-[550px] md:h-[500px] lg:h-[600px]">
-                        <AnimatePresence initial={false} custom={direction}>
-                            <motion.div
-                                key={page}
-                                custom={direction}
-                                variants={carouselVariants}
-                                initial="enter"
-                                animate="center"
-                                exit="exit"
-                                transition={{ x: { type: 'spring', stiffness: 300, damping: 30 }, opacity: { duration: 0.2 } }}
-                                className="absolute inset-0 grid gap-4 p-4 md:p-6 lg:px-8"
-                                style={{
-                                    gridTemplateColumns: `repeat(${cols}, 1fr)`,
-                                    gridAutoRows: `${rowHeight}px`,
-                                    height: '100%',
-
-                                }}
-                            >
-                                {visibleSponsors.map((sponsor) => (
-                                    <div
-                                        key={sponsor.name}
-                                        className="w-full h-full flex items-center justify-center"
-                                    >
-                                        <SponsorCard sponsor={sponsor} />
-                                    </div>
-                                ))}
-                            </motion.div>
-                        </AnimatePresence>
+                <section aria-labelledby="previous-sponsors-heading" className="w-full max-w-7xl mt-12">
+                    <h2 id="previous-sponsors-heading" className="text-4xl md:text-5xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 race uppercase">
+                        Previous Sponsors
+                    </h2>
+                    <div className="flex flex-col gap-4">
+                        <SponsorMarquee sponsors={previousSponsors.slice(0, Math.ceil(previousSponsors.length / 2))} duration={64} />
+                        <SponsorMarquee sponsors={previousSponsors.slice(Math.ceil(previousSponsors.length / 2))} duration={58} />
                     </div>
-
-                    {/* Right Arrow */}
-                    <button
-                        onClick={() => paginate(1)}
-                        className="absolute right-2 md:right-4 z-20 p-3 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-colors"
-                        style={{ top: "50%", transform: "translateY(-50%)" }}
-                    >
-                        <svg
-                            width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                        >
-                            <path d="m9 18 6-6-6-6" />
-                        </svg>
-                    </button>
-                </div>
-
-                {/* Mobile View: Vertical Stack */}
-                <div className="md:hidden w-full flex flex-col gap-6 px-4">
-                    {sponsors.map((sponsor) => (
-                        <div key={sponsor.name} className="w-full aspect-[16/9]">
-                            <SponsorCard sponsor={sponsor} />
-                        </div>
-                    ))}
-                </div>
+                </section>
                 <div className="mt-8 flex justify-center">
                     <button onClick={handleLogoClick} className="relative w-16 h-16 flex items-center justify-center">
-                        <div className={cn("absolute inset-0 rounded-full bg-cyan-500/20", isAnimating && !isPaused && "animate-ping-slow")}></div>
+                        <div className="absolute inset-0 rounded-full bg-cyan-500/20 animate-ping-slow"></div>
                         <Image src="/images/celesta-icon.svg" alt="Celesta Icon" width={40} height={40} className="w-10 h-10" />
                     </button>
                 </div>
@@ -356,7 +285,40 @@ export default function SponsorsPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
-            <style jsx>{`
+            <style jsx global>{`
+                .hide-scrollbar {
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                }
+                .hide-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+                .sponsor-marquee-track {
+                    display: flex;
+                    width: max-content;
+                    animation: sponsor-marquee linear infinite;
+                }
+                .sponsor-marquee-track:hover {
+                    animation-play-state: paused;
+                }
+                @keyframes sponsor-marquee {
+                    from { transform: translateX(0); }
+                    to { transform: translateX(-50%); }
+                }
+                @media (prefers-reduced-motion: reduce) {
+                    .sponsor-marquee-track {
+                        animation: none;
+                    }
+                    .sponsor-marquee-group[aria-hidden="true"] {
+                        display: none;
+                    }
+                    .hide-scrollbar:has(.sponsor-marquee-track) {
+                        overflow: visible;
+                    }
+                    .sponsor-marquee-group[aria-hidden="false"] {
+                        flex-wrap: wrap;
+                    }
+                }
                 @keyframes ping-slow {
                     0% { transform: scale(1); opacity: 0.75; }
                     75%, 100% { transform: scale(2); opacity: 0; }
