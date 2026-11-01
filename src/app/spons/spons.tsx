@@ -79,7 +79,7 @@ const currentSponsorData = [
     { name: "JioSaavn", logo: "JioSaavn Logo - White.png", url: "https://www.jiosaavn.com/" },
     { name: "Life Insurance Corporation of India", logo: "LIC LOGO-HAR PAL .jpg", url: "https://licindia.in/" },
     { name: "NBCC (India) Limited", logo: "Screenshot 2026-10-29 185503.png", url: "https://www.nbccindia.com/" },
-    { name: "Nutridrop", logo: "Nutridrop_Logo.PNG", url: "" },
+    { name: "Nutridrop", logo: "Nutridrop_Logo.PNG", url: "https://nutrisatt.com/our-products/" },
     { name: "Pepero", logo: "PEPERO Logo.jpeg", url: "https://www.lotteindia.com/pepero.html#" },
     { name: "Pepero", logo: "Lotte India Logo (1).png", url: "https://www.lotteindia.com/" },
     { name: "Rite Max", logo: "ritemax.png", url: "https://maxprotein.in/" },
